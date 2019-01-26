@@ -1,0 +1,42 @@
+<style lang="less">
+</style>
+<template lang="pug">
+  view 
+    text 阅读onLoad()方法并观察控制台输出了解云函数的调用方法
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import callFunction from '../utils/callFunction' // 引入云函数调用的便捷封装
+  export default class Index extends wepy.page {
+    config = {
+      navigationBarTitleText: '小猴答疑室'
+    }
+    components = {
+    }
+
+    mixins = []
+
+    data = {
+    }
+
+    computed = {
+    }
+
+    methods = {
+    }
+
+    events = {
+    }
+
+    async onLoad() {
+      // 正确的情况
+      console.log(await callFunction('cloudFunctionTemplate/route1', {/**自定义的参数 */}))
+      console.log(await callFunction('cloudFunctionTemplate/route2'))
+      // 调用不存在的路由
+      console.log(await callFunction('cloudFunctionTemplate/route3', {}))
+      // 调用不存在的云函数
+      console.log(await callFunction('cloudFucktionTemplate/route3', {}))
+    }
+  }
+</script>
