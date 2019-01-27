@@ -132,6 +132,10 @@ let res2 = await callFunction('cloudFunctionTemplate/route2')
 
 ## 身份认证和授权
 
-程序启动首先调用云函数检查授权情况，如果已授权则进入正常逻辑，否则进入身份认证逻辑。
+该部分已经完成对接，需要使用时引入 `@/utils/getUserInfo`，调用 `getUserInfo()` 即可获取用户信息。
+
+⚠️注意：这个方法是异步的
+
+当获取用户信息出现问题时会进入认证逻辑，后续开发过程无需再关心小程序端身份鉴权。
 
 
