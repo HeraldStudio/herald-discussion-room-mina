@@ -7,24 +7,45 @@
   justify-content: space-between;
   box-sizing: border-box;
 }
+
+.regular{
+  color:#333;
+  font-size: 40rpx;
+}
+
+.secondary {
+  font-size: 32rpx;
+  color:#888;
+}
+
+.bold {
+  font-weight: bolder;
+}
+
+.center {
+  text-align: center;
+}
 </style>
 
 <script>
 import wepy from 'wepy'
 import 'wepy-async-function'
-
+import callFunction from './utils/callFunction'
+import getUserInfo from './utils/getUserInfo'
 
 export default class extends wepy.app {
   config = {
     pages: [
-      'pages/index'
+      'pages/index',
+      'pages/authorize'
     ],
     window: {
       backgroundTextStyle: 'light',
       navigationBarBackgroundColor: '#fff',
       navigationBarTitleText: '小猴答疑室',
       navigationBarTextStyle: 'black'
-    }
+    },
+    navigateToMiniProgramAppIdList: ["wxaef6d2413690047f"]
   }
 
   globalData = {
@@ -37,34 +58,29 @@ export default class extends wepy.app {
   }
 
   onLaunch() {
+    // 初始化云环境
     wx.cloud.init('discussion-room-3fd312')
-
+    // 调用云函数获取用户信息
   }
 
-  sleep (s) {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        resolve('promise resolved')
-      }, s * 1000)
-    })
-  }
-
-  async testAsync () {
-    const data = await this.sleep(3)
-    console.log(data)
-  }
-
-  getUserInfo(cb) {
-    const that = this
-    if (this.globalData.userInfo) {
-      return this.globalData.userInfo
-    }
-    wepy.getUserInfo({
-      success (res) {
-        that.globalData.userInfo = res.userInfo
-        cb && cb(res.userInfo)
+  onShow(obj) {
+    if(obj.scene === 1038){
+      // 对接统一身份认证小程序
+      if( obj.referrerInfo && obj.referrerInfo.extraData ) {
+        let {cardnum, name, identity} = obj.referrerInfo.extraData
+        callFunction('userInfo/add',{cardnum, name, identity}).then(console.log)
+        wx.reLaunch({url:'/pages/index'}) 
+      } else {
+        // 没有完成认证，baby one more time
+        wx.reLaunch({url:'/pages/authorize'}) 
       }
-    })
+    } else {
+      getUserInfo()
+    }
   }
+
+ 
+
+  
 }
 </script>

@@ -1,0 +1,119 @@
+<style lang="less">
+#authorize-page {
+  .top {
+  position: fixed;
+  top:0;
+  left: 0;
+  right: 0;
+  width: 750rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  }
+  .logo{
+    margin-top:30rpx;
+    width: 250rpx;
+    height: 250rpx;
+  }
+  .title {
+    font-size: 60rpx;
+    font-weight: bolder;
+    color: #333;
+  }
+  .line{
+    height: 1rpx;
+    width: 300rpx;
+    background: #888;
+    margin: 30rpx 0;
+  }
+  .desc{
+    margin: 0 60rpx;
+  }
+  .hint {
+    margin: 30rpx 60rpx;
+    display: flex;
+    align-items: center;
+    text{
+      margin-left: 16rpx;
+      font-size: 32rpx;
+    }
+  }
+  .bottom{
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 60rpx;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .button {
+    width: 630rpx;
+    background: #13ACD9;
+    color: #fff;
+    border-radius: 100rpx;
+  }
+}
+</style>
+<template lang="pug">
+  view#authorize-page
+    view.top
+      image.logo(src="https://static.myseu.cn/discussion-logo-big.png")
+      text.title 小猴答疑室
+      view.line
+      text.secondary.center.desc 由小猴偷米工作室提供、向东南大学全校师生开放的课程问题在线答疑平台
+    view.bottom
+      view.hint
+        icon(type="info" size="23" color="#ECBC10")
+        text.regular.bold 「小猴答疑室」需要获取您的用户信息才能提供服务
+      button.button(open-type="getUserInfo" @tap="authorize") 授权获取用户信息
+
+</template>
+
+<script>
+import wepy from 'wepy';
+import callFunction from '../utils/callFunction'; // 引入云函数调用的便捷封装
+export default class Index extends wepy.page {
+  config = {
+    navigationBarTitleText: '授权认证'
+  };
+  components = {};
+
+  mixins = [];
+
+  data = {};
+
+  computed = {};
+
+  methods = {
+    async authorize(){
+      // 检查是否通过统一身份
+      wx.showLoading({title:'同步用户信息'})
+      let checkRes = await callFunction('userInfo/get')
+      wx.hideLoading()
+      if(checkRes.success && !checkRes.data.authorized) {
+        // 如果未通过则跳转至统一身份认证小程序进行认证
+        console.log('跳转统一身份认证小程序')
+        wx.showLoading({title:'统一身份认证'})
+        wx.navigateToMiniProgram({
+          appId:"wxaef6d2413690047f",
+          path:"pages/index",
+          success:()=>{
+            wx.hideLoading()
+            console.log('跳转成功')
+          }
+        })
+      } else {
+        wx.reLaunch({
+          url:'/pages/index'
+        })
+      }
+    }
+  };
+
+  events = {};
+
+  async onLoad() {
+  }
+}
+</script>

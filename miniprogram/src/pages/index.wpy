@@ -2,41 +2,49 @@
 </style>
 <template lang="pug">
   view 
-    text 阅读onLoad()方法并观察控制台输出了解云函数的调用方法
+    view 从统一身份认证小程序获得的信息
+    view 姓名-{{name}}
+    view 一卡通号-{{cardnum}}
+    view 身份-{{identity}}
 </template>
 
 <script>
-  import wepy from 'wepy'
-  import callFunction from '../utils/callFunction' // 引入云函数调用的便捷封装
-  export default class Index extends wepy.page {
-    config = {
-      navigationBarTitleText: '小猴答疑室'
-    }
-    components = {
-    }
+import wepy from 'wepy';
+import callFunction from '../utils/callFunction'; // 引入云函数调用的便捷封装
+import getUserInfo from '../utils/getUserInfo';
+export default class Index extends wepy.page {
+  config = {
+    navigationBarTitleText: '小猴答疑室'
+  };
+  components = {};
 
-    mixins = []
+  mixins = [];
 
-    data = {
-    }
+  data = {
+    cardnum:'未授权',
+    name:'未授权',
+    identity:'未授权'
+  };
 
-    computed = {
-    }
+  computed = {};
 
-    methods = {
-    }
+  methods = {};
 
-    events = {
-    }
+  events = {};
 
-    async onLoad() {
-      // 正确的情况
-      console.log(await callFunction('cloudFunctionTemplate/route1', {/**自定义的参数 */}))
-      console.log(await callFunction('cloudFunctionTemplate/route2'))
-      // 调用不存在的路由
-      console.log(await callFunction('cloudFunctionTemplate/route3', {}))
-      // 调用不存在的云函数
-      console.log(await callFunction('cloudFucktionTemplate/route3', {}))
-    }
+  async onLoad() {
+    // 正确的情况
+    //console.log(await callFunction('cloudFunctionTemplate/route1', {/**自定义的参数 */}))
+    //console.log(await callFunction('cloudFunctionTemplate/route2'))
+    // 调用不存在的路由
+    //console.log(await callFunction('cloudFunctionTemplate/route3', {}))
+    // 调用不存在的云函数
+    //console.log(await callFunction('cloudFucktionTemplate/route3', {}))
+    let userInfo = await getUserInfo(wepy)
+    this.name = userInfo.name
+    this.cardnum = userInfo.cardnum
+    this.identity = userInfo.identity
+    this.$apply()
   }
+}
 </script>

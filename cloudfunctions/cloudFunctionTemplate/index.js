@@ -1,7 +1,6 @@
 const cloud = require('wx-server-sdk')
 cloud.init()
-const wxContext = cloud.getWXContext()
-const openid = wxContext.OPENID // 获取调用用户的openid
+let openid = ''
 // ---上面的内容请复制---
 
 // ---从这里开始编写路由和逻辑---
@@ -16,6 +15,8 @@ const routes = {
 
 // ---下面的内容请复制---
 exports.main = async (event, context) => {
+  const wxContext = cloud.getWXContext()
+  openid = wxContext.OPENID // 获取调用用户的openid
   let {path, data} = event
   if (routes[path] instanceof Function) {
     try {

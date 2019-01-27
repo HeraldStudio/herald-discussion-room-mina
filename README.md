@@ -130,4 +130,8 @@ let res2 = await callFunction('cloudFunctionTemplate/route2')
 
 后续将明确每个操作的具体分割方法。
 
+## 身份认证和授权
+
+程序启动首先调用云函数检查授权情况，如果已授权则进入正常逻辑，否则进入身份认证逻辑。
+
 
