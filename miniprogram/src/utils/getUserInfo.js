@@ -26,13 +26,13 @@ module.exports = async () => {
     // 为了减少云函数调用次数，使用本地storage做缓存
     const wxGetUserInfo = () => {
         return new Promise((res) => {
-            wx.getSetting({
+            wx.getUserInfo({
                 success:res
             })
         })
     }
     let now = +moment()
-    let avatarUrl = (await wxGetUserInfo()).avatarUrl
+    let avatarUrl = (await wxGetUserInfo()).userInfo.avatarUrl
     let userInfo
     let userInfoCache = wx.getStorageSync('userInfo')
     if (!userInfoCache || now > userInfoCache.expireTime) {

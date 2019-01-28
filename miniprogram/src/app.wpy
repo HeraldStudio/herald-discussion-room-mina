@@ -25,6 +25,21 @@
 .center {
   text-align: center;
 }
+.loading {
+  background:#eee;
+  border-radius: 10rpx;
+}
+
+.dot-line {
+  border-top-style: dashed;
+  border-top-width: 1rpx;
+  border-top-color: #E0E0E0;
+}
+.line {
+  border-top-style: solid;
+  border-top-width: 1rpx;
+  border-top-color: #E0E0E0;
+}
 </style>
 
 <script>

@@ -73,7 +73,7 @@
 <script>
 import wepy from 'wepy';
 import callFunction from '../utils/callFunction'; // 引入云函数调用的便捷封装
-export default class Index extends wepy.page {
+export default class Authorize extends wepy.page {
   config = {
     navigationBarTitleText: '授权认证'
   };
