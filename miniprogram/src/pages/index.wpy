@@ -28,72 +28,42 @@
       color:#888;
     }
   }
-    .item-cell{
-    padding:20rpx 30rpx;
-    width:690rpx;
-    .top{
-      font-size:24rpx;
-      color:#888;
-      margin-bottom: 10rpx !important;
-    }
-    .title{
-      font-size: 32rpx;
-      color:#333;
-      font-weight: bold;
-      margin-bottom: 10rpx;
-    }
-    .content{
-      font-size: 24rpx;
-      color:#333;
-      margin-bottom: 10rpx;
-    }
-    .bottom{
+
+  .navi{
+    display: flex;
+    align-items: center;
+    width: 750rpx;
+    .sperator{
+        border-left-style: solid;
+        border-left-width: 1rpx;
+        border-left-color: #eee;
+        align-self: stretch
+      }
+    .navi-button{
+      flex-grow: 1;
       display: flex;
       align-items: center;
-      text {
-        font-size: 24rpx;
-        color:#888;
-        margin-right: 10rpx;
-      }
-      icon {
-        margin-right: 10rpx;
-      }
-    }
-  }
-  .item-cell:active{
-    background: #eee;
-  }
-  .new-answer{
-    margin-top:15rpx;
-    .top{
-      margin-bottom: 15rpx;
-      display: flex;
-      align-items: center;
+      justify-content: center;
+      padding: 20rpx 0;
       image{
-        margin-left: 30rpx;
-        width: 32rpx;
-        height: 32rpx;
+        width:40rpx;
+        height:40rpx;
+        margin-right: 10rpx;
       }
       text{
-        font-size: 32rpx;
-        color:#F2994A;
-        margin-left: 10rpx;
+        font-size: 24rpx;
+        color:#888;
       }
     }
-    .more{
-      width: 750rpx;
-      .text{
-        width: 750rpx;
-        padding: 15rpx 0;
-        font-size: 32rpx;
-        text-align: center;
-        color:#F2994A;
-      }
-      .text:active{
-        background: #eee;
-      }
+    .navi-button:active{
+      background: #eee;
     }
   }
+
+  .bottom-loading{
+      border: none;
+      border-radius: 0;
+    }
  }
 </style>
 <template lang="pug">
@@ -104,8 +74,23 @@
         view.name {{name}}
         view.identity {{identity}}
     view.line
-    new-answers-panel(:items="newAnswers")
-    
+    new-answers-panel(:items.sync="newAnswers")
+    view.navi
+      view.navi-button
+        image(src="/asset/room-icon.png")
+        text 进入答疑室
+      view.sperator
+      view.navi-button
+        image(src="/asset/question-icon.png")
+        text 我的提问
+      view.sperator
+      view.navi-button
+        image(src="/asset/answer-icon.png")
+        text 我的回答
+    view.line
+    new-questions-panel(:items.sync="questions")
+    button.bottom-loading(wx:if="{{bottomLoading}}" plain="true" loading="true" disabled="true") 正在加载
+    button.bottom-loading(wx:else plain="true") 加载更多
     
 </template>
 
@@ -115,12 +100,15 @@ import callFunction from '../utils/callFunction'; // 引入云函数调用的便
 import getUserInfo from '../utils/getUserInfo';
 
 import newAnswersPanel from '../components/newAnswersPanel'
+import newQuestionsPanel from '../components/newQuestionsPanel'
 export default class Index extends wepy.page {
   config = {
-    navigationBarTitleText: '小猴答疑室'
+    navigationBarTitleText: '小猴答疑室',
+    onReachBottomDistance:10
   };
   components = {
-    'new-answers-panel':newAnswersPanel
+    'new-answers-panel':newAnswersPanel,
+    'new-questions-panel':newQuestionsPanel
   };
 
   mixins = [];
@@ -167,16 +155,48 @@ export default class Index extends wepy.page {
       description:'改革春风吹满地，春风吹满地，中国人民真争气，人民真争气，这个世界太疯狂，耗子都给猫当伴娘，齐德隆，齐东强，齐德隆德隆东强。记得那是2003年的第一场雪，来得比2002的稍晚了一些。抓牌看牌，洗牌码牌～知道你为啥失败吗？真让我替你感到悲哀',
       support:0,
       isSelected:false
-    }]
+    }],
+    questions:[{
+      _id:'1',
+      courseName:'编译原理',
+      questionerName:'赵拯基',
+      questionId:'1',
+      title:'人是衣，马是鞍，一看长相二看穿',
+      isAnonymous:false,
+      description:'改革春风吹满地，春风吹满地，中国人民真争气，人民真争气，这个世界太疯狂，耗子都给猫当伴娘，齐德隆，齐东强，齐德隆德隆东强。记得那是2003年的第一场雪，来得比2002的稍晚了一些。抓牌看牌，洗牌码牌～知道你为啥失败吗？真让我替你感到悲哀',
+      support:1,
+      isSelected:false
+    },
+    {
+      _id:'2',
+      courseName:'编译原理',
+      questionerName:'赵拯基',
+      questionId:'1',
+      title:'白天想，夜里哭，做梦都想去首都',
+      isAnonymous:true,
+      description:'改革春风吹满地，春风吹满地，中国人民真争气，人民真争气，这个世界太疯狂，耗子都给猫当伴娘，齐德隆，齐东强，齐德隆德隆东强。记得那是2003年的第一场雪，来得比2002的稍晚了一些。抓牌看牌，洗牌码牌～知道你为啥失败吗？真让我替你感到悲哀',
+      support:0,
+      isSelected:true
+    },
+    {
+      _id:'2',
+      courseName:'编译原理',
+      questionerName:'赵拯基',
+      questionId:'1',
+      title:'白天想，夜里哭，做梦都想去首都',
+      isAnonymous:true,
+      description:'改革春风吹满地，春风吹满地，中国人民真争气，人民真争气，这个世界太疯狂，耗子都给猫当伴娘，齐德隆，齐东强，齐德隆德隆东强。记得那是2003年的第一场雪，来得比2002的稍晚了一些。抓牌看牌，洗牌码牌～知道你为啥失败吗？真让我替你感到悲哀',
+      support:0,
+      isSelected:true
+    }
+    ],
+    bottomLoading:false
   };
 
   computed = {
   };
 
   methods = {
-    toggleNewAnswer(){
-      this.newAnswersFolded = !this.newAnswersFolded
-    }
   };
 
   events = {};
@@ -195,6 +215,19 @@ export default class Index extends wepy.page {
     this.avatar = userInfo.avatarUrl
     this.$apply()
     console.log(userInfo)
+  }
+
+  onReachBottom() {
+    console.log('上拉加载')
+    this.bottomLoading = true
+    wx.showNavigationBarLoading()
+    setTimeout(() => {
+      this.bottomLoading = false
+      this.questions.push(this.questions[0])
+      wx.hideNavigationBarLoading()
+      this.$apply()
+      console.log(this.questions)
+    }, 3000);
   }
 }
 </script>
