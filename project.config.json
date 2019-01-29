@@ -28,7 +28,7 @@
 			"list": []
 		},
 		"miniprogram": {
-			"current": 2,
+			"current": 3,
 			"list": [
 				{
 					"id": -1,
@@ -47,6 +47,13 @@
 					"id": -1,
 					"name": "创建答疑室",
 					"pathName": "pages/discussionRoom/create",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "调试云函数",
+					"pathName": "pages/debug",
 					"scene": null
 				}
 			]

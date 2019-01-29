@@ -1,0 +1,91 @@
+<style lang="less">
+#discussion-room-create {
+    display: block;
+    .course-name-hint{
+      font-size: 32rpx;
+      color:#888;
+      margin-left: 30rpx;
+      padding-top: 40rpx;
+    }
+    input{
+      width: 750rpx;
+      border-style: solid none;
+      border-width: 1rpx 0;
+      border-color: #eee;
+      margin-top:15rpx;
+      padding: 20rpx 30rpx;
+      font-size: 32rpx;
+      color:#333;
+      background: #f0f0f0;
+
+    }
+    button{
+      background: #13ACD9;
+      color: #fff;
+      font-size: 32rpx;
+      font-weight: bold;
+      margin: 40rpx 30rpx;
+      border-radius: 100rpx;
+    }
+    .code-panel{
+      margin-top:40rpx;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      .hint{
+        font-size:32rpx;
+        color:#333;
+      }
+      .code{
+        color:#13ACD9;
+        font-weight: bold;
+        font-size: 56rpx;
+      }
+      .text{
+        font-size:24rpx;
+        color:#888;
+      }
+    }
+}
+</style>
+<template lang="pug">
+  view#discussion-room-create
+    form(report-submit="true" bindsubmit="bindsubmit" wx:if="{{!success}}")
+      button(loading="{{loading}}" disabled="{{loading}}" form-type="submit") 点击按钮测试云函数
+
+        
+
+</template>
+
+<script>
+import wepy from 'wepy';
+import callFunction from '../utils/callFunction'; // 引入云函数调用的便捷封装
+export default class CreateDiscussionRoom extends wepy.page {
+  config = {
+    navigationBarTitleText: '创建答疑室'
+  };
+  components = {};
+
+  mixins = [];
+
+  data = {
+    success:false,
+    loading:false,
+    code:'SKK520'
+  };
+
+  computed = {};
+
+  methods = {
+    async bindsubmit(e){
+        //点击按钮后这里的代码将被执行
+        console.log('测试云函数')
+    }
+  };
+
+  events = {};
+
+  async onLoad() {
+  }
+}
+</script>
