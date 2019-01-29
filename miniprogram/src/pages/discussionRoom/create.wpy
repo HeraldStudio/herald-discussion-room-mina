@@ -1,0 +1,116 @@
+<style lang="less">
+#discussion-room-create {
+    display: block;
+    .course-name-hint{
+      font-size: 32rpx;
+      color:#888;
+      margin-left: 30rpx;
+      padding-top: 40rpx;
+    }
+    input{
+      width: 750rpx;
+      border-style: solid none;
+      border-width: 1rpx 0;
+      border-color: #eee;
+      margin-top:15rpx;
+      padding: 20rpx 30rpx;
+      font-size: 32rpx;
+      color:#333;
+      background: #f0f0f0;
+
+    }
+    button{
+      background: #13ACD9;
+      color: #fff;
+      font-size: 32rpx;
+      font-weight: bold;
+      margin: 40rpx 30rpx;
+      border-radius: 100rpx;
+    }
+    .code-panel{
+      margin-top:40rpx;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      .hint{
+        font-size:32rpx;
+        color:#333;
+      }
+      .code{
+        color:#13ACD9;
+        font-weight: bold;
+        font-size: 56rpx;
+      }
+      .text{
+        font-size:24rpx;
+        color:#888;
+      }
+    }
+}
+</style>
+<template lang="pug">
+  view#discussion-room-create
+    view.course-name-hint(wx:if="{{!success}}") 课程名称
+    form(report-submit="true" bindsubmit="bindsubmit" wx:if="{{!success}}")
+      input(name="courseName" placeholder="将作为答疑室名称" maxlength="20")
+      button(loading="{{loading}}" disabled="{{loading}}" form-type="submit") 创建答疑室
+    view.code-panel(wx:else)
+      view.hint 答疑室代码
+      view.code {{code}}
+      view.text 学生可以通过上方代码快速找到答疑室
+      button 返回答疑室列表
+
+        
+
+</template>
+
+<script>
+import wepy from 'wepy';
+import callFunction from '../../utils/callFunction'; // 引入云函数调用的便捷封装
+export default class CreateDiscussionRoom extends wepy.page {
+  config = {
+    navigationBarTitleText: '创建答疑室'
+  };
+  components = {};
+
+  mixins = [];
+
+  data = {
+    success:false,
+    loading:false,
+    code:'SKK520'
+  };
+
+  computed = {};
+
+  methods = {
+    async bindsubmit(e){
+      this.loading = true
+      this.$apply()
+      let res = await callFunction('discussionRoom/create',e.detail.value)
+      if(res.success){
+        // 创建成功
+        this.loading = false
+        this.code = res.data.code
+        this.success = true
+        wx.showToast({
+          title:'创建成功'
+        })
+        this.$apply()
+      } else {
+        this.loading = false
+        wx.showToast({
+          title:e.res.reason,
+          icon:'none'
+        })
+        this.$apply()
+      }
+    }
+  };
+
+  events = {};
+
+  async onLoad() {
+  }
+}
+</script>
