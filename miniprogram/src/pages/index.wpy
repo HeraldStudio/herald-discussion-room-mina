@@ -82,7 +82,7 @@
       view.sperator
       view.navi-button
         image(src="/asset/question-icon.png")
-        text 我的提问
+        text 关注的问题
       view.sperator
       view.navi-button
         image(src="/asset/answer-icon.png")

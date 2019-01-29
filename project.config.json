@@ -28,7 +28,7 @@
 			"list": []
 		},
 		"miniprogram": {
-			"current": 1,
+			"current": 2,
 			"list": [
 				{
 					"id": -1,
@@ -40,6 +40,13 @@
 					"id": -1,
 					"name": "调试authorize页面",
 					"pathName": "pages/authorize",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "创建答疑室",
+					"pathName": "pages/discussionRoom/create",
 					"scene": null
 				}
 			]
