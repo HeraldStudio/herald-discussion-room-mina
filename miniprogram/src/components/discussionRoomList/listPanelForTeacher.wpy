@@ -1,0 +1,132 @@
+<style lang="less" scoped>
+.list-student{
+  .top {
+      margin-left:20rpx;
+      font-size: 24rpx;
+      color: #888;
+      margin-bottom: 10rpx !important;
+      padding: 14rpx 
+    }
+  .discussionRoom-item{
+    margin-left:20rpx;
+    margin-top:10rpx;
+    padding: 14rpx ;
+    padding-bottom:17rpx;
+  }
+  text {
+        font-size: 27rpx;
+        color: #888;
+        margin-right: 10rpx;
+
+      }
+  .dot-line{
+        width:100%;
+        border-top-style: dashed;
+        border-top-width: 1rpx;
+        border-top-color: #E0E0E0;
+  }
+  .line {
+    width:100%;
+    border-top-style: solid;
+    border-top-width: 1rpx;
+    border-top-color: #E0E0E0;
+}
+.separate{
+  border-top-style: solid;
+  border-top-width: 1rpx;
+  border-top-color: #E0E0E0;
+}
+  .courseName{
+    font-size: 37rpx;
+    color:black
+  }
+  .dot-line-bottom{
+     position: fixed;
+    bottom:120rpx;
+    left:0rpx;
+    width:100%;
+    border-top-style: solid;
+    border-top-width: 1rpx;
+    border-top-color: #E0E0E0;
+  }
+  button{
+    color:white;
+    font-size: 24rpx;
+    text-align: center;
+    background-color: rgb(77,170,212);
+    border-radius: 100rpx;
+    width:400rpx;
+    position: fixed;
+    bottom:18rpx;
+    left:170rpx;
+    padding-top:10rpx;
+    padding-bottom:10rpx;
+  }
+}
+
+</style>
+<template lang="pug">
+    view.list-student
+      view.classPrefect
+        view.top
+          text 我创建的答疑室
+        view.dot-line
+        repeat(for="{{teacherRoom.ashost}}" index="index")
+          view.dot-line(style="margin-left:30rpx;" wx:if="{{index!==0}}")
+          view.discussionRoom-item
+            view
+              text.courseName {{item.courseName}}
+            view
+              text.questionNum {{item.questionNum}}个问题
+              text.separate -
+              text.studentsNum {{item.studentsNum}}名学生关注
+      view.line
+      view.watcher
+        view.top
+          text 我担任顾问的答疑室
+        view.dot-line
+        repeat(for="{{teacherRoom.asadviser}}" index="index")
+          view.dot-line(style="margin-left:30rpx;" wx:if="{{index!==0}}")
+          view.discussionRoom-item
+            view
+              text.courseName {{item.courseName}} 
+            view
+              text.questionNum {{item.questionNum}}个问题
+              text.separate -
+              text.studentsNum {{item.studentsNum}}名学生关注
+          view.dot-line(style="margin-left:30rpx;" wx:if="{{index===studentRoom.aswatcher.length-1}}")
+      view.dot-line-bottom
+      button( @tap="search") 创建答疑室
+</template>
+
+<script>
+import wepy from 'wepy';
+export default class ListPanelForTeacher extends wepy.component {
+    props = {
+        teacherRoom : {
+          type:Object,
+          default: 'nothing',
+          twoWay:true
+        }
+         
+    };
+    data = {
+
+    };
+    computed = {
+       
+    };
+    onLoad (){
+      console.log(this.teacherRoom)
+    };
+    methods = {
+      search(){
+        console.log('创建答疑室')
+      }
+
+    };
+
+    
+}
+</script>
+
