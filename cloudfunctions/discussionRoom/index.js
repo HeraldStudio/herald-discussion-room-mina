@@ -11,15 +11,34 @@ const getUserInfoByOpenId = async(openid) => {
   }
 }
 // ---上面的内容请复制---
-
+const moment = require('moment')
+const uuid = require('uuid/v4')
 // ---从这里开始编写路由和逻辑---
 const routes = {
-  async route1 (data) {
-    return '正确结果' // 执行正确结果直接返回
+  async create (data) {
+    let {courseName} = data
+    if(!courseName){
+      throw Error('调用方法错误')
+    }
+    let userInfo = await getUserInfoByOpenId(openid)
+    if(userInfo.identity !== '教职员工'){
+      throw Error('权限不允许')
+    }
+    let code = uuid().slice(0, 5).toUpperCase()
+    let now = +moment()
+    data = {
+      courseName,
+      code,
+      hostId:userInfo._id,
+      hostName:userInfo.name,
+      createdTime:now,
+      lastModifiedTime:now
+    }
+    await db.collection('DiscussionRoom').add({data})
+    return data
   },
-  async route2 (data) {
-    throw Error('出错') // 执行出错 throw Error
-  }
+  // ... 其他部分
+
 }
 
 // ---下面的内容请复制---

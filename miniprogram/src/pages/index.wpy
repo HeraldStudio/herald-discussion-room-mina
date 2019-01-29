@@ -202,19 +202,12 @@ export default class Index extends wepy.page {
   events = {};
 
   async onLoad() {
-    // 正确的情况
-    //console.log(await callFunction('cloudFunctionTemplate/route1', {/**自定义的参数 */}))
-    //console.log(await callFunction('cloudFunctionTemplate/route2'))
-    // 调用不存在的路由
-    //console.log(await callFunction('cloudFunctionTemplate/route3', {}))
-    // 调用不存在的云函数
-    //console.log(await callFunction('cloudFucktionTemplate/route3', {}))
+    // 更新身份信息
     let userInfo = await getUserInfo(wepy)
     this.name = userInfo.name + '(' +userInfo.cardnum+')'
     this.identity = '东南大学' + userInfo.identity
     this.avatar = userInfo.avatarUrl
     this.$apply()
-    console.log(userInfo)
   }
 
   onReachBottom() {
