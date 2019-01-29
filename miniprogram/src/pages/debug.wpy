@@ -78,8 +78,12 @@ export default class CreateDiscussionRoom extends wepy.page {
 
   methods = {
     async bindsubmit(e){
-        //点击按钮后这里的代码将被执行
-        console.log('测试云函数')
+        let ret=await callFunction('discussionRoom/assistant',{
+          cardnum :'213162838',
+          discussionRoomId:'XFBMEHffS3SWBdLM',
+          setOrCancel:true
+        })
+        console.log(ret)
     }
   };
 
