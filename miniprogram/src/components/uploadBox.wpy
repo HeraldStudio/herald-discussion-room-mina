@@ -1,0 +1,60 @@
+<style lang="less">
+  #upload-box{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    .background{
+      width: 200rpx;
+      height: 200rpx;
+      background: #eee;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      image{
+        width: 100rpx;
+        height: 100rpx;
+      }
+      border: solid 1rpx #eee;
+    }
+    .thumbnail{
+      width: 200rpx;
+      height: 200rpx;
+      border: solid 1rpx #eee;
+    }
+  }
+</style>
+<template lang="pug">
+view#upload-box(@tap="bindChooseImage")
+  view.background(wx:if="{{!success}}")
+    image(src="/asset/camera.png")
+  image.thumbnail(wx:else src="{{filePath}}" mode="aspectFill")
+</template>
+<script>
+import wepy from 'wepy';
+export default class uploadBox extends wepy.component {
+  data = {
+      success:false,
+      filePath:''
+  }
+  methods ={
+    async bindChooseImage(){
+      let that = this
+      wx.chooseImage({
+      count: 1,
+      sizeType: ['compressed'],
+      sourceType: ['album', 'camera'],
+        success(res) {
+          // tempFilePath可以作为img标签的src属性显示图片
+          const tempFilePaths = res.tempFilePaths[0]
+          that.$emit('chooseImage', tempFilePaths);
+          that.filePath = tempFilePaths
+          that.success = true
+          that.$apply()
+        }
+      })
+    }
+  }
+  onLoad() {
+  }
+}
+</script>
