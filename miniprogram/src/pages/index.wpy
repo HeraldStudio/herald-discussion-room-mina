@@ -76,7 +76,7 @@
     view.line
     new-answers-panel(:items.sync="newAnswers")
     view.navi
-      view.navi-button
+      view.navi-button(@tap="TodiscussionRoom")
         image(src="/asset/room-icon.png")
         text 进入答疑室
       view.sperator
@@ -197,6 +197,10 @@ export default class Index extends wepy.page {
   };
 
   methods = {
+    TodiscussionRoom(){
+      wx.navigateTo({url:'/pages/discussionRoom/list'})
+      console.log('999')
+    }
   };
 
   events = {};

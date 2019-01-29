@@ -36,15 +36,17 @@ const routes = {
     let roomRecord=await db.collection('DiscussionRoom')
     .where({
       _id:discussionRoomId,
-      hostId:hostInfo.openid
+      hostId:hostInfo._id
     })
     .get();
     if(roomRecord.data.length!==1){
       throw Error('权限不允许')
     }
 
-    let assitantInfo=getUserInfoByCardnum(cardnum)
-    let currentAssitantRecord=db.collection('Assistant').where({cardnum}).get();
+    let assitantInfo=await getUserInfoByCardnum(cardnum)
+    let currentAssitantRecord=await db.collection('Assistant').where({
+      assistantId:assitantInfo._id
+    }).get()
     if(setOrCancel){
       if(currentAssitantRecord.data.length!==0){
         throw Error('请勿重复授权')
@@ -66,7 +68,7 @@ const routes = {
       if(currentAssitantRecord.data.length===0){
         throw Error('目标不存在')
       }
-      let result=await db.collection('Assistant').doc(currentAssitantRecord.data._id).remove()
+      let result=await db.collection('Assistant').doc(currentAssitantRecord.data[0]._id).remove()
       if(result.stats.removed==1){
         return 1;
       }else{
@@ -125,14 +127,13 @@ const routes = {
 
   async getAll(){
     let userInfo = await getUserInfoByOpenId(openid)
-    let data=null
     switch(userInfo.identity){
       case '教职员工':{
-        data=await db.collection('DiscussionRoom').where({
+        let host=await db.collection('DiscussionRoom').where({
           hostId:userInfo._id
         })
         .get()
-        return data.data.map(each=>{
+        return host.data.map(each=>{
             return { ...each, tag:'主持' }
           })
       }
@@ -143,9 +144,9 @@ const routes = {
         }).get()
         let watchedRooms=[]
         if(watches.data.length!==0){
-          let tempwatchedRooms=await db.collection('WatchDiscussionRoom').where({
+          let tempwatchedRooms=await db.collection('DiscussionRoom').where({
             _id:_.in(watches.data.map(each=>each.discussionRoomId))
-          })
+          }).get()
           watchedRooms=tempwatchedRooms.data.map(each=>{
             return {
               ...each,
@@ -159,9 +160,9 @@ const routes = {
         }).get()
         let assistRooms=[]
         if(assistants.data.length!==0){
-          let tempassistRooms=await db.collection('Assistant').where({
+          let tempassistRooms=await db.collection('DiscussionRoom').where({
             _id:_.in(assistants.data.map(each=>each.discussionRoomId))
-          })
+          }).get()
           assistRooms=tempassistRooms.data.map(each=>{
             return{
               ...each,
@@ -176,7 +177,7 @@ const routes = {
      }//end case
       default:
         //不应执行到此步
-        throw Error('数据库错误')
+        throw Error('未知身份')
     }
   },
   async watch({discussionRoomId ,setOrCancel}){
@@ -185,26 +186,39 @@ const routes = {
       throw Error('调用方法错误')
     }
     let userInfo=await getUserInfoByOpenId(openid)
+
     let currentWatchRecord=await db.collection('WatchDiscussionRoom').where({
       discussionRoomId,
       watcherId:userInfo._id
     }).get()
-    if(currentWatchRecord.data.length!==0){
-      throw Error('请勿重复关注')
-    }
 
-    let now=+moment()
-    let data={
-      discussionRoomId,
-      watcherId:userInfo._id,
-      watcherName:userInfo.name,
-      watchTime:now
-    }
-    let result=await db.collection('WatchDiscussionRoom').add({data})
-    if(result._id){
-      return result._id
+    if(setOrCancel){
+      if(currentWatchRecord.data.length!=0){
+        throw Error('请勿重复关注')
+      }
+      let now=+moment()
+      let data={
+        discussionRoomId,
+        watcherId:userInfo._id,
+        watcherName:userInfo.name,
+        watchTime:now
+      }
+      let result=await db.collection('WatchDiscussionRoom').add({data})
+      if(result._id){
+        return 1
+      }else{
+        throw Error('关注失败')
+      }
     }else{
-      throw Error('关注失败')
+      if(currentWatchRecord.data.length==0){
+        throw Error('你还没有关注这个答疑室')
+      }
+      let result=await db.collection('WatchDiscussionRoom').doc(currentWatchRecord.data[0]._id).remove()
+      if(result.stats.removed==1){
+        return 1
+      }else{
+        throw Error('取消关注失败')
+      }
     }
 
   }

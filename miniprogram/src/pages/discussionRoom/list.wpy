@@ -1,0 +1,86 @@
+<style lang="less" scoped>
+
+</style>
+
+ 
+<template lang="pug">
+    view#list-page
+       List-Panel-Teacher( :teacherRoom="discussionRoomForteacher")
+ </template>
+
+<script>
+import wepy from 'wepy';
+import ListPanelForTeacher from '../../components/discussionRoomList/listPanelForTeacher';
+import ListPanelForStudent from '../../components/discussionRoomList/listPanelForStudent';
+
+
+export default class List extends wepy.page {
+    config = {
+        
+    };
+    components = {
+        'List-Panel-Teacher':ListPanelForTeacher,
+        'List-Panel-Student':ListPanelForStudent
+    };
+    data = {
+        discussionRoomForstudent:{//学生
+            asclassPrefect://作为课代表
+            [{
+                courseName:'编译原理',
+                questionNum:'120',//不属于数据库字段，为了页面调试
+                studentsNum:'35',//不属于数据库字段，为了页面调试
+            },{
+                courseName:'微机原理与接口技术',
+                questionNum:'201',//不属于数据库字段，为了页面调试
+                studentsNum:'70',//不属于数据库字段，为了页面调试
+            }],
+            aswatcher://作为关注者
+            [{
+                courseName:'编译原理',
+                hostName:'瞿玉庆',
+                questionNum:'120',//不属于数据库字段，为了页面调试
+                studentsNum:'35',//不属于数据库字段，为了页面调试
+            },{
+                courseName:'微机原理与接口技术',
+                hostName:'杨全胜',
+                questionNum:'201',//不属于数据库字段，为了页面调试
+                studentsNum:'70',//不属于数据库字段，为了页面调试
+            }]
+        },
+        discussionRoomForteacher:{//老师
+            ashost:[//作为答疑室创建者
+            {
+                courseName:'编译原理',
+                questionNum:'120',//不属于数据库字段，为了页面调试
+                studentsNum:'35',//不属于数据库字段，为了页面调试
+            },{
+                courseName:'微机原理与接口技术',
+                questionNum:'201',//不属于数据库字段，为了页面调试
+                studentsNum:'70',//不属于数据库字段，为了页面调试
+            } 
+            ],
+            asadviser:[//作为答疑室顾问
+            {
+                courseName:'编译原理',
+                questionNum:'120',//不属于数据库字段，为了页面调试
+                studentsNum:'35',//不属于数据库字段，为了页面调试
+            },{
+                courseName:'微机原理与接口技术',
+                questionNum:'201',//不属于数据库字段，为了页面调试
+                studentsNum:'70',//不属于数据库字段，为了页面调试
+            }
+            ]
+        }
+    };
+    
+    methods = {
+
+    };
+    events = {
+
+    };
+}
+// List-Panel-Student( :studentRoom="discussionRoomForstudent")
+</script>
+
+

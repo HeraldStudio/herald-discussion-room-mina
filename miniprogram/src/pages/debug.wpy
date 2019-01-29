@@ -93,6 +93,13 @@ export default class CreateDiscussionRoom extends wepy.page {
             console.log(res)
             }
         })
+
+        let ret=await callFunction('discussionRoom/assistant',{
+          cardnum :'213162838',
+          discussionRoomId:'XFBMEHffS3SWBdLM',
+          setOrCancel:true
+        })
+        console.log(ret)
     }
   };
 
