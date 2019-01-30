@@ -112,12 +112,15 @@ export default class List extends wepy.page {
         
     }
     onPullDownRefresh() {
-             console.log('下拉加载')
+            console.log('下拉加载')
+            wx.showNavigationBarLoading()
             setTimeout(()=>{
                 this.discussionRoomForstudent. asclassPrefect.push(this.discussionRoomForstudent. asclassPrefect[0])
+                wx.hideNavigationBarLoading()
                 this.$apply();
             },1000
             )
+         
         }
 }
  
