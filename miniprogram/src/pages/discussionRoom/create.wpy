@@ -100,7 +100,7 @@ export default class CreateDiscussionRoom extends wepy.page {
       } else {
         this.loading = false
         wx.showToast({
-          title:e.res.reason,
+          title:res.reason,
           icon:'none'
         })
         this.$apply()
