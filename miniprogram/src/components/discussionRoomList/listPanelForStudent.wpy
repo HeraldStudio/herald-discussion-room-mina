@@ -80,7 +80,7 @@
         view.dot-line
         repeat(for="{{studentRoom.asclassPrefect}}" index="index")
           view.dot-line(style="margin-left:30rpx;" wx:if="{{index!==0}}")
-          view.discussionRoom-item
+          view.discussionRoom-item( @tap="todetail")
             view
               text.courseName {{item.courseName}}
             view
@@ -94,7 +94,7 @@
         view.dot-line
         repeat(for="{{studentRoom.aswatcher}}" index="index")
           view.dot-line(style="margin-left:30rpx;" wx:if="{{index!==0}}")
-          view.discussionRoom-item
+          view.discussionRoom-item( @tap="todetail")
             view
               text.courseName {{item.courseName}} 
             view
@@ -135,6 +135,10 @@ export default class ListPanelForStudent extends wepy.component {
     methods = {
       search(){
         wepy.navigateTo({url: '/pages/discussionRoom/search'})
+      },
+      todetail(){
+        console.log('至详情')
+        wepy.navigateTo({url: '/pages/discussionRoom/detail'})
       }
 
     };

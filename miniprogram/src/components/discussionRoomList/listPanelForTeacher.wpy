@@ -80,7 +80,7 @@
         view.dot-line
         repeat(for="{{teacherRoom.ashost}}" index="index")
           view.dot-line(style="margin-left:30rpx;" wx:if="{{index!==0}}")
-          view.discussionRoom-item
+          view.discussionRoom-item( @tap="todetail")
             view
               text.courseName {{item.courseName}}
             view
@@ -94,7 +94,7 @@
         view.dot-line
         repeat(for="{{teacherRoom.asadviser}}" index="index")
           view.dot-line(style="margin-left:30rpx;" wx:if="{{index!==0}}")
-          view.discussionRoom-item
+          view.discussionRoom-item( @tap="todetail")
             view
               text.courseName {{item.courseName}} 
             view
@@ -131,6 +131,10 @@ export default class ListPanelForTeacher extends wepy.component {
       search(){
         console.log('创建答疑室')
         wx.navigateTo({url:'/pages/discussionRoom/create'})
+      },
+      todetail(){
+        console.log('至详情')
+        wepy.navigateTo({url: '/pages/discussionRoom/detail'})
       }
 
     };
