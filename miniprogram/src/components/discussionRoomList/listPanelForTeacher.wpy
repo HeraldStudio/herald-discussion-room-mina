@@ -4,15 +4,17 @@
       margin-left:20rpx;
       font-size: 24rpx;
       color: #888;
-      margin-bottom: 10rpx !important;
       padding: 14rpx 
     }
   .discussionRoom-item{
-    margin-left:20rpx;
-    margin-top:10rpx;
+    padding-left:20rpx;
+    padding-top:10rpx;
     padding: 14rpx ;
     padding-bottom:17rpx;
   }
+  .discussionRoom-item:active{
+      background: #eee;
+    }
   text {
         font-size: 27rpx;
         color: #888;
@@ -111,7 +113,6 @@ export default class ListPanelForTeacher extends wepy.component {
          
     };
     data = {
-
     };
     computed = {
        

@@ -2,17 +2,17 @@
 
 </style>
 
- 
 <template lang="pug">
     view#list-page
-       List-Panel-Teacher( :teacherRoom="discussionRoomForteacher")
+       List-Panel-Student( :studentRoom="discussionRoomForstudent" wx:if="identity==='本科生'")
+       List-Panel-Teacher( :teacherRoom="discussionRoomForteacher" wx:else)
  </template>
 
 <script>
 import wepy from 'wepy';
 import ListPanelForTeacher from '../../components/discussionRoomList/listPanelForTeacher';
 import ListPanelForStudent from '../../components/discussionRoomList/listPanelForStudent';
-
+import getUserInfo from '../../utils/getUserInfo';
 
 export default class List extends wepy.page {
     config = {
@@ -23,6 +23,10 @@ export default class List extends wepy.page {
         'List-Panel-Student':ListPanelForStudent
     };
     data = {
+        cardnum:'...',
+        name:'...',
+        identity:'...',
+        avatar:'',
         discussionRoomForstudent:{//学生
             asclassPrefect://作为课代表
             [{
@@ -79,6 +83,12 @@ export default class List extends wepy.page {
     events = {
 
     };
+    async onLoad(){
+        let userInfo = await getUserInfo(wepy)
+        this.name = userInfo.name + '(' +userInfo.cardnum+')'
+        this.identity = '东南大学' + userInfo.identity
+        this.avatar = userInfo.avatarUrl
+    }
 }
 // List-Panel-Student( :studentRoom="discussionRoomForstudent")
 </script>
