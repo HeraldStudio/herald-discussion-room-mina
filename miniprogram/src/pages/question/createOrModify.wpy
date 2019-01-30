@@ -105,6 +105,14 @@ export default class CreateDiscussionRoom extends wepy.page {
       }
       const db = wx.cloud.database();
       let userInfo = await getUserInfo();
+      // 插入formId
+      db.collection('FormId').add({
+        data:{
+          userId:userInfo._id,
+          formId:e.detail.formId,
+          expireTime:+moment()+7*24*60*60*1000
+        }
+      })
       // 检查是否选择了图片，如果选择了则进行上传
       if (this.localImage) {
         // 选择了图片
