@@ -13,6 +13,7 @@
       view(wx:if="{{!loading}}")
         List-Panel-Student( :studentRoom.sync="discussionRoomForstudent"   wx:if="identity==='本科生'||identity==='研究生'" )
         List-Panel-Teacher( :teacherRoom.sync="discussionRoomForteacher"   wx:else)
+
  </template>
 
 <script>
@@ -105,7 +106,7 @@ export default class List extends wepy.page {
                 this.$apply();
 
             }else{
-                console.log(res.data.code,'获取答疑室列表失败')
+                console.log(res.data.code,'获取答疑室列表失败1')
 
             }
         
