@@ -127,8 +127,7 @@ export default class ListPanelForStudent extends wepy.component {
     };
     methods = {
       search(){
-        console.log('查找其他答疑室')
-
+        wepy.navigateTo({url: '/pages/discussionRoom/search'})
       }
 
     };
