@@ -83,23 +83,24 @@ export default class CreateDiscussionRoom extends wepy.page {
   methods = {
     async bindsubmit(e){
         //点击按钮后这里的代码将被执行
-        console.log('测试云函数')
-        wx.chooseImage({
-        count: 1,
-        sizeType: ['compressed'],
-        sourceType: ['album', 'camera'],
-        success(res) {
-            // tempFilePath可以作为img标签的src属性显示图片
-            console.log(res)
-            }
-        })
-
-        let ret=await callFunction('discussionRoom/assistant',{
-          cardnum :'213162838',
-          discussionRoomId:'XFBMEHffS3SWBdLM',
-          setOrCancel:true
-        })
+        // console.log('测试云函数')
+        // wx.chooseImage({
+        // count: 1,
+        // sizeType: ['compressed'],
+        // sourceType: ['album', 'camera'],
+        // success(res) {
+        //     // tempFilePath可以作为img标签的src属性显示图片
+        //     console.log(res)
+        //     }
+        // })
+        // console.log(await callFunction('discussionRoom/create',{courseName:'好丽友好基友'}))
+        let ret=await callFunction('discussionRoom/getAll',{})
         console.log(ret)
+        console.log(await callFunction('discussionRoom/delete',{
+          cardnum:'213162838',
+          discussionRoomId:ret.data[0]._id,
+          setOrCancel:true
+          }))
     }
   };
 

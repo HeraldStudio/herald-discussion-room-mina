@@ -67,7 +67,7 @@ const routes = {
       }
       let result=await db.collection('Assistant').add({data})
       if(result._id){
-        return result._id
+        return 1
       }else{
         throw Error('授权失败')
       }
@@ -122,13 +122,15 @@ const routes = {
     let record=await db.collection('DiscussionRoom')
     .where({
       _id:discussionRoomId,
-      hostId:userInfo.openid
+      hostId:userInfo._id
     })
     .get();
 
     if(record.data.length==1){
       let result=await db.collection('DiscussionRoom').doc(discussionRoomId).remove()
       if(result.stats.removed==1){
+        await db.collection('Assistant').where({discussionRoomId}).remove()
+        await db.collection('WatchDiscussionRoom').where({discussionRoomId}).remove()
         return 1
       }else{
         throw Error('删除失败')
