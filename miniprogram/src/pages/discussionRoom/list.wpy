@@ -1,11 +1,18 @@
 <style lang="less" scoped>
-
+ .loading{
+    background-color: white;
+    font-size: 24rpx;
+    color:#888;
+    text-align: center;
+ }
 </style>
 
 <template lang="pug">
     view#list-page
-       List-Panel-Student( :studentRoom="discussionRoomForstudent" wx:if="identity==='本科生'")
-       List-Panel-Teacher( :teacherRoom="discussionRoomForteacher" wx:else)
+      view.loading(wx:if="{{loading}}") 正在加载中
+      view(wx:if="{{!loading}}")
+        List-Panel-Student( :studentRoom.sync="discussionRoomForstudent"   wx:if="identity==='本科生'" )
+        List-Panel-Teacher( :teacherRoom.sync="discussionRoomForteacher"   wx:else)
  </template>
 
 <script>
@@ -13,10 +20,11 @@ import wepy from 'wepy';
 import ListPanelForTeacher from '../../components/discussionRoomList/listPanelForTeacher';
 import ListPanelForStudent from '../../components/discussionRoomList/listPanelForStudent';
 import getUserInfo from '../../utils/getUserInfo';
+import callFunction from '../../utils/callFunction'; // 引入云函数调用的便捷封装
 
 export default class List extends wepy.page {
     config = {
-        
+        enablePullDownRefresh: true
     };
     components = {
         'List-Panel-Teacher':ListPanelForTeacher,
@@ -27,6 +35,7 @@ export default class List extends wepy.page {
         name:'...',
         identity:'...',
         avatar:'',
+        loading:true,
         discussionRoomForstudent:{//学生
             asclassPrefect://作为课代表
             [{
@@ -78,19 +87,39 @@ export default class List extends wepy.page {
     };
     
     methods = {
-
+        
     };
     events = {
 
     };
-    async onLoad(){
+    async onLoad(){//获取用户身份和答疑室
         let userInfo = await getUserInfo(wepy)
         this.name = userInfo.name + '(' +userInfo.cardnum+')'
         this.identity = '东南大学' + userInfo.identity
         this.avatar = userInfo.avatarUrl
+        this.$apply();
+        let res = await callFunction('discussionRoom/getAll')
+            if(res.success){
+                this.loading = false
+                console.log(res.data,'获取答疑室列表成功',this.loading)
+                this.$apply();
+
+            }else{
+                console.log(res.data.code,'获取答疑室列表失败')
+
+            }
+        
     }
+    onPullDownRefresh() {
+             console.log('下拉加载')
+            setTimeout(()=>{
+                this.discussionRoomForstudent. asclassPrefect.push(this.discussionRoomForstudent. asclassPrefect[0])
+                this.$apply();
+            },1000
+            )
+        }
 }
-// List-Panel-Student( :studentRoom="discussionRoomForstudent")
+ 
 </script>
 
 

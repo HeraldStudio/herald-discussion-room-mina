@@ -109,7 +109,8 @@ export default class ListPanelForTeacher extends wepy.component {
           type:Object,
           default: 'nothing',
           twoWay:true
-        }
+        },
+      
          
     };
     data = {

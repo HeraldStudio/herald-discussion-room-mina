@@ -104,13 +104,16 @@
 
 <script>
 import wepy from 'wepy';
+
+
 export default class ListPanelForStudent extends wepy.component {
     props = {
         studentRoom : {
           type:Object,
           default: 'nothing',
           twoWay:true
-        }
+        },
+          
          
     };
     data = {
@@ -119,12 +122,13 @@ export default class ListPanelForStudent extends wepy.component {
     computed = {
        
     };
-    onLoad (){
-      console.log(this.studentRoom)
+    async onLoad (){
+      await console.log(this.studentRoom )
     };
     methods = {
       search(){
         console.log('查找其他答疑室')
+
       }
 
     };
