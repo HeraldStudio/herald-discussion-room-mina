@@ -67,7 +67,7 @@ const routes = {
       }
       let result=await db.collection('Assistant').add({data})
       if(result._id){
-        return result._id
+        return 1
       }else{
         throw Error('授权失败')
       }
@@ -122,7 +122,7 @@ const routes = {
     let record=await db.collection('DiscussionRoom')
     .where({
       _id:discussionRoomId,
-      hostId:userInfo.openid
+      hostId:userInfo._id
     })
     .get();
 
