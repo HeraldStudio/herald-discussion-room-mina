@@ -93,13 +93,14 @@ export default class CreateDiscussionRoom extends wepy.page {
         //     console.log(res)
         //     }
         // })
+        // console.log(await callFunction('discussionRoom/create',{courseName:'好丽友好基友'}))
         let ret=await callFunction('discussionRoom/getAll',{})
         console.log(ret)
-        for(let each of ret.data ){
-          console.log(await callFunction('discussionRoom/delete',{
-            discussionRoomId:each._id
+        console.log(await callFunction('discussionRoom/delete',{
+          cardnum:'213162838',
+          discussionRoomId:ret.data[0]._id,
+          setOrCancel:true
           }))
-        }
     }
   };
 
