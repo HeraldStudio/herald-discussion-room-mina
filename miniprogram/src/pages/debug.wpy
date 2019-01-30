@@ -52,6 +52,7 @@
   view#discussion-room-create
     form(report-submit="true" bindsubmit="bindsubmit" wx:if="{{!success}}")
       button(loading="{{loading}}" disabled="{{loading}}" form-type="submit") 点击按钮测试云函数
+    upload-image
 
         
 
@@ -60,11 +61,14 @@
 <script>
 import wepy from 'wepy';
 import callFunction from '../utils/callFunction'; // 引入云函数调用的便捷封装
+import uploadBox from '../components/uploadBox'
 export default class CreateDiscussionRoom extends wepy.page {
   config = {
     navigationBarTitleText: '创建答疑室'
   };
-  components = {};
+  components = {
+      "upload-image":uploadBox
+  };
 
   mixins = [];
 
@@ -78,6 +82,18 @@ export default class CreateDiscussionRoom extends wepy.page {
 
   methods = {
     async bindsubmit(e){
+        //点击按钮后这里的代码将被执行
+        console.log('测试云函数')
+        wx.chooseImage({
+        count: 1,
+        sizeType: ['compressed'],
+        sourceType: ['album', 'camera'],
+        success(res) {
+            // tempFilePath可以作为img标签的src属性显示图片
+            console.log(res)
+            }
+        })
+
         let ret=await callFunction('discussionRoom/assistant',{
           cardnum :'213162838',
           discussionRoomId:'XFBMEHffS3SWBdLM',
@@ -87,7 +103,11 @@ export default class CreateDiscussionRoom extends wepy.page {
     }
   };
 
-  events = {};
+  events = {
+      chooseImage(e){
+          console.log(e)
+      }
+  };
 
   async onLoad() {
   }

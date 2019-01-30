@@ -45,11 +45,18 @@ const routes = {
 
     let assitantInfo=await getUserInfoByCardnum(cardnum)
     let currentAssitantRecord=await db.collection('Assistant').where({
+      discussionRoomId,
       assistantId:assitantInfo._id
     }).get()
     if(setOrCancel){
       if(currentAssitantRecord.data.length!==0){
         throw Error('请勿重复授权')
+      }
+      const countRecord=await db.collection('Assistant').where({
+        assistantId:assitantInfo._id
+      }).count()
+      if(countRecord.total>=100){
+        throw Error('对方已达管理上限100')
       }
       let now=+moment()
       let data={
@@ -86,6 +93,12 @@ const routes = {
     let userInfo = await getUserInfoByOpenId(openid)
     if(userInfo.identity !== '教职员工'){
       throw Error('权限不允许')
+    }
+    let record=await db.collection('DiscussionRoom').where({
+      hostId:userInfo._id
+    }).count()
+    if(record.total>=20){
+      throw Error('已达创建答疑室上限20')
     }
     let code = uuid().slice(0, 5).toUpperCase()
     let now = +moment()
@@ -141,12 +154,12 @@ const routes = {
       case '研究生':{
         let watches=await db.collection('WatchDiscussionRoom').where({
           watcherId:userInfo._id
-        }).get()
+        }).limit(100).get()
         let watchedRooms=[]
         if(watches.data.length!==0){
           let tempwatchedRooms=await db.collection('DiscussionRoom').where({
             _id:_.in(watches.data.map(each=>each.discussionRoomId))
-          }).get()
+          }).limit(100).get()
           watchedRooms=tempwatchedRooms.data.map(each=>{
             return {
               ...each,
@@ -157,12 +170,12 @@ const routes = {
 
         let assistants=await db.collection('Assistant').where({
           assistantId:userInfo._id
-        }).get()
+        }).limit(100).get()
         let assistRooms=[]
         if(assistants.data.length!==0){
           let tempassistRooms=await db.collection('DiscussionRoom').where({
             _id:_.in(assistants.data.map(each=>each.discussionRoomId))
-          }).get()
+          }).limit(100).get()
           assistRooms=tempassistRooms.data.map(each=>{
             return{
               ...each,
@@ -195,6 +208,12 @@ const routes = {
     if(setOrCancel){
       if(currentWatchRecord.data.length!=0){
         throw Error('请勿重复关注')
+      }
+      const countRecord=await db.collection('WatchDiscussionRoom').where({
+        watcherId:userInfo._id
+      }).count()
+      if(countRecord.total>=100){
+        throw Error('已达关注上限100')
       }
       let now=+moment()
       let data={
