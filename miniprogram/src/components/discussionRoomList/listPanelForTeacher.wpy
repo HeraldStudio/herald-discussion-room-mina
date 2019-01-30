@@ -7,10 +7,9 @@
       padding: 14rpx 
     }
   .discussionRoom-item{
-    padding-left:20rpx;
-    padding-top:10rpx;
-    padding: 14rpx ;
-    padding-bottom:17rpx;
+    padding-left:34rpx;
+    padding-top:24rpx;
+    padding-bottom:24rpx;
   }
   .discussionRoom-item:active{
       background: #eee;
@@ -124,6 +123,7 @@ export default class ListPanelForTeacher extends wepy.component {
     methods = {
       search(){
         console.log('创建答疑室')
+        wx.navigateTo({url:'/pages/discussionRoom/create'})
       }
 
     };
