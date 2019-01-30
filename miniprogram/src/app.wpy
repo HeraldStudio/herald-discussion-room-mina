@@ -55,7 +55,8 @@ export default class extends wepy.app {
       'pages/authorize',
       'pages/debug',
       'pages/discussionRoom/create',
-      'pages/discussionRoom/list'
+      'pages/discussionRoom/list',
+      'pages/discussionRoom/search'
     ],
     window: {
       backgroundTextStyle: 'light',
