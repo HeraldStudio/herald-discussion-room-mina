@@ -1,30 +1,92 @@
 <style lang="less" scoped>
-
 </style>
 
 <template lang="pug">
   view#search-page
-    view
+    view.search-form
       form
-        input(placeholder="请输入答疑室名称/编码/教师姓名")
-        button 查找答疑室
+        input(placeholder="请输入答疑室名称/编码/教师姓名" adjust-position=false @blur='setKeywords')
+        button( @tap='search') 查找
     view.tips
-    repeat()
-      view
+      image(src="")
+      text {{tipsText}}
+    repeat(for="{{roomList}}" index="index" item="item")
+      view.room-item
+        view
+          text.courseName {{item.courseName}}
+        view
+          text {{item.hostName}}老师
+          text {item._id}
     
 
 </template>
 
 <script>
-import wepy from 'wepy'
-import callFunction from '../../utils/callFunction' // 引入云函数调用的便捷封装
+import wepy from 'wepy';
 
-export default class Index extends wepy.page{
+const db = wx.cloud.database();
+
+export default class Index extends wepy.page {
   data = {
-
+    keywords: '',
+    tipsText: '',
+    roomList: [
+      {
+        _id: "XE_4rnffS3SWA89k",
+        code: DFA18,
+        courseName: "念诗之王",
+        createdTime: 1548744878378,
+        hostId: "XE3OasDR1TiN0eZ_",
+        hostName: "高睿昊",
+        lastModifiedTime: "1548744878378"
+      }
+    ]
   };
   methods = {
-    
-  }
+    setKeywords(event) {
+      this.keywords = event.detail.value;
+    },
+    async search() {
+      if (this.keywords) {
+        console.log(this.keywords);
+        console.log(`查找答疑室,keyword${this.keywords}`);
+
+        this.roomList = (await db
+          .collection('DiscussionRoom')
+          .where({
+            hostName: this.keywords
+          })
+          .get()).data
+          .concat(
+            (await db
+              .collection('DiscussionRoom')
+              .where({
+                _id: this.keywords
+              })
+              .get()).data
+          )
+          .concat(
+            (await db
+              .collection('DiscussionRoom')
+              .where({
+                courseName: this.keywords
+              })
+              .get()).data
+          );
+        if (this.roomList.length === 0) {
+          this.tipsText = '没有符合条件的答疑室';
+        } else {
+          console.log(this.roomList);
+        }
+      } else {
+        this.tipsText = '请输入参数';
+      }
+      return;
+    },
+    toDetails() {
+      // 跳转到答疑室详情
+      wepy.navigateTo({ url: '/pages/discussionRoom/search' });
+    }
+  };
 }
 </script>
