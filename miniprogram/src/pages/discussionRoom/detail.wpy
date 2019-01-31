@@ -1,14 +1,159 @@
 <style lang="less">
 #discussion-detail {
-    
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  .top-panel{
+    margin-left: 30rpx;
+    margin-bottom: 30rpx;
+    .header{
+      font-size: 32rpx;
+      color: #888;
+    }
+    .title{
+      display: flex;
+      margin-right: 40rpx;
+      justify-content: space-between;
+      align-items: center;
+      margin-top:10rpx;
+      .name{
+        font-size: 45rpx;
+        color:#333;
+        font-weight: bold;
+      }
+      .watch{
+        height: 50rpx;
+        font-size: 24rpx;
+        line-height: 50rpx;
+        padding:0 20rpx;
+        border-radius: 100rpx;
+        border: none;
+        background: #EB5757;
+        color: #fff;
+        font-weight: #fff;
+        font-weight: bold;
+      }
+    }
+    .last-modified-time{
+      font-size: 24rpx;
+      color: #888;
+      margin-top:10rpx;
+    }
+    .host-name{
+      display: flex;
+      margin-top: 10rpx;
+      .tag{
+        font-size: 24rpx;
+        color: #888;
+      }
+      .name{
+        font-size: 24rpx;
+        color: #333;
+        margin: 0 15rpx;
+      }
+    }
+  }
+  .admin-panel{
+    margin-left: 30rpx;
+    display: flex;
+    margin-top: 15rpx;
+    margin-bottom: 15rpx;
+    .delete{
+      color: #eb5757;
+      font-size: 24rpx;
+      margin-right: 15rpx; 
+    }
+    .assistant{
+      color: #13ACD9;
+      font-size: 24rpx;
+    }
+  }
+  .filter-panel{
+    margin-left:30rpx;
+    margin-top: 15rpx;
+    margin-right: 40rpx;
+    margin-bottom: 15rpx;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    .sort{
+      display: flex;
+      align-items: center;
+      .tag{
+        color:#888;
+        font-size:24rpx;
+        margin-right:15rpx;
+      }
+      .strategy{
+        color: #13ACD9;
+        font-size: 24rpx;
+      }
+    }
+    .selected{
+      display: flex;
+      align-items: center;
+      .tag{
+        color:#888;
+        font-size:24rpx;
+        margin-right:15rpx;
+      }
+      .circle{
+        width: 16px;
+        height: 16px;
+        border: solid #eee 1px;
+        border-radius: 100px;
+      }
+    }
+  }
+  .new-question-panel{
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-top-style: solid;
+    border-top-width: 1px;
+    border-top-color: #f0f0f0;
+    button {
+      background: #13acd9;
+      color: #fff;
+      font-size: 32rpx;
+      font-weight: bold;
+      margin: 20rpx 100rpx;
+      border-radius: 100rpx;
+    }
+  }
 }
 </style>
 <template lang="pug">
   view#discussion-detail
     view.top-panel
+      view.header \#{{code}}
       view.title
-        view {{name}}
-        button {{buttonText}}
+        view.name {{courseName}}
+        view.watch(wx:if="{{isWatched}}") {{buttonText}}
+      view.last-modified-time 最近活跃时间 {{lastModifiedTime}}
+      view.host-name
+        view.tag 主持人
+        view.name {{hostName}}
+        view.tag 老师
+    view.dot-line
+    view.admin-panel(wx:if="{{isAdmin}}")
+      view.delete 删除答疑室
+      view.assistant 设置管理员
+    view.line
+    view.filter-panel
+      view.sort
+        view.tag 排序↓
+        view.strategy {{sort}}
+      view.selected
+        view.tag 只看精选
+        icon(type="success" size="16" wx:if="{{selectedOnly}}")
+        view.circle(wx:else)
+    view.dot-line
+    view.new-question-panel
+      button 我要提问
+    
+
     
         
 
@@ -17,6 +162,9 @@
 <script>
 import wepy from 'wepy';
 import callFunction from '../../utils/callFunction'; // 引入云函数调用的便捷封装
+//import moment from 'moment'
+//import momentCN from 'moment/locale/zh-cn'
+const moment = require('moment')
 export default class DiscussionRoomDetail extends wepy.page {
   config = {
     navigationBarTitleText: '答疑室'
@@ -26,7 +174,17 @@ export default class DiscussionRoomDetail extends wepy.page {
   mixins = [];
 
   data = {
-    name:''
+    discussionRoomId:'',
+    code:'',
+    courseName:'',
+    hostName:'',
+    lastModifiedTime:'',
+    buttonText:'取消关注',
+    buttonClass:'negative',
+    isWatched:true,
+    isAdmin:true,
+    sort:'最新动态', // 最多关注
+    selectedOnly: false
   };
 
   computed = {};
@@ -36,7 +194,31 @@ export default class DiscussionRoomDetail extends wepy.page {
 
   events = {};
 
-  async onLoad() {
+  async onLoad(options) {
+    let {discussionRoomId} = options
+    if(!discussionRoomId){
+      // 没有传入答疑室ID
+      wx.reLaunch({
+        url:'/pages/index'
+      })
+    }
+    // 获取答疑室基本信息
+    
+    const db = wx.cloud.database();
+    let info = (await db.collection('DiscussionRoom').doc(discussionRoomId).get()).data
+    if(!info){
+      // 答疑室ID无效
+      wx.reLaunch({
+        url:'/pages/index'
+      })
+    }
+    this.courseName = info.courseName
+    this.code = info.code
+    moment.locale('zh-cn')
+    this.lastModifiedTime = moment(info.lastModifiedTime).locale('zh-cn').fromNow()
+    this.hostName = info.hostName
+    this.$apply()
+
   }
 }
 </script>

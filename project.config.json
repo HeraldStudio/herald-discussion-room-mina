@@ -29,7 +29,7 @@
 			"list": []
 		},
 		"miniprogram": {
-			"current": 5,
+			"current": 6,
 			"list": [
 				{
 					"id": -1,
@@ -70,6 +70,13 @@
 					"name": "问题修改",
 					"pathName": "pages/question/createOrModify",
 					"query": "questionId=XFGCgJT75u22iv_O",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "答疑室详情页",
+					"pathName": "pages/discussionRoom/detail",
+					"query": "discussionRoomId=XE_4rnffS3SWA89k",
 					"scene": null
 				}
 			]

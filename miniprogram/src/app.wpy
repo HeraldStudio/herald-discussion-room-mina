@@ -40,6 +40,12 @@
   border-top-width: 1rpx;
   border-top-color: #E0E0E0;
 }
+
+.button {
+  border-radius: 100rpx;
+  font-size: 32rpx;
+  font-weight: bold;
+}
 </style>
 
 <script>
@@ -57,6 +63,7 @@ export default class extends wepy.app {
       'pages/discussionRoom/create',
       'pages/discussionRoom/list',
       'pages/discussionRoom/search',
+      'pages/discussionRoom/detail',
       'pages/question/createOrModify'
     ],
     window: {
