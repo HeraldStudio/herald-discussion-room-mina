@@ -95,9 +95,7 @@ export default class List extends wepy.page {
     };
     async onLoad(){//获取用户身份和答疑室
         let userInfo = await getUserInfo(wepy)
-        this.name = userInfo.name + '(' +userInfo.cardnum+')'
-        this.identity = '东南大学' + userInfo.identity
-        this.avatar = userInfo.avatarUrl
+        this.identity =  userInfo.identity
         this.$apply();
         let res = await callFunction('discussionRoom/getAll')
             if(res.success){

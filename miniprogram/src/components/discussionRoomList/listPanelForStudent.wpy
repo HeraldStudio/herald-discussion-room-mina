@@ -51,19 +51,25 @@
     border-top-width: 1rpx;
     border-top-color: #E0E0E0;
   }
-  button{
-    color:white;
-    font-size: 24rpx;
-    text-align: center;
-    background-color: rgb(77,170,212);
-    border-radius: 100rpx;
-    width:400rpx;
+  .bottom{
+    background-color: white;
     position: fixed;
-    bottom:18rpx;
-    left:170rpx;
-    padding-top:10rpx;
-    padding-bottom:10rpx;
+    bottom:0;
+    left:0;
+    right:0;
+    height:120rpx;
   }
+  button{
+          color:white;
+          font-size: 24rpx;
+          text-align: center;
+          background-color: rgb(77,170,212);
+          border-radius: 100rpx;
+          width:400rpx;
+          margin-top:20rpx;
+          padding-top:10rpx;
+          padding-bottom:10rpx;
+        }
 }
 </style>
 <template lang="pug">
@@ -74,7 +80,7 @@
         view.dot-line
         repeat(for="{{studentRoom.asclassPrefect}}" index="index")
           view.dot-line(style="margin-left:30rpx;" wx:if="{{index!==0}}")
-          view.discussionRoom-item
+          view.discussionRoom-item( @tap="todetail")
             view
               text.courseName {{item.courseName}}
             view
@@ -88,7 +94,7 @@
         view.dot-line
         repeat(for="{{studentRoom.aswatcher}}" index="index")
           view.dot-line(style="margin-left:30rpx;" wx:if="{{index!==0}}")
-          view.discussionRoom-item
+          view.discussionRoom-item( @tap="todetail")
             view
               text.courseName {{item.courseName}} 
             view
@@ -99,7 +105,8 @@
               text.studentsNum {{item.studentsNum}}名学生关注
           view.dot-line(style="margin-left:30rpx;" wx:if="{{index===studentRoom.aswatcher.length-1}}")
       view.dot-line-bottom
-      button( @tap="search") 查找其他答疑室
+      view.bottom
+        button( @tap="search") 查找其他答疑室
 </template>
 
 <script>
@@ -127,8 +134,11 @@ export default class ListPanelForStudent extends wepy.component {
     };
     methods = {
       search(){
-        console.log('查找其他答疑室')
-
+        wepy.navigateTo({url: '/pages/discussionRoom/search'})
+      },
+      todetail(){
+        console.log('至详情')
+        wepy.navigateTo({url: '/pages/discussionRoom/detail'})
       }
 
     };
