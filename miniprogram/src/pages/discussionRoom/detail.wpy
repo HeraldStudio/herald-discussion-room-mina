@@ -1,0 +1,42 @@
+<style lang="less">
+#discussion-detail {
+    
+}
+</style>
+<template lang="pug">
+  view#discussion-detail
+    view.top-panel
+      view.title
+        view {{name}}
+        button {{buttonText}}
+    
+        
+
+</template>
+
+<script>
+import wepy from 'wepy';
+import callFunction from '../../utils/callFunction'; // 引入云函数调用的便捷封装
+export default class DiscussionRoomDetail extends wepy.page {
+  config = {
+    navigationBarTitleText: '答疑室'
+  };
+  components = {};
+
+  mixins = [];
+
+  data = {
+    name:''
+  };
+
+  computed = {};
+
+  methods = {
+  };
+
+  events = {};
+
+  async onLoad() {
+  }
+}
+</script>

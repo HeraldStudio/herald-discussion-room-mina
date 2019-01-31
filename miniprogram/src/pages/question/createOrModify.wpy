@@ -191,6 +191,7 @@ export default class CreateDiscussionRoom extends wepy.page {
               title:'问题创建成功'
             })
             // TODO：跳转至问题详情页
+            // TODO：发送提醒
           } else throw '问题创建失败'
         } catch(e) {
           console.log(e)
