@@ -7,22 +7,24 @@
 <template lang="pug">
   view#search-page
     view.search-form
-      form
-        input(placeholder="请输入答疑室名称/编码/教师姓名" adjust-position=false @blur='setKeywords')
-        button( @tap='search') 查找
+      input(placeholder="请输入答疑室名称/编码/教师姓名" adjust-position=false @blur='setKeywords')
+      
     view.tips( wx:if="tipText")
       image(src="")
       text {{tipsText}}
 
     text.course-name {{roomList[0].courseName}}
     repeat(for="{{roomList}}" index="index" item="item")
-      view.room-item
+      view.room-item( @tap='toDetails')
         view
           text.course-name {{item.courseName}}
         view
           text.host-name {{item.hostName}}老师
           text.room-id {item._id}
-    
+    view
+      button.bottom-loading(wx:if="{{loading}}" plain="true" loading="true" disabled="true") 正在加载
+      button.bottom-loading(wx:else plain="true") 加载更多
+    button( @tap='search') 查找
 
 </template>
 
@@ -35,33 +37,60 @@ export default class Index extends wepy.page {
   data = {
     keywords: '',
     tipsText: '',
+    searchIndex: 0, // 用于区分下拉搜索次数
+    loading: false,
     roomList: []
   };
+
+  onload(){
+    this.searchIndex = 0
+    this.keywords = ''
+    this.roomList = []
+  }
+
+  onReachBottom(){
+    this.searchIndex++
+    this.loading = true
+    wx.showNavigationBarLoading()
+    setTimeout(() => {
+      this.loading = false
+      this.search()
+      this.$apply()
+    }, 3000);
+  }
+
   methods = {
     setKeywords(event) {
       this.keywords = event.detail.value
     },
     async search() {
-      // this.roomList = []
+      this.roomList = []
       if (this.keywords != '') {
         console.log(this.keywords)
         console.log(`查找关键字: ${this.keywords}`)
 
-        this.roomList = this.roomList.concat((await db.collection('DiscussionRoom').where({hostName: this.keywords}).get()).data)
-        this.roomList = this.roomList.concat((await db.collection('DiscussionRoom').where({courseName: this.keywords}).get()).data)
-        this.roomList = this.roomList.concat((await db.collection('DiscussionRoom').where({_id: this.keywords}).get()).data)
-
-        console.log(this.roomList)
-        this.$apply()
+        // 为兼容基础库 2.3 以下版本，避免skip(0)
+        if (this.searchIndex == 0) {
+          this.roomList = [
+            ...((await db.collection('DiscussionRoom').where({hostName: this.keywords}).limit(10).get()).data),
+            ...((await db.collection('DiscussionRoom').where({courseName: this.keywords}).limit(10).get()).data),
+            ...((await db.collection('DiscussionRoom').where({_id: this.keywords}).limit(10).get()).data)
+          ]
+        }else{
+          this.roomList = [
+            ...this.roomList,
+            ...((await db.collection('DiscussionRoom').where({hostName: this.keywords}).skip(this.searchIndex * 10).limit(10).get()).data),
+            ...((await db.collection('DiscussionRoom').where({courseName: this.keywords}).skip(this.searchIndex * 10).limit(10).get()).data),
+            ...((await db.collection('DiscussionRoom').where({_id: this.keywords}).skip(this.searchIndex * 10).limit(10).get()).data)
+          ]
+        }
         // 没有查找结果
         if (this.roomList.length === 0) {
           setTimeout(() => {
             this.tipsText = ''
           }, 1000)
           this.tipsText = '没有符合条件的答疑室'
-        } else {
-          console.log(this.roomList)
-        }
+        } 
       }else {
         // 没有输入查询参数
         setTimeout(() => {
@@ -69,10 +98,12 @@ export default class Index extends wepy.page {
         }, 1000)
         this.tipsText = '请输入参数'
       }
+
+      this.$apply()
     },
     toDetails() {
       // 跳转到答疑室详情
-      wepy.navigateTo({ url: '/pages/discussionRoom/search' });
+      wepy.navigateTo({ url: '/pages/discussionRoom/detail' });
     }
   };
 }

@@ -10,7 +10,7 @@
 	},
 	"appid": "wx13a95d42aa950b63",
 	"projectname": "herald-discussion-room-mina",
-	"libVersion": "2.2.5",
+	"libVersion": "2.3.2",
 	"compileType": "miniprogram",
 	"condition": {
 		"search": {
