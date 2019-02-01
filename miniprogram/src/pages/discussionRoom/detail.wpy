@@ -123,6 +123,19 @@
       border-radius: 100rpx;
     }
   }
+  .back-to-top{
+    font-size: 32rpx;
+    padding: 15rpx 30rpx;
+    border-radius: 100rpx;
+    position: fixed;
+    right: 40rpx;
+    bottom: 150rpx;
+    font-weight: bold;
+    color: #333;
+    background: #fff;
+    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.25);
+    opacity: 0.7;
+  }
   .question-panel {
     margin-bottom: 120rpx;
     .empty{
@@ -183,7 +196,7 @@
       view.header \#{{code}}
       view.title
         view.name {{courseName}}
-        view.watch(wx:if="{{isWatched}}") {{buttonText}}
+        view.watch(wx:if="{{isWatched}}" @tap="cancelWatch") {{buttonText}}
       view.last-modified-time 最近活跃时间 {{lastModifiedTime}}
       view.host-name
         view.tag 主持人
@@ -193,8 +206,8 @@
         view.tag {{howManyWatch}}
     view.dot-line
     view.admin-panel(wx:if="{{isAdmin}}")
-      view.delete 删除答疑室
-      view.assistant 设置管理员
+      view.delete(@tap="deleteRoom") 删除答疑室
+      view.assistant(@tap="setAssistant") 设置管理员
     view.line
     view.filter-panel
       view.sort
@@ -221,12 +234,8 @@
             icon(type="success" size="15" wx:if="{{item.isSelected}}")
             text(wx:if="{{item.isSelected}}") 精选
     view.new-question-panel
-      button 我要提问
-    
-
-    
-        
-
+      button(@tap="createQuestion") 我要提问
+    view.back-to-top(@tap="backToTop") 回到顶部
 </template>
 
 <script>
@@ -283,6 +292,52 @@ export default class DiscussionRoomDetail extends wepy.page {
       this.emptyHint = this.selectedOnly ? '还没有精选问题' : '还没有问题，不如提个问？'
       this.page = 0
       this.loadQuestion()
+    },
+    backToTop(){
+      wx.pageScrollTo({
+        scrollTop:0
+      })
+    },
+    async cancelWatch(){
+
+    },
+    async deleteRoom(){
+      // 张可看这里
+      let that = this
+      wx.showModal({
+        title: '确认删除',
+        content: '答疑室删除后将无法恢复，所有问题/答案/评论都将丢失',
+        success(res) {
+          if (res.confirm) {
+            try{
+              let res = callFunction('discussionRoom/delete',{discussionRoomId:that.discussionRoomId})
+              if(res.success){
+                wx.showToast({
+                  title:'删除成功'
+                })
+              } else {
+                throw res.reason
+              }
+            } catch(e) {
+              console.log(e)
+              wx.showToast({
+                icon:'none',
+                title:'删除失败，请重试'
+              })
+            }
+          } else if (res.cancel) {
+            console.log('用户点击取消')
+          }
+        }
+      })
+    },
+    setAssistant(){
+
+    },
+    createQuestion(){
+      wx.navigateTo({
+        url:`/pages/question/createOrModify?discussionRoomId=${this.discussionRoomId}`
+      })
     }
   };
 
@@ -294,12 +349,10 @@ export default class DiscussionRoomDetail extends wepy.page {
       this.loading = true; // 加锁
       this.$apply();
       let query = { discussionRoomId: this.discussionRoomId };
-      console.log(this.discussionRoomId)
       if (this.selectedOnly) {
         // 如果设置了只看精选
         query.isSelected = true;
       }
-      console.log(this.page)
       let res 
       if(this.page > 0){
         res = await db
@@ -329,7 +382,6 @@ export default class DiscussionRoomDetail extends wepy.page {
         )
         .where(query).get();
       }
-      console.log(res)
       this.page = this.page + 1; // 记录分页
       this.questionList = this.questionList.concat(
         res.data.map(k => {
@@ -382,8 +434,8 @@ export default class DiscussionRoomDetail extends wepy.page {
     this.isAdmin = info.hostId === userInfo._id;
     this.howManyWatch = `${info.watch}人关注`;
     this.$apply();
-    // 获取关注数据
     this.loadQuestion()
   }
+
 }
 </script>
