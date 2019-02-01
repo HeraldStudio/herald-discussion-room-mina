@@ -126,14 +126,10 @@ const routes = {
       throw Error('调用方法错误')
     }
     let userInfo = await getUserInfoByOpenId(openid)
-    let record=await db.collection('DiscussionRoom')
-    .where({
-      _id:discussionRoomId,
-      hostId:userInfo._id
-    })
-    .get();
-
-    if(record.data.length==1){
+    let record=await db.collection('DiscussionRoom').where({ _id:discussionRoomId}).get()
+    if(record.data.length!==1){
+      throw Error('目标答疑室不存在')
+    }else if(record.data[0].hostId===userInfo._id){
       let result=await db.collection('DiscussionRoom').doc(discussionRoomId).remove()
       if(result.stats.removed==1){
         await db.collection('Assistant').where({discussionRoomId}).remove()

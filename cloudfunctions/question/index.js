@@ -22,10 +22,11 @@ const routes = {
     }
     let userinfo=await getUserInfoByOpenId(openid)
     //获取问题的document
-    let record_question=await db.collection("Question").doc(questionId).get()
-    if(!record_question.data){
-      throw Error("数据错误")
+    let record_question=await db.collection("Question").where({_id:questionId}).get()
+    if(record_question.data.length==0){
+      throw Error("目标问题不存在")
     }
+    record_question=record_question.data[0]
 
     let count_room = await db.collection("DiscussionRoom").where({
       _id: record_question.discussionRoomId,
@@ -41,16 +42,31 @@ const routes = {
       throw Error("权限不允许")
     }
 
+    let questionImage=record_question.imageCode
     //删除操作
     let result=await db.collection("Question").doc(questionId).remove();
     if(result.stats.removed!==1){
       throw Error("删除失败")
     }
+    if(questionImage){
+      await cloud.deleteFile({fileList:[questionImage]})
+    }
+
     //级联删除关注
     await db.collection("WatchQuestion").where({questionId}).remove()
+    //级联删除答案(答案云函数完成后直接解注释并测试)
+    //  答案的评论由答案云函数删除
+
+    // (await db.collection("Answer").where({questionId}).get()).data.forEach(each => {
+    //   await cloud.callFunction({
+    //     name:"answer",
+    //     data:{
+    //       path:"delete",
+    //       data:each._id
+    //     }
+    //   })
+    // });
     
-    //TODO 级联删除答案
-    //TODO 级联删除评论
     return 1
   },
   async watch({ questionId , setOrCancel }) {
@@ -59,6 +75,10 @@ const routes = {
       throw Error("调用方法错误")
     }
     const userinfo=await getUserInfoByOpenId(openid)
+    let record_question=await db.collection("Question").where({_id:questionId}).get()
+    if(record_question.data.length==0){
+      throw Error("目标问题不存在")
+    }
     const record_watch = await db.collection('WatchQuestion').where({
       questionId,
       watcherId:userinfo._id
@@ -112,7 +132,11 @@ const routes = {
       throw Error("调用方法错误")
     }
     const userinfo = await getUserInfoByOpenId(openid)
-    const record_question = await db.collection('Question').doc(questionId).get()
+    let record_question=await db.collection("Question").where({_id:questionId}).get()
+    if(record_question.data.length==0){
+      throw Error("目标问题不存在")
+    }
+    record_question=record_question.data[0]
 
     //权限判断
     const count_room = await db.collection("DiscussionRoom").where({
@@ -128,9 +152,16 @@ const routes = {
       throw Error("权限不允许")
     }
 
+    if(!(record_question.isSelected^setOrCancel)){
+      throw Error("请勿重复设置")
+    }
+
     //更新数据库
     let result = await db.collection("Question").doc(questionId).update({
-      data: { isSelected: setOrCancel }
+      data: {
+        isSelected: setOrCancel,
+        lastModifiedTime:+moment()
+      }
     })
     if(result.stats.updated==1){
       return 1
@@ -143,22 +174,39 @@ const routes = {
       throw Error("调用方法错误")
     }
     const userinfo = await getUserInfoByOpenId(openid)
-    const record_question = await db.collection('Question').doc(questionId).get()
+    let record_question=await db.collection("Question").where({_id:questionId}).get()
+    if(record_question.data.length==0){
+      throw Error("目标问题不存在")
+    }
+    record_question=record_question.data[0]
 
-    const count_room = await db.collection('DiscussionRoom').where({
+    //权限判断
+    const count_room = await db.collection("DiscussionRoom").where({
       _id:record_question.discussionRoomId,
       hostId:userinfo._id
     }).count()
-    if(count_room.total==0){
+    const count_assistant=await db.collection("Assistant").where({
+      discussionRoomId: record_question.discussionRoomId,
+      assistantId: userinfo._id
+    }).count()
+
+    if(count_assistant.total+count_room.total==0){
       throw Error("权限不允许")
     }
+    
+    if(record_question.hasRead){
+      throw Error("请勿重复设置")
+    }
     let result = await db.collection("Question").doc(questionId).update({
-      data:{hasRead:true}
+      data:{
+        hasRead:true,
+        lastModifiedTime:+moment()
+      }
     })
     if(result.stats.updated==1){
       return 1
     }else{
-      throw Error("设置失败s")
+      throw Error("设置失败")
     }
 
   }

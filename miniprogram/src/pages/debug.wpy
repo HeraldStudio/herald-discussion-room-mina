@@ -79,8 +79,18 @@ export default class CreateDiscussionRoom extends wepy.page {
   };
 
   computed = {};
-
+  
+  async room(){
+      console.log(await callFunction('discussionRoom/delete',{discussionRoomId:'XFQRSd7E7L4wvLKT'}))
+  }
   methods = {
+    async question(){
+      // let ret=await callFunction('question/watch',{questionId:"XFQZjnffS3SWFnhf",setOrCancel:true})
+      let ret=await callFunction('question/delete',{questionId:"XFQZjnffS3SWFnhf"})
+      // let ret=await callFunction('question/selected',{questionId:"XFQZjnffS3SWFnhf",setOrCancel:false})
+      // let ret=await callFunction('question/setRead',{questionId:"XFQZjnffS3SWFnhf"})
+      console.log(ret)
+    },
     async bindsubmit(e){
         //点击按钮后这里的代码将被执行
         // console.log('测试云函数')
@@ -93,11 +103,7 @@ export default class CreateDiscussionRoom extends wepy.page {
         //     console.log(res)
         //     }
         // })
-        console.log(await callFunction('discussionRoom/create',{courseName:'好丽友好基友'}))
-        // let ret=await callFunction('question/watch',{questionId:"XFPA3cDR1TiN6m5t",setOrCancel:false})
-
-        // let ret=await callFunction('question/watch',{questionId:"XFPA3cDR1TiN6m5t",setOrCancel:false})
-        //console.log(ret)
+        await this.room()
     }
   };
   events = {
