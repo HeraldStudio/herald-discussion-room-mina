@@ -182,7 +182,8 @@ export default class CreateDiscussionRoom extends wepy.page {
                 isSelected:false,
                 createdTime:now,
                 lastModifiedTime:now,
-                hasRead:false
+                hasRead:false,
+                watch:1
               }
             }
           )
