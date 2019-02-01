@@ -29,7 +29,7 @@
 			"list": []
 		},
 		"miniprogram": {
-			"current": 10,
+			"current": 6,
 			"list": [
 				{
 					"id": -1,
@@ -76,7 +76,7 @@
 					"id": 6,
 					"name": "答疑室详情页",
 					"pathName": "pages/discussionRoom/detail",
-					"query": "discussionRoomId=XFQUtd7E7L4wvMPn",
+					"query": "discussionRoomId=XFOogpT75u22k-q2",
 					"scene": null
 				},
 				{
@@ -101,7 +101,7 @@
 					"scene": null
 				},
 				{
-					"id": -1,
+					"id": 10,
 					"name": "答疑室管理员",
 					"pathName": "pages/discussionRoom/assistant",
 					"query": "discussionRoomId=XFOogpT75u22k-q2",

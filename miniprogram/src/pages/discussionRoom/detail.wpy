@@ -332,7 +332,9 @@ export default class DiscussionRoomDetail extends wepy.page {
       })
     },
     setAssistant(){
-
+      wx.navigateTo({
+        url:`/pages/discussionRoom/assistant?discussionRoomId=${this.discussionRoomId}`
+      })
     },
     createQuestion(){
       wx.navigateTo({

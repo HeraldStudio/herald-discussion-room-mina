@@ -78,6 +78,9 @@ import callFunction from '../../utils/callFunction'
 const db = wx.cloud.database();
 
 export default class Index extends wepy.page {
+  config = {
+    navigationBarTitleText: '设置管理员'
+  };
   data = {
     assistantList:[],
     discussionRoomId:'',
