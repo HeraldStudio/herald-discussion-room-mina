@@ -93,17 +93,13 @@ export default class CreateDiscussionRoom extends wepy.page {
         //     console.log(res)
         //     }
         // })
-        // console.log(await callFunction('discussionRoom/create',{courseName:'好丽友好基友'}))
-        let ret=await callFunction('discussionRoom/getAll',{})
-        console.log(ret)
-        console.log(await callFunction('discussionRoom/delete',{
-          cardnum:'213162838',
-          discussionRoomId:ret.data[0]._id,
-          setOrCancel:true
-          }))
+        console.log(await callFunction('discussionRoom/create',{courseName:'好丽友好基友'}))
+        // let ret=await callFunction('question/watch',{questionId:"XFPA3cDR1TiN6m5t",setOrCancel:false})
+
+        // let ret=await callFunction('question/watch',{questionId:"XFPA3cDR1TiN6m5t",setOrCancel:false})
+        //console.log(ret)
     }
   };
-
   events = {
       chooseImage(e){
           console.log(e)

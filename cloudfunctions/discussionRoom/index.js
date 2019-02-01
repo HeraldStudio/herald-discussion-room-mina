@@ -231,14 +231,11 @@ const routes = {
         watcherName:userInfo.name,
         watchTime:now
       }
-      let oldRecord = await db.collection('DiscussionRoom').doc(discussionRoomId).get()
-      let result = await db.collection('DiscussionRoom').doc(discussionRoomId).update({
-        data:{
-          watch:oldRecord.data.watch ? oldRecord.data.watch + 1 : 1
-        }
-      })
-      result=await db.collection('WatchDiscussionRoom').add({data})
+      let result=await db.collection('WatchDiscussionRoom').add({data})
       if(result._id){
+        await db.collection('DiscussionRoom').doc(discussionRoomId).update({
+          data:{ watch:_.inc(1)}
+        })
         return 1
       }else{
         throw Error('关注失败')
@@ -247,14 +244,11 @@ const routes = {
       if(currentWatchRecord.data.length==0){
         throw Error('取消关注失败')
       }
-      let oldRecord = await db.collection('DiscussionRoom').doc(discussionRoomId).get()
-      let result = await db.collection('DiscussionRoom').doc(discussionRoomId).update({
-        data:{
-          watch:oldRecord.data.watch ? oldRecord.data.watch - 1 : 0
-        }
-      })
-      result=await db.collection('WatchDiscussionRoom').doc(currentWatchRecord.data[0]._id).remove()
+      let result=await db.collection('WatchDiscussionRoom').doc(currentWatchRecord.data[0]._id).remove()
       if(result.stats.removed==1){
+        await db.collection('DiscussionRoom').doc(discussionRoomId).update({
+          data:{watch:_.inc(-1)}
+        })
         return 1
       }else{
         throw Error('取消关注失败')
