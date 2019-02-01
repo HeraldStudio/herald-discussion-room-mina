@@ -1,0 +1,162 @@
+<style lang="less" scoped>
+#assistant{
+  .hint {
+    font-size: 32rpx;
+    color: #888;
+    margin-left: 30rpx;
+    padding-top: 30rpx;
+  }
+  input {
+    width: 690rpx;
+    border-style: solid none;
+    border-width: 1rpx 0;
+    border-color: #eee;
+    margin-top: 15rpx;
+    padding: 20rpx 30rpx;
+    font-size: 32rpx;
+    color: #333;
+    background: #f0f0f0;
+  }
+  button {
+    background: #13acd9;
+    color: #fff;
+    font-size: 32rpx;
+    font-weight: bold;
+    margin: 40rpx 30rpx;
+    border-radius: 100rpx;
+  }
+  .assistant-item{
+    display: flex;
+    margin: 30rpx 30rpx;
+    justify-content: space-between;
+    align-items: center;
+    .name{
+      font-weight: bold;
+      color: #333;
+      font-size: 32rpx;
+    }
+    .cardnum{
+      color:#888;
+      font-size: 24rpx;
+      margin-top: 15rpx;
+    }
+    .cancel-button{
+      background: #EB5757;
+      border-radius: 100rpx;
+      color: #fff;
+      font-weight: bold;
+      padding: 10rpx 30rpx;
+      font-size: 32rpx;
+
+    }
+  }
+}
+</style>
+
+<template lang="pug">
+  view#assistant
+    view.top
+      form(bindsubmit="bindsubmit")
+        view.hint 新管理员一卡通号
+        input(name="cardnum" placeholder="一卡通号" maxlength="9")
+        button(loading="{{loading}}" disabled="{{loading}}" form-type="submit") 提交
+    view.line
+    repeat(for="{{assistantList}}" index="index")
+      view.assistant-item
+        view.info
+          view.name {{item.assistantName}}
+          view.cardnum {{item.cardnum}}
+        view.cancel-button( @tap="cancel({{item.cardnum}})") 取消
+      view.line
+    
+
+</template>
+
+<script>
+import wepy from 'wepy';
+import callFunction from '../../utils/callFunction'
+const db = wx.cloud.database();
+
+export default class Index extends wepy.page {
+  data = {
+    assistantList:[],
+    discussionRoomId:'',
+    reason:'',
+    loading:false
+  };
+  methods = {
+    async bindsubmit(e){
+      wx.showLoading({
+        title:'设置管理员'
+      })
+      console.log(e)
+      if(this.assistantList.length >= 5){
+        wx.showToast({
+          title:'最多五名管理员'
+        })
+        return
+      }
+      let cardnum = e.detail.value.cardnum
+      if(!cardnum || cardnum.length !== 9){
+        wx.showToast({
+          icon:'none',
+          title:'请正确填写'
+        })
+        return
+      }
+      let res = await callFunction('discussionRoom/assistant',{
+        cardnum,
+        discussionRoomId:this.discussionRoomId,
+        setOrCancel:true
+      })
+      console.log(res)
+      if(res.success){
+        wx.showToast({title:'设置成功'})
+      } else {
+        this.reason = res.reason
+      }
+      wx.hideLoading()
+      this.refresh()
+      this.$apply()
+    },
+    async cancel(cardnum){
+      wx.showLoading({
+        title:'取消管理员'
+      })
+      let res = await callFunction('discussionRoom/assistant',{
+        cardnum,
+        discussionRoomId:this.discussionRoomId,
+        setOrCancel:false
+      })
+      if(res.success){
+        wx.showToast({title:'取消成功'})
+      } else {
+        this.reason = res.reason
+      }
+      this.refresh()
+      this.$apply()
+      wx.hideLoading()
+    }
+  };
+  async refresh(){
+    let record = await db.collection('Assistant').where({discussionRoomId:this.discussionRoomId}).get()
+    let assistantList = record.data.map(async(k) => {
+      let userData = (await db.collection('User').doc(k.assistantId).get()).data
+      k.cardnum = userData.cardnum
+      return k
+    })
+    this.assistantList = await Promise.all(assistantList)
+    console.log(this.assistantList)
+    this.$apply()
+  }
+  onLoad(option){
+    this.discussionRoomId = option.discussionRoomId
+    if(!this.discussionRoomId){
+      wx.reLaunch({
+        url:'/pages/index'
+      })
+    }
+    this.refresh()
+  }
+}
+</script>
