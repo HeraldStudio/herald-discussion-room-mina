@@ -1,0 +1,152 @@
+<style lang="less">
+#comment-create {
+  display: block;
+  .hint {
+    font-size: 32rpx;
+    color: #888;
+    margin-left: 30rpx;
+    padding-top: 30rpx;
+  }
+  input {
+    width: 690rpx;
+    border-style: solid none;
+    border-width: 1rpx 0;
+    border-color: #eee;
+    margin-top: 15rpx;
+    padding: 20rpx 30rpx;
+    font-size: 32rpx;
+    color: #333;
+    background: #f0f0f0;
+  }
+  .desc {
+    width: 690rpx;
+    border-style: solid none;
+    border-width: 1rpx 0;
+    border-color: #eee;
+    margin-top: 15rpx;
+    padding: 20rpx 30rpx;
+    font-size: 32rpx;
+    color: #333;
+    background: #f0f0f0;
+  }
+  button {
+    background: #13acd9;
+    color: #fff;
+    font-size: 32rpx;
+    font-weight: bold;
+    margin: 40rpx 30rpx;
+    border-radius: 100rpx;
+  }
+  .upload {
+    width: 200rpx;
+    margin-top: 15rpx;
+    margin-left: 30rpx;
+  }
+}
+</style>
+<template lang="pug">
+  view#comment-create
+    form(report-submit="true" bindsubmit="bindsubmit" wx:if="{{!success}}")
+      view.hint 请填写评论/追问内容
+      textarea.desc(name="content" value="{{cotent}}" placeholder="不超过200字" maxlength="200")
+      button(loading="{{loading}}" disabled="{{loading}}" form-type="submit") 提交
+
+        
+
+</template>
+
+<script>
+import wepy from 'wepy';
+import callFunction from '../../utils/callFunction'; // 引入云函数调用的便捷封装
+import getUserInfo from '../../utils/getUserInfo';
+import uploadBox from '../../components/uploadBox';
+import moment from 'moment';
+export default class CreateComment extends wepy.page {
+  config = {
+    navigationBarTitleText: '评论/追问'
+  };
+  components = {
+    'upload-box': uploadBox
+  };
+
+  mixins = [];
+
+  data = {
+    userInfo: {},
+    answerId: '',
+    content: '',
+  };
+
+  computed = {};
+
+  methods = {
+    async bindsubmit(e) {
+      // 读取用户输入
+      console.log(e)
+      let content = e.detail.value.content
+      let now = +moment()
+      if(!content){
+        wx.showToast({
+          icon:'none',
+          title:'请填写完整'
+        })
+        return
+      }
+      const db = wx.cloud.database();
+      let userInfo = await getUserInfo();
+      // 插入formId
+      db.collection('FormId').add({
+        data:{
+          userId:userInfo._id,
+          formId:e.detail.formId,
+          expireTime:+moment()+7*24*60*60*1000
+        }
+      })
+      this.$apply()
+        try {
+          let dbRes = await db.collection('Comment').add(
+            {
+              data:{content,
+                commentatorId:userInfo._id,
+                commentatorName:userInfo.name,
+                answerId:this.answerId,
+                createdTime:now,
+                hasRead:false
+              }
+            }
+          )
+          if(dbRes.errMsg === 'collection.add:ok'){
+            wx.showToast({
+              title:'评论成功'
+            })
+            // TODO：跳转至问题详情页
+            // TODO：发送提醒
+          } else throw '评论失败'
+        } catch(e) {
+          console.log(e)
+          wx.showToast({
+            icon:'none',
+            title:'评论失败'
+          })
+        }
+      }
+    
+  };
+
+  events = {
+  };
+
+  async onLoad(option) {
+    // 获取用户信息
+    this.userInfo = await getUserInfo();
+    if (option.answerId) {
+      this.answerId = option.answerId;
+    } else {
+      // 不是合法的修改，跳转回首页
+      wx.reLaunch({
+        url: '/pages/index'
+      });
+    }
+  }
+}
+</script>

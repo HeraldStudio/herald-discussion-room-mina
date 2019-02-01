@@ -1,22 +1,250 @@
 <style lang="less">
 #discussion-detail {
-    
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  .top-panel {
+    margin-left: 30rpx;
+    margin-bottom: 30rpx;
+    .header {
+      font-size: 32rpx;
+      color: #888;
+    }
+    .title {
+      display: flex;
+      margin-right: 40rpx;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 10rpx;
+      .name {
+        font-size: 45rpx;
+        color: #333;
+        font-weight: bold;
+      }
+      .watch {
+        height: 50rpx;
+        font-size: 24rpx;
+        line-height: 50rpx;
+        padding: 0 20rpx;
+        border-radius: 100rpx;
+        border: none;
+        background: #eb5757;
+        color: #fff;
+        font-weight: #fff;
+        font-weight: bold;
+      }
+    }
+    .last-modified-time {
+      font-size: 24rpx;
+      color: #888;
+      margin-top: 10rpx;
+    }
+    .host-name {
+      display: flex;
+      margin-top: 10rpx;
+      .tag {
+        font-size: 24rpx;
+        color: #888;
+      }
+      .name {
+        font-size: 24rpx;
+        color: #333;
+        margin: 0 15rpx;
+      }
+    }
+  }
+  .admin-panel {
+    margin-left: 30rpx;
+    display: flex;
+    margin-top: 15rpx;
+    margin-bottom: 15rpx;
+    .delete {
+      color: #eb5757;
+      font-size: 24rpx;
+      margin-right: 15rpx;
+    }
+    .assistant {
+      color: #13acd9;
+      font-size: 24rpx;
+    }
+  }
+  .filter-panel {
+    margin-left: 30rpx;
+    margin-top: 15rpx;
+    margin-right: 40rpx;
+    margin-bottom: 15rpx;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    .sort {
+      display: flex;
+      align-items: center;
+      .tag {
+        color: #888;
+        font-size: 24rpx;
+        margin-right: 15rpx;
+      }
+      .strategy {
+        color: #13acd9;
+        font-size: 24rpx;
+      }
+    }
+    .selected {
+      display: flex;
+      align-items: center;
+      .tag {
+        color: #888;
+        font-size: 24rpx;
+        margin-right: 15rpx;
+      }
+      .circle {
+        width: 16px;
+        height: 16px;
+        border: solid #eee 1px;
+        border-radius: 100px;
+      }
+    }
+  }
+  .new-question-panel {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-top-style: solid;
+    border-top-width: 1px;
+    border-top-color: #f0f0f0;
+    background: #fff;
+    button {
+      background: #13acd9;
+      color: #fff;
+      font-size: 32rpx;
+      font-weight: bold;
+      margin: 20rpx 100rpx;
+      border-radius: 100rpx;
+    }
+  }
+  .back-to-top{
+    font-size: 32rpx;
+    padding: 15rpx 30rpx;
+    border-radius: 100rpx;
+    position: fixed;
+    right: 40rpx;
+    bottom: 150rpx;
+    font-weight: bold;
+    color: #333;
+    background: #fff;
+    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.25);
+    opacity: 0.7;
+  }
+  .question-panel {
+    margin-bottom: 120rpx;
+    .empty{
+      font-size: 32rpx;
+      color: #888;
+      text-align: center;
+      margin: 40rpx;
+    }
+    .item-cell {
+      padding: 20rpx 30rpx;
+      width: 690rpx;
+      .top {
+        font-size: 24rpx;
+        color: #888;
+        margin-bottom: 10rpx !important;
+      }
+      .title {
+        font-size: 32rpx;
+        color: #333;
+        font-weight: bold;
+        margin-bottom: 10rpx;
+      }
+      .content{
+        image{
+          width: 670rpx;
+          height: 500rpx;
+          border: solid 1rpx #f0f0f0;
+          background: #f0f0f0;
+        }
+      }
+      .description {
+        font-size: 24rpx;
+        color: #333;
+        margin-bottom: 10rpx;
+      }
+      .bottom {
+        display: flex;
+        align-items: center;
+        text {
+          font-size: 24rpx;
+          color: #888;
+          margin-right: 10rpx;
+        }
+        icon {
+          margin-right: 10rpx;
+        }
+      }
+    }
+    .item-cell:active {
+      background: #eee;
+    }
+  }
 }
 </style>
 <template lang="pug">
   view#discussion-detail
     view.top-panel
+      view.header \#{{code}}
       view.title
-        view {{name}}
-        button {{buttonText}}
-    
-        
-
+        view.name {{courseName}}
+        view.watch(wx:if="{{isWatched}}" @tap="cancelWatch") {{buttonText}}
+      view.last-modified-time 最近活跃时间 {{lastModifiedTime}}
+      view.host-name
+        view.tag 主持人
+        view.name {{hostName}}
+        view.tag 老师
+      view.host-name
+        view.tag {{howManyWatch}}
+    view.dot-line
+    view.admin-panel(wx:if="{{isAdmin}}")
+      view.delete(@tap="deleteRoom") 删除答疑室
+      view.assistant(@tap="setAssistant") 设置管理员
+    view.line
+    view.filter-panel
+      view.sort
+        view.tag 排序↓
+        view.strategy(@tap="toggleSort") {{sort}}
+      view.selected
+        view.tag 只看精选
+        icon(@tap="toggleSelected" type="success" size="16" wx:if="{{selectedOnly}}")
+        view.circle(wx:else @tap="toggleSelected")
+    view.dot-line
+    view.question-panel
+      view.empty(wx:if="{{!hasQuestion}}") {{emptyHint}}
+      repeat(for="{{questionList}}" index="index")
+        view.dot-line(style="margin-left:30rpx;")
+        view.item-cell
+          view.top {{item.lastModifiedTime}}的问题
+          view.title {{item.title}}
+          view.content
+            view.text
+              view.description {{item.description}}
+            image(mode="aspectFill" wx:if="{{item.imageCode}}" src="{{item.imageCode}}")
+          view.bottom
+            text 由 {{item.questionerName}} 提出 · {{item.watch}} 名同学关注此问题
+            icon(type="success" size="15" wx:if="{{item.isSelected}}")
+            text(wx:if="{{item.isSelected}}") 精选
+    view.new-question-panel
+      button(@tap="createQuestion") 我要提问
+    view.back-to-top(@tap="backToTop") 回到顶部
 </template>
 
 <script>
 import wepy from 'wepy';
 import callFunction from '../../utils/callFunction'; // 引入云函数调用的便捷封装
+import getUserInfo from '../../utils/getUserInfo';
+//import moment from 'moment'
+//import momentCN from 'moment/locale/zh-cn'
+const moment = require('moment');
 export default class DiscussionRoomDetail extends wepy.page {
   config = {
     navigationBarTitleText: '答疑室'
@@ -26,17 +254,188 @@ export default class DiscussionRoomDetail extends wepy.page {
   mixins = [];
 
   data = {
-    name:''
+    discussionRoomId: '',
+    code: '',
+    courseName: '',
+    hostName: '',
+    lastModifiedTime: '',
+    howManyWatch: '1人关注',
+    buttonText: '取消关注',
+    buttonClass: 'negative',
+    isWatched: true,
+    isAdmin: false,
+    sort: '最新动态', // 最多关注
+    selectedOnly: false,
+    page: 0, // 分页计数器
+    questionList: [],
+    loading: false,
+    emptyHint:'还没有问题，不如提个问？' // 加锁
   };
 
-  computed = {};
+  computed = {
+    hasQuestion(){
+      return this.questionList.length > 0
+    }
+  };
 
   methods = {
+    toggleSort(){
+      this.emptyHint = '正在加载...'
+      this.sort = this.sort === '最新动态' ? '最多关注' : '最新动态'
+      this.questionList = []
+      this.page = 0
+      this.loadQuestion()
+    },
+    toggleSelected(){
+      this.selectedOnly = !this.selectedOnly
+      this.questionList = []
+      this.emptyHint = this.selectedOnly ? '还没有精选问题' : '还没有问题，不如提个问？'
+      this.page = 0
+      this.loadQuestion()
+    },
+    backToTop(){
+      wx.pageScrollTo({
+        scrollTop:0
+      })
+    },
+    async cancelWatch(){
+
+    },
+    async deleteRoom(){
+      // 张可看这里
+      let that = this
+      wx.showModal({
+        title: '确认删除',
+        content: '答疑室删除后将无法恢复，所有问题/答案/评论都将丢失',
+        success(res) {
+          if (res.confirm) {
+            try{
+              let res = callFunction('discussionRoom/delete',{discussionRoomId:that.discussionRoomId})
+              if(res.success){
+                wx.showToast({
+                  title:'删除成功'
+                })
+              } else {
+                throw res.reason
+              }
+            } catch(e) {
+              console.log(e)
+              wx.showToast({
+                icon:'none',
+                title:'删除失败，请重试'
+              })
+            }
+          } else if (res.cancel) {
+            console.log('用户点击取消')
+          }
+        }
+      })
+    },
+    setAssistant(){
+
+    },
+    createQuestion(){
+      wx.navigateTo({
+        url:`/pages/question/createOrModify?discussionRoomId=${this.discussionRoomId}`
+      })
+    }
   };
 
-  events = {};
+  async loadQuestion() {
+    const db = wx.cloud.database()
+      if (this.loading) {
+        return;
+      }
+      this.loading = true; // 加锁
+      this.$apply();
+      let query = { discussionRoomId: this.discussionRoomId };
+      if (this.selectedOnly) {
+        // 如果设置了只看精选
+        query.isSelected = true;
+      }
+      let res 
+      if(this.page > 0){
+        res = await db
+        .collection('Question')
+        .skip(this.page * 10)
+        .limit(10)
+        .orderBy(
+          this.sort === '最新动态' ? 'lastModifiedTime' : 'watch',
+          'desc'
+        )
+        .orderBy(
+          'lastModifiedTime',
+          'desc'
+        )
+        .where(query).get();
+      } else {
+        res = await db
+        .collection('Question')
+        .limit(10)
+        .orderBy(
+          this.sort === '最新动态' ? 'lastModifiedTime' : 'watch',
+          'desc'
+        )
+        .orderBy(
+          'lastModifiedTime',
+          'desc'
+        )
+        .where(query).get();
+      }
+      this.page = this.page + 1; // 记录分页
+      this.questionList = this.questionList.concat(
+        res.data.map(k => {
+          moment.locale('zh-cn');
+          k.description = k.description.slice(0, 100)
+          k.lastModifiedTime = moment(k.lastModifiedTime).fromNow();
+          return k;
+        })
+      );
+      this.loading = false
+      this.$apply()
+    }
 
-  async onLoad() {
+  events = {};
+  
+  onReachBottom() {
+    this.loadQuestion()
   }
+  async onLoad(options) {
+    let { discussionRoomId } = options;
+    let userInfo = await getUserInfo();
+    if (!discussionRoomId) {
+      // 没有传入答疑室ID
+      wx.reLaunch({
+        url: '/pages/index'
+      });
+    }
+    // 获取答疑室基本信息
+    const db = wx.cloud.database();
+    let info;
+    try {
+      info = (await db
+        .collection('DiscussionRoom')
+        .doc(discussionRoomId)
+        .get()).data;
+    } catch (e) {
+      // 获取失败
+      wx.reLaunch({
+        url: '/pages/index'
+      });
+    }
+    this.discussionRoomId = discussionRoomId
+    this.courseName = info.courseName;
+    this.code = info.code;
+    moment.locale('zh-cn');
+    this.lastModifiedTime = moment(info.lastModifiedTime)
+      .locale('zh-cn')
+      .fromNow();
+    this.hostName = info.hostName;
+    this.isAdmin = info.hostId === userInfo._id;
+    this.howManyWatch = `${info.watch}人关注`;
+    this.$apply();
+    this.loadQuestion()
+  }
+
 }
 </script>

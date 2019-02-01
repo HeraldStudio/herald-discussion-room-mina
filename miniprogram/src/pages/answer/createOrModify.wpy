@@ -1,5 +1,5 @@
 <style lang="less">
-#question-create {
+#answer-create {
   display: block;
   .hint {
     font-size: 32rpx;
@@ -45,16 +45,14 @@
 }
 </style>
 <template lang="pug">
-  view#question-create
+  view#answer-create
     form(report-submit="true" bindsubmit="bindsubmit" wx:if="{{!success}}")
-      view.hint 问题标题
-      input(name="title" value="{{title}}" placeholder="不超过20字" maxlength="20")
-      view.hint 问题描述
-      textarea.desc(name="description" value="{{description}}" placeholder="不超过500字" maxlength="500")
+      view.hint 我的解答
+      textarea.desc(name="description" value="{{description}}" placeholder="不超过1000字" maxlength="1000")
       view.hint 插入图片
       view.upload
         upload-box
-      button(loading="{{loading}}" disabled="{{loading}}" form-type="submit") {{isModify ? '确认修改' : '提交问题'}}
+      button(loading="{{loading}}" disabled="{{loading}}" form-type="submit") {{isModify ? '确认修改' : '提交答案'}}
 
         
 
@@ -68,7 +66,7 @@ import uploadBox from '../../components/uploadBox';
 import moment from 'moment';
 export default class CreateDiscussionRoom extends wepy.page {
   config = {
-    navigationBarTitleText: '我要提问'
+    navigationBarTitleText: '回答'
   };
   components = {
     'upload-box': uploadBox
@@ -79,9 +77,8 @@ export default class CreateDiscussionRoom extends wepy.page {
   data = {
     isModify: false,
     userInfo: {},
+    answerId: '',
     questionId: '',
-    discussionRoomId: '',
-    title: '',
     description: '',
     localImage: '',
     imageCode: ''
@@ -93,10 +90,9 @@ export default class CreateDiscussionRoom extends wepy.page {
     async bindsubmit(e) {
       // 读取用户输入
       console.log(e)
-      let title = e.detail.value.title
       let description = e.detail.value.description
       let now = +moment()
-      if(!title || !description){
+      if(!description){
         wx.showToast({
           icon:'none',
           title:'请填写完整'
@@ -126,7 +122,7 @@ export default class CreateDiscussionRoom extends wepy.page {
               fileList: [this.imageCode]
             });
           }
-          let cloudPath = `question-image/${userInfo._id}-${+moment()}.${
+          let cloudPath = `answer-image/${userInfo._id}-${+moment()}.${
             this.localImage.split('.')[this.localImage.split('.').length - 1]
           }`;
           let uploadRes = await wx.cloud.uploadFile({
@@ -148,18 +144,18 @@ export default class CreateDiscussionRoom extends wepy.page {
       if (this.isModify) {
         // 修改问题流程
         try {
-          let dbRes = await db.collection('Question').doc(this.questionId).update(
+          let dbRes = await db.collection('Answer').doc(this.answerId).update(
             {
-              data:{title,description,lastModifiedTime:+moment(),imageCode:this.imageCode, hasRead:false}
+              data:{description,lastModifiedTime:+moment(),imageCode:this.imageCode, hasRead:false}
             }
           )
           if(dbRes.errMsg === 'document.update:ok'){
             wx.showToast({
-              title:'问题修改成功'
+              title:'答案修改成功'
             })
             // TODO：跳转至问题详情页
           } else {
-            throw '问题修改失败'
+            throw '答案修改失败'
           }
         } catch(e) {
           console.log(e)
@@ -170,35 +166,32 @@ export default class CreateDiscussionRoom extends wepy.page {
         }
       } else {
         try {
-          let dbRes = await db.collection('Question').add(
+          let dbRes = await db.collection('Answer').add(
             {
-              data:{title,description,imageCode:this.imageCode,
-                questionerId:userInfo._id,
-                questionerName:userInfo.name,
-                discussionRoomId:this.discussionRoomId,
-                title,
+              data:{description,imageCode:this.imageCode,
+                respondentId:userInfo._id,
+                respondentName:userInfo.name,
+                questionId:this.questionId,
                 imageCode:this.imageCode,
-                isSelected:false,
                 createdTime:now,
                 lastModifiedTime:now,
                 hasRead:false,
-                watch:1
+                vote:0
               }
             }
           )
           if(dbRes.errMsg === 'collection.add:ok'){
             wx.showToast({
-              title:'问题创建成功'
+              title:'回答成功'
             })
-            wx.navigateBack()
             // TODO：跳转至问题详情页
             // TODO：发送提醒
-          } else throw '问题创建失败'
+          } else throw '回答失败'
         } catch(e) {
           console.log(e)
           wx.showToast({
             icon:'none',
-            title:'问题创建失败'
+            title:'回答失败'
           })
         }
       }
@@ -213,40 +206,39 @@ export default class CreateDiscussionRoom extends wepy.page {
   };
 
   async onLoad(option) {
-    // 判断是创建问题还是修改问题
-    this.isModify = !!option.questionId;
+    // 判断是创建答案还是修改答案
+    this.isModify = !!option.answerId;
     // 获取用户信息
     this.userInfo = await getUserInfo();
     if (this.isModify) {
-      // 如果已有questionId则是修改问题
-      this.questionId = option.questionId;
+      // 如果已有answerId则是修改问题
+      this.answerId = option.answerId;
       const db = wx.cloud.database();
-      let question
+      let answer
       try{
-        question = (await db
-        .collection('Question')
-        .doc(this.questionId)
+        answer = (await db
+        .collection('Answer')
+        .doc(this.answerId)
         .get()).data;
       } catch(e) {
-        // 执行到此处由于questionId无效
+        // 执行到此处由于answerId无效
         // 不是合法的修改，跳转回首页
         wx.reLaunch({
           url: '/pages/index'
         });
       }
-      this.title = question.title;
-      this.description = question.description;
-      this.imageCode = question.imageCode;
+      this.description = answer.description;
+      this.imageCode = answer.imageCode;
       this.$apply()
-      if (this.userInfo._id !== question.questionerId) {
+      if (this.userInfo._id !== answer.respondentId) {
         // 不是合法的修改，跳转回首页
         wx.reLaunch({
           url: '/pages/index'
         });
       }
-    } else if (option.discussionRoomId) {
-      // 否则是创建问题
-      this.discussionRoomId = option.discussionRoomId;
+    } else if (option.questionId) {
+      // 否则是创建回答
+      this.questionId = option.questionId;
     } else {
       // 不是合法的修改，跳转回首页
       wx.reLaunch({
