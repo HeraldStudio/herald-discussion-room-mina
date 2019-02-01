@@ -136,6 +136,8 @@
         view.tag 主持人
         view.name {{hostName}}
         view.tag 老师
+      view.host-name
+        view.tag {{howManyWatch}}
     view.dot-line
     view.admin-panel(wx:if="{{isAdmin}}")
       view.delete 删除答疑室
@@ -162,6 +164,7 @@
 <script>
 import wepy from 'wepy';
 import callFunction from '../../utils/callFunction'; // 引入云函数调用的便捷封装
+import getUserInfo from '../../utils/getUserInfo'
 //import moment from 'moment'
 //import momentCN from 'moment/locale/zh-cn'
 const moment = require('moment')
@@ -179,10 +182,11 @@ export default class DiscussionRoomDetail extends wepy.page {
     courseName:'',
     hostName:'',
     lastModifiedTime:'',
+    howManyWatch:'1人关注',
     buttonText:'取消关注',
     buttonClass:'negative',
     isWatched:true,
-    isAdmin:true,
+    isAdmin:false,
     sort:'最新动态', // 最多关注
     selectedOnly: false
   };
@@ -196,6 +200,7 @@ export default class DiscussionRoomDetail extends wepy.page {
 
   async onLoad(options) {
     let {discussionRoomId} = options
+    let userInfo = await getUserInfo()
     if(!discussionRoomId){
       // 没有传入答疑室ID
       wx.reLaunch({
@@ -203,7 +208,6 @@ export default class DiscussionRoomDetail extends wepy.page {
       })
     }
     // 获取答疑室基本信息
-    
     const db = wx.cloud.database();
     let info = (await db.collection('DiscussionRoom').doc(discussionRoomId).get()).data
     if(!info){
@@ -217,8 +221,10 @@ export default class DiscussionRoomDetail extends wepy.page {
     moment.locale('zh-cn')
     this.lastModifiedTime = moment(info.lastModifiedTime).locale('zh-cn').fromNow()
     this.hostName = info.hostName
+    this.isAdmin = info.hostId === userInfo._id
+    this.howManyWatch = `${info.watch}人关注`
     this.$apply()
-
+    // 获取关注数据
   }
 }
 </script>

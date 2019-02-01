@@ -33,7 +33,7 @@ export default class Index extends wepy.page {
     roomList: [
       {
         _id: "XE_4rnffS3SWA89k",
-        code: DFA18,
+        code: 'DFA18',
         courseName: "念诗之王",
         createdTime: 1548744878378,
         hostId: "XE3OasDR1TiN0eZ_",
