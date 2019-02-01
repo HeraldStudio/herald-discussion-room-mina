@@ -25,6 +25,12 @@
     margin: 40rpx 30rpx;
     border-radius: 100rpx;
   }
+  .reason{
+    color:#EB5757;
+    font-size: 32rpx;
+    margin-top: 15rpx;
+    margin-left: 30rpx;
+  }
   .assistant-item{
     display: flex;
     margin: 30rpx 30rpx;
@@ -59,6 +65,7 @@
       form(bindsubmit="bindsubmit")
         view.hint 新管理员一卡通号
         input(name="cardnum" placeholder="一卡通号" maxlength="9")
+        view.reason(wx:if="{{reason}}") {{reason}}
         button(loading="{{loading}}" disabled="{{loading}}" form-type="submit") 提交
     view.line
     repeat(for="{{assistantList}}" index="index")
@@ -78,6 +85,9 @@ import callFunction from '../../utils/callFunction'
 const db = wx.cloud.database();
 
 export default class Index extends wepy.page {
+  config = {
+    navigationBarTitleText: '设置管理员'
+  };
   data = {
     assistantList:[],
     discussionRoomId:'',

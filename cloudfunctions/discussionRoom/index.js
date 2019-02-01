@@ -9,7 +9,7 @@ const getUserInfoByOpenId = async (openid) => {
   if (userRecord.data.length === 1) {
     return userRecord.data[0]
   } else {
-    throw '授权无效'
+    throw Error('授权无效')
   }
 }
 const getUserInfoByCardnum = async (cardnum) => {
@@ -17,7 +17,7 @@ const getUserInfoByCardnum = async (cardnum) => {
   if (userRecord.data.length === 1) {
     return userRecord.data[0]
   } else {
-    throw '授权无效'
+    throw Error('用户不存在')
   }
 }
 
