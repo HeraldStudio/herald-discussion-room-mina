@@ -58,6 +58,12 @@ const routes = {
       if(countRecord.total>=100){
         throw Error('对方已达管理上限100')
       }
+      countRecord=await db.collection('Assistant').where({
+        discussionRoomId
+      }).count()
+      if(countRecord.total>=5){
+        throw Error('最多5名管理员')
+      }
       let now=+moment()
       let data={
         discussionRoomId,
