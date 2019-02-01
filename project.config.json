@@ -29,7 +29,7 @@
 			"list": []
 		},
 		"miniprogram": {
-			"current": 8,
+			"current": 9,
 			"list": [
 				{
 					"id": -1,
@@ -90,6 +90,13 @@
 					"id": -1,
 					"name": "答案修改",
 					"pathName": "pages/answer/createOrModify",
+					"query": "answerId=XFQG1d7E7L4wvH_6",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "评论创建",
+					"pathName": "pages/comment/create",
 					"query": "answerId=XFQG1d7E7L4wvH_6",
 					"scene": null
 				}

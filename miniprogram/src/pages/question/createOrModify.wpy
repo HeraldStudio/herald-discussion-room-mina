@@ -172,12 +172,11 @@ export default class CreateDiscussionRoom extends wepy.page {
         try {
           let dbRes = await db.collection('Question').add(
             {
-              data:{title,description,lastModifiedTime:+moment(),imageCode:this.imageCode,
+              data:{title,description,imageCode:this.imageCode,
                 questionerId:userInfo._id,
                 questionerName:userInfo.name,
                 discussionRoomId:this.discussionRoomId,
                 title,
-                description,
                 imageCode:this.imageCode,
                 isSelected:false,
                 createdTime:now,
