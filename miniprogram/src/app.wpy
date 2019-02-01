@@ -64,7 +64,9 @@ export default class extends wepy.app {
       'pages/discussionRoom/list',
       'pages/discussionRoom/search',
       'pages/discussionRoom/detail',
-      'pages/question/createOrModify'
+      'pages/question/createOrModify',
+      'pages/answer/createOrModify',
+      'pages/comment/create'
     ],
     window: {
       backgroundTextStyle: 'light',
