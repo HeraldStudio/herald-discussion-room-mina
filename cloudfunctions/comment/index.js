@@ -14,8 +14,7 @@ const getUserInfoByOpenId = async(openid) => {
 
 // ---从这里开始编写路由和逻辑---
 const routes = {
-  async delete (data) {
-    let { commentatorId, commentId } = data
+  async delete({ commentatorId, commentId }) {
     let userInfo = await getUserInfoByOpenId(openid)
     if(commentatorId === userInfo._id){
       // 如果是评论创建者，可以删除
@@ -44,9 +43,7 @@ const routes = {
     // 执行到此处仍然没有权限
     throw Error('权限不允许')
   },
-  async setRead (data) {
-    let {commentId} = data
-    
+  async setRead({ commentId }) {    
     let commentRecord = (await db.collection('Comment').doc(commentId).get()).data
     let answerRecord = (await db.collection('Answer').doc(commentRecord.answerId).get()).data
 
@@ -64,7 +61,7 @@ const routes = {
 // ---下面的内容请复制---
 exports.main = async (event, context) => {
   const wxContext = cloud.getWXContext()
-  openid = wxContext.OPENID // 获取调用用户的openid
+  openid = wxContext.OPENID || event.data.__id__// 获取调用用户的openid
   let {path, data} = event
   if (routes[path] instanceof Function) {
     try {

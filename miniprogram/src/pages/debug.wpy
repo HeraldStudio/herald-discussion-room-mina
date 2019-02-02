@@ -79,18 +79,38 @@ export default class CreateDiscussionRoom extends wepy.page {
   };
 
   computed = {};
-  
-  async room(){
-      console.log(await callFunction('discussionRoom/delete',{discussionRoomId:'XFQRSd7E7L4wvLKT'}))
-  }
-  methods = {
-    async question(){
-      // let ret=await callFunction('question/watch',{questionId:"XFQZjnffS3SWFnhf",setOrCancel:true})
-      let ret=await callFunction('question/delete',{questionId:"XFQZjnffS3SWFnhf"})
-      // let ret=await callFunction('question/selected',{questionId:"XFQZjnffS3SWFnhf",setOrCancel:false})
-      // let ret=await callFunction('question/setRead',{questionId:"XFQZjnffS3SWFnhf"})
+
+
+  async answer(){
+      let ret=await callFunction('answer/vote',{answerId:"XFVjVXffS3SWG2FY",setOrCancel:true})
+      // let ret=await callFunction('answer/delete',{answerId:"XFVDF5T75u22mk5u"})
+      // let ret=await callFunction('answer/setRead',{answerId:"XFVDF5T75u22mk5u"})
       console.log(ret)
-    },
+  }
+  async question(){
+      // let ret=await callFunction('question/watch',{questionId:"XFVCwsDR1TiN8GN9",setOrCancel:true})
+      let ret=await callFunction('question/delete',{questionId:"XFViWMDR1TiN8PJw"})
+      // let ret=await callFunction('question/selected',{questionId:"XFVCwsDR1TiN8GN9",setOrCancel:false})
+      // let ret=await callFunction('question/setRead',{questionId:"XFVCwsDR1TiN8GN9"})
+      console.log(ret)
+  }
+  async room(){
+    let ret
+    // console.log(await callFunction('discussionRoom/create',{courseName:'级联删除测试'}))
+    ret=await callFunction('discussionRoom/delete',{discussionRoomId:'XFVfVcDR1TiN8OSr'})
+
+    // ret= await callFunction('discussionRoom/assistant',{
+    //    cardnum:'213162838',
+    //    discussionRoomId:'XFVClHffS3SWGstw',
+    //    setOrCancel:true
+    //    })
+
+    // ret=await callFunction('discussionRoom/watch',{discussionRoomId:'XFVClHffS3SWGstw',setOrCancel:true})
+
+    // ret=await callFunction('discussionRoom/getAll')
+    return ret;
+}
+  methods = {
     async bindsubmit(e){
         //点击按钮后这里的代码将被执行
         // console.log('测试云函数')
@@ -103,7 +123,7 @@ export default class CreateDiscussionRoom extends wepy.page {
         //     console.log(res)
         //     }
         // })
-        await this.room()
+        console.log(await this.room())
     }
   };
   events = {

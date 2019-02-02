@@ -130,14 +130,24 @@ const routes = {
     if (record.data.length !== 1) {
       throw Error('目标答疑室不存在')
     } else if (record.data[0].hostId === userInfo._id) {
-      let result = await db.collection('DiscussionRoom').doc(discussionRoomId).remove()
-      if (result.stats.removed == 1) {
-        await db.collection('Assistant').where({ discussionRoomId }).remove()
-        await db.collection('WatchDiscussionRoom').where({ discussionRoomId }).remove()
-        return 1
-      } else {
-        throw Error('删除失败')
+      await db.collection('Assistant').where({ discussionRoomId }).remove()
+      await db.collection('WatchDiscussionRoom').where({ discussionRoomId }).remove()
+      let questions=(await db.collection("Question").where({ discussionRoomId}).get()).data
+      let ret=[]
+      for(let each of questions){
+        ret.push(await cloud.callFunction({
+          name:"question",
+          data:{
+            path:"delete",
+            data:{
+              questionId:each._id,
+              __id__:openid
+            }
+          }
+        }))
       }
+      await db.collection('DiscussionRoom').doc(discussionRoomId).remove()
+      return ret
     } else {
       throw Error('权限不允许')
     }
@@ -257,7 +267,7 @@ const routes = {
 // ---下面的内容请复制---
 exports.main = async (event, context) => {
   const wxContext = cloud.getWXContext()
-  openid = wxContext.OPENID // 获取调用用户的openid
+  openid = wxContext.OPENID || event.data.__id__ // 获取调用用户的openid
   let { path, data } = event
   if (routes[path] instanceof Function) {
     try {
