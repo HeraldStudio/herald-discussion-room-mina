@@ -1,0 +1,572 @@
+<style lang="less">
+#question-detail {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  .top-panel {
+    margin-left: 30rpx;
+    margin-bottom: 30rpx;
+    .header {
+      font-size: 24rpx;
+      color: #888;
+    }
+    .title {
+      display: flex;
+      margin-right: 40rpx;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 10rpx;
+      .name {
+        font-size: 45rpx;
+        color: #333;
+        font-weight: bold;
+      }
+      .watch {
+        height: 50rpx;
+        font-size: 24rpx;
+        line-height: 50rpx;
+        padding: 0 20rpx;
+        border-radius: 100rpx;
+        border: none;
+        background: #eb5757;
+        color: #fff;
+        font-weight: #fff;
+        font-weight: bold;
+      }
+    }
+  }
+  .detail-panel {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15rpx;
+    .secondary{
+      font-size: 24rpx;
+      margin-left: 30rpx;
+      margin-top: 15rpx;
+    }
+    .is-selected{
+      margin-top: 10rpx;
+      margin-left: 30rpx;
+      display:flex;
+      align-items: center;
+      icon{
+        margin:0 10rpx;
+      }
+      .text{
+        margin:0;
+      }
+    }
+    .button{
+      margin-right: 40rpx;
+      background: #eb5757;
+      padding: 10rpx 30rpx;
+      color: #fff;
+      font-size: 24rpx;
+      margin-top: 15rpx;
+    }
+    .watch{
+      background: #219653;
+    }
+  }
+  .admin-panel {
+    margin-left: 30rpx;
+    display: flex;
+    margin-top: 15rpx;
+    margin-bottom: 15rpx;
+    .delete {
+      color: #eb5757;
+      font-size: 24rpx;
+      margin-right: 15rpx;
+    }
+    .assistant {
+      color: #13acd9;
+      font-size: 24rpx;
+    }
+  }
+  .description-panel {
+    font-size: 32rpx;
+    text-indent: 2em;
+    color: #333;
+    margin: 15rpx 40rpx 15rpx 30rpx;
+  }
+  .image-panel {
+    padding: 0 40rpx 15rpx 30rpx;
+    display: flex;
+    align-items: stretch;
+    flex-direction: column;
+    image{
+      background: #f0f0f0;
+      border: #f0f0f0 solid 1rpx;
+      width: 680rpx;
+    }
+    .hint{
+      font-size: 24rpx;
+      color: #888;
+      text-align: center;
+      margin-top: 15rpx;
+    }
+  }
+  .filter-panel {
+    margin-left: 30rpx;
+    margin-top: 15rpx;
+    margin-right: 40rpx;
+    margin-bottom: 15rpx;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    .sort {
+      display: flex;
+      align-items: center;
+      .tag {
+        color: #888;
+        font-size: 24rpx;
+        margin-right: 15rpx;
+      }
+      .strategy {
+        color: #13acd9;
+        font-size: 24rpx;
+      }
+    }
+    .selected {
+      display: flex;
+      align-items: center;
+      .tag {
+        color: #888;
+        font-size: 24rpx;
+        margin-right: 15rpx;
+      }
+      .circle {
+        width: 16px;
+        height: 16px;
+        border: solid #eee 1px;
+        border-radius: 100px;
+      }
+    }
+  }
+  .new-question-panel {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-top-style: solid;
+    border-top-width: 1px;
+    border-top-color: #f0f0f0;
+    background: #fff;
+    button {
+      background: #13acd9;
+      color: #fff;
+      font-size: 32rpx;
+      font-weight: bold;
+      margin: 20rpx 100rpx;
+      border-radius: 100rpx;
+    }
+  }
+  .back-to-top{
+    font-size: 32rpx;
+    padding: 15rpx 30rpx;
+    border-radius: 100rpx;
+    position: fixed;
+    right: 40rpx;
+    bottom: 150rpx;
+    font-weight: bold;
+    color: #333;
+    background: #fff;
+    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.25);
+    opacity: 0.7;
+  }
+  .question-panel {
+    margin-bottom: 120rpx;
+    .empty{
+      font-size: 32rpx;
+      color: #888;
+      text-align: center;
+      margin: 40rpx;
+    }
+    .item-cell {
+      padding: 20rpx 30rpx;
+      width: 690rpx;
+      .top {
+        font-size: 24rpx;
+        color: #888;
+        margin-bottom: 10rpx !important;
+      }
+      .title {
+        font-size: 32rpx;
+        color: #333;
+        font-weight: bold;
+        margin-bottom: 10rpx;
+      }
+      .content{
+        image{
+          width: 670rpx;
+          height: 500rpx;
+          border: solid 1rpx #f0f0f0;
+          background: #f0f0f0;
+        }
+        .hint{
+          font-size: 24rpx;
+          color: #888;
+          width: 650rpx;
+          text-align: center;
+          margin-bottom: 15rpx;
+        }
+      }
+      .description {
+        font-size: 32rpx;
+        color: #333;
+        margin-bottom: 10rpx;
+      }
+      .bottom {
+        display: flex;
+        align-items: center;
+        margin: 15rpx 0;
+        justify-content: space-between;
+        text {
+          font-size: 24rpx;
+          color: #888;
+          margin-right: 10rpx;
+        }
+        .button {
+          background: #219653;
+          padding: 10rpx 30rpx;
+          color: #fff;
+          font-size: 24rpx;
+        }
+      }
+      .comment-panel{
+        .comment-cell{
+          margin-top: 15rpx;
+          .top{
+            display: flex;
+            justify-content: space-between;
+          }
+          .delete{
+            color: #eb5757;
+          }
+          .content{
+            color:#333;
+            font-size: 28rpx;
+            margin-bottom: 15rpx;
+          }
+        }
+        .bottom{
+          margin-top: 15rpx;
+          margin-bottom: 0 !important;
+          justify-content: space-around;
+          .button{
+            color: #219653;
+            padding: 10rpx 30rpx;
+            background: #f0f0f0;
+            font-size: 24rpx;
+          }
+        }
+      }
+    }
+  }
+}
+</style>
+<template lang="pug">
+  view#question-detail
+    view.top-panel
+      view.header 答疑室 {{discussionRoomName}} 之中的问题
+      view.title
+        view.name {{title}} 
+    view.dot-line
+    view.detail-panel
+      view.first-line
+        view.secondary {{questionerName}} {{createdTime}} 提问
+        view.is-selected(wx:if="{{isSelected}}")
+          view.secondary.text 精选问题
+          icon(type="success" size="18")
+          view.secondary.text 有 {{howManyWatch}} 人关注这个问题
+      view.button(wx:if="{{isWatched}}") 取消关注
+      view.button.watch(wx:else) 关注问题 
+    view.dot-line 
+    view.admin-panel(wx:if="{{canDelete || canSelect}}")
+      view.delete(@tap="deleteQuestion" wx:if="{{canDelete}}") 删除问题
+      view.assistant(@tap="setSelect" wx:if="{{canSelect}}") 设为精选
+    view.dot-line
+    view.description-panel {{description}}
+    view.image-panel
+      image(wx:if="{{imageCode}}" @tap="showImage({{imageCode}})" src="{{imageCode}}" mode="aspectFill")
+      view.hint (点击图片查看大图)
+    view.line
+    view.filter-panel
+      view.sort
+        view.tag 排序↓
+        view.strategy(@tap="toggleSort") {{sort}}
+    view.dot-line
+    view.question-panel
+      view.empty(wx:if="{{!hasAnswer}}") {{emptyHint}}
+      repeat(for="{{answerList}}" index="index")
+        view.item-cell
+          view.top {{item.respondentName}} {{item.lastModifiedTime}}回答
+          view.content
+            view.text
+              view.description {{item.description}}
+            image(@tap="showImage({{item.imageCode}})" mode="aspectFill" wx:if="{{item.imageCode}}" src="{{item.imageCode}}")
+            view.hint(wx:if="{{item.imageCode}}") (点击查看大图)
+          view.dot-line
+          view.bottom
+            text 有 {{item.vote}} 人认为答案有帮助
+            view.button.cancel(@tap="vote({{item._id}},{{item.isVoted}})" wx:if="{{item.isVoted}}") 取消支持
+            view.button(@tap="vote({{item._id}},{{item.isVoted}})" wx:else) 支持答案
+          view.dot-line
+          view.comment-panel
+            repeat(for="{{item.commentList}}" item="comment")
+              view.comment-cell
+                view.top
+                  view.commentator {{comment.commentatorName}} {{comment.createdTime}} 评论/追问
+                  view.delete 删除评论
+                view.content {{comment.content}}
+              view.dot-line
+            view.bottom
+              view.button 添加评论
+        view.line
+
+    view.new-question-panel
+      button(@tap="createAnswer") 我要回答
+    view.back-to-top(@tap="backToTop") 回到顶部
+</template>
+
+<script>
+import wepy from 'wepy';
+import callFunction from '../../utils/callFunction'; // 引入云函数调用的便捷封装
+import getUserInfo from '../../utils/getUserInfo';
+//import moment from 'moment'
+//import momentCN from 'moment/locale/zh-cn'
+const moment = require('moment');
+export default class DiscussionRoomDetail extends wepy.page {
+  config = {
+    navigationBarTitleText: '答疑室'
+  };
+  components = {};
+
+  mixins = [];
+
+  data = {
+    discussionRoomId: '',
+    discussionRoomName: '',
+    title: '',
+    createdTime: '',
+    questionerName: '',
+    isSelected: false,
+    isWatched: false,
+    howManyWatch: 0,
+    canDelete:false,
+    canSelect:false,
+    description:'',
+    imageCode:'',
+    sort: '最新动态', // 最多支持
+    selectedOnly: false,
+    page: 0, // 分页计数器
+    answerList: [],
+    loading: false,
+    emptyHint:'还没有回答，不如发个言？', // 加锁
+    userInfo:{}
+  };
+
+  computed = {
+    hasAnswer(){
+      return this.answerList.length > 0
+    }
+  };
+
+  methods = {
+    showImage(code){
+      wx.previewImage({urls:[code]})
+    },
+    toggleSort(){
+      this.emptyHint = '正在加载...'
+      this.sort = this.sort === '最新动态' ? '最多支持' : '最新动态'
+      this.answerList = []
+      this.page = 0
+      this.loadAnswer()
+    },
+    backToTop(){
+      wx.pageScrollTo({
+        scrollTop:0
+      })
+    },
+    async cancelWatch(){
+
+    },
+    async deleteRoom(){
+      // 张可看这里
+      let that = this
+      wx.showModal({
+        title: '确认删除',
+        content: '答疑室删除后将无法恢复，所有问题/答案/评论都将丢失',
+        success(res) {
+          if (res.confirm) {
+            try{
+              let res = callFunction('discussionRoom/delete',{discussionRoomId:that.discussionRoomId})
+              if(res.success){
+                wx.showToast({
+                  title:'删除成功'
+                })
+              } else {
+                throw res.reason
+              }
+            } catch(e) {
+              console.log(e)
+              wx.showToast({
+                icon:'none',
+                title:'删除失败，请重试'
+              })
+            }
+          } else if (res.cancel) {
+            console.log('用户点击取消')
+          }
+        }
+      })
+    },
+    setAssistant(){
+      wx.navigateTo({
+        url:`/pages/discussionRoom/assistant?discussionRoomId=${this.discussionRoomId}`
+      })
+    },
+    createAnswer(){
+      wx.navigateTo({
+        url:`/pages/answer/createOrModify?questionId=${this.questionId}`
+      })
+    }
+  };
+
+  async loadAnswer() {
+    const db = wx.cloud.database()
+      if (this.loading) {
+        return;
+      }
+      this.loading = true; // 加锁
+      this.$apply();
+      let query = { questionId: this.questionId };
+      let res 
+      if(this.page > 0){
+        res = await db
+        .collection('Answer')
+        .skip(this.page * 10)
+        .limit(10)
+        .orderBy(
+          this.sort === '最新动态' ? 'lastModifiedTime' : 'vote',
+          'desc'
+        )
+        .orderBy(
+          'lastModifiedTime',
+          'desc'
+        )
+        .where(query).get();
+      } else {
+        res = await db
+        .collection('Answer')
+        .limit(10)
+        .orderBy(
+          this.sort === '最新动态' ? 'lastModifiedTime' : 'vote',
+          'desc'
+        )
+        .orderBy(
+          'lastModifiedTime',
+          'desc'
+        )
+        .where(query).get();
+      }
+      this.page = this.page + 1; // 记录分页
+      let answerSlice = res.data.map(async (k)=> {
+        moment.locale('zh-cn');
+        k.lastModifiedTime = moment(k.lastModifiedTime).fromNow();
+        k.isVoted = (await db.collection('VoteAnswer').where({voterId:this.userInfo._id, answerId:k._id}).count()).total === 1;
+        let hasMoreComment = true
+        let commentList = []
+        let commentPage = 0
+        // 对于答案获取所有的评论
+        while(hasMoreComment){
+          let comments
+          if(commentPage === 0){
+            comments = (await db.collection('Comment').limit(10).orderBy('createdTime', 'desc').where({answerId:k._id}).get()).data
+          } else {
+            comments = (await db.collection('Comment').skip(commentPage*10).limit(10).where({answerId:k._id}).orderBy('createdTime', 'desc').get()).data
+          }
+          commentPage += 1
+          commentList = commentList.concat(comments)
+          hasMoreComment = !(comments.length === 0)
+        }
+        commentList = commentList.map( l => {
+          l.createdTime = moment(l.createdTime).fromNow()
+          return l
+        })
+        k.commentList = commentList
+        return k;
+      })
+      answerSlice = await Promise.all(answerSlice)
+      this.answerList = this.answerList.concat(answerSlice);
+      this.loading = false
+      console.log(this.answerList)
+      this.$apply()
+    }
+
+  events = {};
+  
+  onReachBottom() {
+    this.loadAnswer()
+  }
+  async onLoad(options) {
+    let { questionId } = options;
+    let userInfo = await getUserInfo();
+    this.userInfo = userInfo
+    if (!questionId) {
+      // 没有传入问题ID
+      wx.reLaunch({
+        url: '/pages/index'
+      });
+    }
+    // 获取问题基本信息
+    const db = wx.cloud.database();
+    let info;
+    try {
+      info = (await db
+        .collection('Question')
+        .doc(questionId)
+        .get()).data;
+    } catch (e) {
+      // 获取失败
+      wx.reLaunch({
+        url: '/pages/index'
+      });
+    }
+    this.questionId = questionId
+    this.title = info.title;
+    let discussionRoomId = info.discussionRoomId
+    let discussionRoomInfo;
+    try {
+      discussionRoomInfo = (await db
+        .collection('DiscussionRoom')
+        .doc(discussionRoomId)
+        .get()).data;
+    } catch (e) {
+      // 获取失败
+      wx.reLaunch({
+        url: '/pages/index'
+      });
+    }
+    this.discussionRoomName = discussionRoomInfo.courseName;
+    this.questionerName = info.questionerName
+    moment.locale('zh-cn')
+    this.createdTime = moment(info.createdTime).fromNow()
+    this.isSelected = info.isSelected
+    this.howManyWatch = (await db.collection('WatchQuestion').where({questionId}).count()).total
+    this.canDelete = discussionRoomInfo.hostId === userInfo._id
+    if(!this.canDelete){
+      // 如果不是答疑室创建者，检查是否是答疑室管理员
+      let assistantRes = (await db.collection('Assistant').where({discussionRoomId, assistantId:userInfo._id}).count()).total
+      this.canDelete = assistantRes === 1
+    }
+    this.canSelect = this.canDelete
+    this.description = info.description
+    this.imageCode = info.imageCode
+    this.$apply()
+    this.loadAnswer()
+  }
+
+}
+</script>

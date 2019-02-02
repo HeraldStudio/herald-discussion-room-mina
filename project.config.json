@@ -29,7 +29,7 @@
 			"list": []
 		},
 		"miniprogram": {
-			"current": 6,
+			"current": 9,
 			"list": [
 				{
 					"id": -1,
@@ -94,10 +94,10 @@
 					"scene": null
 				},
 				{
-					"id": -1,
+					"id": 9,
 					"name": "评论创建",
 					"pathName": "pages/comment/create",
-					"query": "answerId=XFQG1d7E7L4wvH_6",
+					"query": "answerId=XFVXg97E7L4wwY6A",
 					"scene": null
 				},
 				{
@@ -105,6 +105,13 @@
 					"name": "答疑室管理员",
 					"pathName": "pages/discussionRoom/assistant",
 					"query": "discussionRoomId=XFOogpT75u22k-q2",
+					"scene": null
+				},
+				{
+					"id": 11,
+					"name": "问题详情页",
+					"pathName": "pages/question/detail",
+					"query": "questionId=XFVSt3ffS3SWGxUQ",
 					"scene": null
 				}
 			]
