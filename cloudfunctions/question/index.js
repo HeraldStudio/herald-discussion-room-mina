@@ -37,37 +37,35 @@ const routes = {
       assistantId:userinfo._id
     }).count()
     
-    //判断权限
+    // 判断权限
     if(count_assistant.total+count_room.total==0){
       throw Error("权限不允许")
     }
 
-    let questionImage=record_question.imageCode
-    //删除操作
-    let result=await db.collection("Question").doc(questionId).remove();
-    if(result.stats.removed!==1){
-      throw Error("删除失败")
-    }
-    if(questionImage){
-      await cloud.deleteFile({fileList:[questionImage]})
-    }
-
     //级联删除关注
     await db.collection("WatchQuestion").where({questionId}).remove()
-    //级联删除答案(答案云函数完成后直接解注释并测试)
-    //  答案的评论由答案云函数删除
-
-    // (await db.collection("Answer").where({questionId}).get()).data.forEach(each => {
-    //   await cloud.callFunction({
-    //     name:"answer",
-    //     data:{
-    //       path:"delete",
-    //       data:each._id
-    //     }
-    //   })
-    // });
+    //级联删除答案
+    let ret=[]
+    let questions=(await db.collection("Answer").where({questionId}).get()).data
+    for(let each of questions){
+      ret.push(await cloud.callFunction({
+        name:"answer",
+        data:{
+          path:"delete",
+          data:{
+            answerId:each._id,
+            __id__:openid
+          }
+        }
+      }))
+    }
+    //删除操作
+    await db.collection("Question").doc(questionId).remove();
+    if (record_question.imageCode){
+      await cloud.deleteFile({fileList:[record_question.imageCode]})
+    }
     
-    return 1
+    return ret
   },
   async watch({ questionId , setOrCancel }) {
     if(typeof questionId !=='string'||
@@ -215,7 +213,12 @@ const routes = {
 // ---下面的内容请复制---
 exports.main = async (event, context) => {
   const wxContext = cloud.getWXContext()
-  openid = wxContext.OPENID // 获取调用用户的openid
+
+  //增加一个__id__的用户参数，是为了解决云函数内调用云函数的时候内层云函数无法获取外层openid的问题
+  //属于牺牲部分安全性而换取程序灵活性的行为（如果要取消这一部分的话，需要修改的是级联删除操作部分，其他部分
+  //与__id__不相关）
+
+  openid = wxContext.OPENID || event.data.__id__// 获取调用用户的openid
   let { path, data } = event
   if (routes[path] instanceof Function) {
     try {

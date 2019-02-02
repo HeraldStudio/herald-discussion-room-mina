@@ -1,20 +1,26 @@
 <style lang="less" scoped>
 #question-list{
     .top {
-      margin-left:20rpx;
       font-size: 24rpx;
       color: #888;
-      padding: 14rpx ;
-      padding-bottom:10rpx;
-       
+      padding-top:10rpx;
+      padding-bottom:0rpx;
+      position: fixed;
+      background-color: white;
+      width:100%;
+      height:50rpx;
     }
     .tab{
+        margin-left:23rpx;
         padding: 10rpx;
         border-radius: 20rpx 20rpx 0 0;
     }
     .isClicked{
-        background-color: #eee;
+       background-color: #eee;
        color: black;
+    }
+    .content{
+        padding-top:50rpx;
     }
     .loading{
     background-color: white;
@@ -23,6 +29,7 @@
     text-align: center;
  }
  .line{
+        margin-top:10rpx;
         width:100%;
         border-top-style: solid;
         border-top-width: 5rpx;
@@ -53,10 +60,7 @@
 .myquestion:active{
     background: #eee;
 }
-.isSelected ,.createdTime{
-    font-size: 24rpx;
-    color: #888;
-}
+ 
 text {
       font-size: 24rpx;
       color: #888;
@@ -71,18 +75,21 @@ text {
         view.top
           text.tab( @tap="spread('MQ','WQ')" :class="{isClicked:isMQSpread}") 我提的问题
           text.tab( @tap="spread('WQ','MQ')" :class="{isClicked:isWQSpread}") 我关注的问题
-        view.line
-        view(wx:if="{{isMQSpread}}")
-          repeat(for="{{myQuestions}}" index="index" @tap="toDetail")
+          view.line
+        view.content(wx:if="{{isMQSpread}}")
+          repeat(for="{{myQuestions}}" index="index"  )
             view.dot-line(style="margin-left:30rpx;" wx:if="{{index!==0}}")
-            view.myquestion
+            view.myquestion( @tap = 'toDetail(item._id)')
                 view.title {{item.title}}
                 view.description {{item.description}}
                 icon(type="success" size="15" wx:if="{{item.isSelected}}")
                 text.isSelected(wx:if="{{item.isSelected}}") 精选
                 text.watch {{item.watch}}人关注
                 text.createdTime 于{{TimeFormat(item.createdTime)}}创建
-           
+          repeat(for="{{}}" index="index")
+            view.dot-line(style="margin-left:30rpx;" wx:if="{{index!==0}}")
+            view.myquestion( @tap = 'toDetail(item._id)')
+            
 </template>
 <script>
 import wepy from 'wepy';
@@ -100,7 +107,8 @@ export default class QuestionList extends wepy.page{
         isWQSpread:false
     };
     methods = {
-        toDetail(){
+        toDetail(id){
+            console.log(id)
 
         },
         spread(tabOpen,tabClose){
