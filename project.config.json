@@ -62,7 +62,7 @@
 					"id": 4,
 					"name": "问题创建",
 					"pathName": "pages/question/createOrModify",
-					"query": "discussionRoomId=XFOogpT75u22k-q2",
+					"query": "discussionRoomId=XFVfVcDR1TiN8OSr",
 					"scene": null
 				},
 				{
@@ -80,10 +80,10 @@
 					"scene": null
 				},
 				{
-					"id": -1,
+					"id": 7,
 					"name": "答案创建",
 					"pathName": "pages/answer/createOrModify",
-					"query": "questionId=XFPA3cDR1TiN6m5t",
+					"query": "questionId=XFVjHN7E7L4wwcQ7",
 					"scene": null
 				},
 				{

@@ -101,6 +101,7 @@ export default class List extends wepy.page {
             if(res.success){
                 this.loading = false
                 console.log(res.data,'获取答疑室列表成功',this.loading)
+                //let {courseName,}
                 this.$apply();
 
             }else{
@@ -108,9 +109,10 @@ export default class List extends wepy.page {
 
             }
         
+        
     }
     onPullDownRefresh() {
-             console.log('下拉加载')
+            console.log('下拉加载')
             setTimeout(()=>{
                 this.discussionRoomForstudent. asclassPrefect.push(this.discussionRoomForstudent. asclassPrefect[0])
                 this.$apply();

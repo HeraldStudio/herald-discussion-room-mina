@@ -76,11 +76,11 @@
     view.line
     new-answers-panel(:items.sync="newAnswers")
     view.navi
-      view.navi-button(@tap="TodiscussionRoom")
+      view.navi-button(@tap="toDiscussionRoom")
         image(src="/asset/room-icon.png")
         text 进入答疑室
       view.sperator
-      view.navi-button
+      view.navi-button(@tap='toQuestionList')
         image(src="/asset/question-icon.png")
         text 关注的问题
       view.sperator
@@ -197,8 +197,11 @@ export default class Index extends wepy.page {
   };
 
   methods = {
-    TodiscussionRoom(){
+    toDiscussionRoom(){
       wx.navigateTo({url:'/pages/discussionRoom/list'})
+    },
+    toQuestionList(){
+      wx.navigateTo({url:'/pages/question/questionlist'})
     }
   };
 

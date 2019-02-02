@@ -14,8 +14,7 @@ const getUserInfoByOpenId = async(openid) => {
 
 // ---从这里开始编写路由和逻辑---
 const routes = {
-  async delete (data) {
-    let { commentatorId, commentId } = data
+  async delete({ commentatorId, commentId }) {
     let userInfo = await getUserInfoByOpenId(openid)
     if(commentatorId === userInfo._id){
       // 如果是评论创建者，可以删除
@@ -44,9 +43,7 @@ const routes = {
     // 执行到此处仍然没有权限
     throw Error('权限不允许')
   },
-  async setRead (data) {
-    let {commentId} = data
-    
+  async setRead({ commentId }) {    
     let commentRecord = (await db.collection('Comment').doc(commentId).get()).data
     let answerRecord = (await db.collection('Answer').doc(commentRecord.answerId).get()).data
 
@@ -64,7 +61,12 @@ const routes = {
 // ---下面的内容请复制---
 exports.main = async (event, context) => {
   const wxContext = cloud.getWXContext()
-  openid = wxContext.OPENID // 获取调用用户的openid
+
+  //增加一个__id__的用户参数，是为了解决云函数内调用云函数的时候内层云函数无法获取外层openid的问题
+  //属于牺牲部分安全性而换取程序灵活性的行为（如果要取消这一部分的话，需要修改的是级联删除操作部分，其他部分
+  //与__id__不相关）
+
+  openid = wxContext.OPENID || event.data.__id__// 获取调用用户的openid
   let {path, data} = event
   if (routes[path] instanceof Function) {
     try {

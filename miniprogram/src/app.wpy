@@ -67,6 +67,7 @@ export default class extends wepy.app {
       'pages/discussionRoom/assistant',
       'pages/question/createOrModify',
       'pages/question/detail',
+      'pages/question/questionlist',
       'pages/answer/createOrModify',
       'pages/comment/create'
     ],

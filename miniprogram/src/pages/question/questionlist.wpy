@@ -1,0 +1,166 @@
+<style lang="less" scoped>
+#question-list{
+    .top {
+      font-size: 24rpx;
+      color: #888;
+      padding-top:10rpx;
+      padding-bottom:0rpx;
+      position: fixed;
+      background-color: white;
+      width:100%;
+      height:50rpx;
+    }
+    .tab{
+        margin-left:23rpx;
+        padding: 10rpx;
+        border-radius: 20rpx 20rpx 0 0;
+    }
+    .isClicked{
+       background-color: #eee;
+       color: black;
+    }
+    .content{
+        padding-top:50rpx;
+    }
+    .loading{
+    background-color: white;
+    font-size: 24rpx;
+    color:#888;
+    text-align: center;
+ }
+ .line{
+        margin-top:10rpx;
+        width:100%;
+        border-top-style: solid;
+        border-top-width: 5rpx;
+        border-top-color: #E0E0E0;
+  }
+  .dot-line{
+        width:100%;
+        border-top-style: dashed;
+        border-top-width: 1rpx;
+        border-top-color: #E0E0E0;
+  }
+  .title {
+    font-size: 32rpx;
+    color: #333;
+    font-weight: bold;
+    margin-bottom: 10rpx;
+  }
+  .description{
+    font-size: 24rpx;
+    color: #333;
+  }
+.myquestion{
+    padding-left:34rpx;
+    padding-top:24rpx;
+    padding-bottom:24rpx;
+    padding-right: 34rpx;
+}
+.myquestion:active{
+    background: #eee;
+}
+ 
+text {
+      font-size: 24rpx;
+      color: #888;
+      margin-right: 10rpx;
+    }
+}
+</style>
+<template lang="pug">
+    view#question-list
+      view.loading(wx:if="{{loading}}") 正在加载中
+      view(wx:if="{{!loading}}")
+        view.top
+          text.tab( @tap="spread('MQ','WQ')" :class="{isClicked:isMQSpread}") 我提的问题
+          text.tab( @tap="spread('WQ','MQ')" :class="{isClicked:isWQSpread}") 我关注的问题
+          view.line
+        view.content(wx:if="{{isMQSpread}}")
+          repeat(for="{{myQuestions}}" index="index"  )
+            view.dot-line(style="margin-left:30rpx;" wx:if="{{index!==0}}")
+            view.myquestion( @tap = 'toDetail(item._id)')
+                view.title {{item.title}}
+                view.description {{item.description}}
+                icon(type="success" size="15" wx:if="{{item.isSelected}}")
+                text.isSelected(wx:if="{{item.isSelected}}") 精选
+                text.watch {{item.watch}}人关注
+                text.createdTime 于{{TimeFormat(item.createdTime)}}创建
+          repeat(for="{{}}" index="index")
+            view.dot-line(style="margin-left:30rpx;" wx:if="{{index!==0}}")
+            view.myquestion( @tap = 'toDetail(item._id)')
+            
+</template>
+<script>
+import wepy from 'wepy';
+import getUserInfo from '../../utils/getUserInfo';
+import callFunction from '../../utils/callFunction'; // 引入云函数调用的便捷封装
+ 
+export default class QuestionList extends wepy.page{
+    config = {
+
+    };
+    data = {
+        loading:true,
+        myQuestions:[],
+        isMQSpread:true,
+        isWQSpread:false
+    };
+    methods = {
+        toDetail(id){
+            console.log(id)
+
+        },
+        spread(tabOpen,tabClose){
+            this[`is${tabOpen}Spread`] =  true
+            this[`is${tabClose}Spread`] =  false
+            this.$apply()
+        },
+         
+        TimeFormat(unixtime){
+                if(typeof(unixtime)==='string')return unixtime;
+                let unixTimestamp = new Date(unixtime * 1000);
+                let Y = unixTimestamp.getFullYear();
+                let M = ((unixTimestamp.getMonth() + 1) > 10 ? 
+                         (unixTimestamp.getMonth() + 1) : '0' + (unixTimestamp.getMonth() + 1));
+                let D = (unixTimestamp.getDate() > 10 ? 
+                         unixTimestamp.getDate() : '0' + unixTimestamp.getDate());
+                let toDay = Y + '-' + M + '-' + D;
+                return  toDay;
+        },
+        formatMyQ(){
+            let mQ =  this.myQuestions.map(item=>{
+                item.createdTime = this.TimeFormat(item.createdTime)
+                console.log('0')
+            })
+            this.myQuestions =  mQ
+            console.log(mQ)
+            this.$apply()
+        }
+
+    };
+    computed = {
+        
+    };
+    async onLoad(){
+        let userInfo = await getUserInfo(wepy)
+        let username = userInfo.name
+        console.log(username)
+        const db = wx.cloud.database()
+        let _this = this
+        db.collection('Question').
+        where({
+            questionerName: '高睿昊'       //  username，调试需要高睿昊
+        }).get({success:(res)=>{
+            console.log(res)
+            _this.loading = false
+            _this.myQuestions = res.data
+            console.log(_this.myQuestions)
+            _this.$apply()
+
+        }})
+      
+    };
+    
+}
+</script>
