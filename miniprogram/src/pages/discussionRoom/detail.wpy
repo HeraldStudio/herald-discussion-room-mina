@@ -205,7 +205,7 @@
         view.tag 老师
       view.host-name
         view.tag {{howManyWatch}}
-    view.dot-line
+    view.dot-line(wx:if="{{isAdmin}}")
     view.admin-panel(wx:if="{{isAdmin}}")
       view.delete(@tap="deleteRoom") 删除答疑室
       view.assistant(@tap="setAssistant") 设置管理员
@@ -343,6 +343,7 @@ export default class DiscussionRoomDetail extends wepy.page {
                 wx.showToast({
                   title:'删除成功'
                 })
+                wx.redirectTo({url:'/pages/discussionRoom/list'})
               } else {
                 throw res.reason
               }

@@ -1,140 +1,139 @@
 <style lang="less" scoped>
- .loading{
-    background-color: white;
+#list-page{
+  .tag{
     font-size: 24rpx;
     color:#888;
-    text-align: center;
- }
+    padding: 15rpx 30rpx;
+  }
+  .item:active{
+    background: #f0f0f0;
+  }
+  .item{
+    padding: 15rpx 30rpx;
+    .top{
+      font-size: 24rpx;
+      color: #888;
+    }
+    .title{
+      font-size: 32rpx;
+      color: #333;
+      font-weight: bold;
+    }
+    .bottom{
+      font-size: 24rpx;
+      color: #888;
+    }
+  }
+}
 </style>
 
 <template lang="pug">
-    view#list-page
-      view.loading(wx:if="{{loading}}") 正在加载中
-      view(wx:if="{{!loading}}")
-        List-Panel-Student( :studentRoom.sync="discussionRoomForstudent"   wx:if="identity==='本科生'||identity==='研究生'" )
-        List-Panel-Teacher( :teacherRoom.sync="discussionRoomForteacher"   wx:else)
+  view#list-page
+    view.section(wx:if="{{asHost.length>0}}")
+      view.tag 我创建的答疑室
+      repeat(for="{{asHost}}" index="index")
+        view.dot-line
+        view.item( @tap="gotoDiscussionRoom({{item._id}})")
+          view.title {{item.courseName}}
+          view.bottom {{item.watch}} 人关注
+      view.line
+    
+    view.section(wx:if="{{asAdviser.length>0}}")
+      view.tag 我担任顾问的答疑室
+      repeat(for="{{asAdviser}}" index="index")
+        view.dot-line
+        view.item( @tap="gotoDiscussionRoom({{item._id}})")
+          view.top {{item.hostName}} 老师主持的答疑室
+          view.title {{item.courseName}}
+          view.bottom {{item.watch}} 人关注
+      view.line
+
+    view.section(wx:if="{{asClassPrefect.length>0}}")
+      view.tag 我担任课代表的答疑室
+      repeat(for="{{asClassPrefect}}" index="index")
+        view.dot-line
+        view.item( @tap="gotoDiscussionRoom({{item._id}})")
+          view.top {{item.hostName}} 老师主持的答疑室
+          view.title {{item.courseName}}
+          view.bottom {{item.watch}} 人关注
+      view.line
+
+    view.section(wx:if="{{asWatcher.length>0}}")
+      view.tag 我关注的答疑室
+      repeat(for="{{asWatcher}}" index="index")
+        view.dot-line
+        view.item( @tap="gotoDiscussionRoom({{item._id}})")
+          view.top {{item.hostName}} 老师主持的答疑室
+          view.title {{item.courseName}}
+          view.bottom {{item.watch}} 人关注
+      view.line
 
  </template>
 
 <script>
 import wepy from 'wepy';
-import ListPanelForTeacher from '../../components/discussionRoomList/listPanelForTeacher';
-import ListPanelForStudent from '../../components/discussionRoomList/listPanelForStudent';
 import getUserInfo from '../../utils/getUserInfo';
 import callFunction from '../../utils/callFunction'; // 引入云函数调用的便捷封装
 
 export default class List extends wepy.page {
-    config = {
-        enablePullDownRefresh: true
-    };
-    components = {
-        'List-Panel-Teacher':ListPanelForTeacher,
-        'List-Panel-Student':ListPanelForStudent
-    };
-    data = {
-        cardnum:'...',
-        name:'...',
-        identity:'...',
-        avatar:'',
-        loading:true,
-        discussionRoomForstudent:{//学生
-            asclassPrefect://作为课代表
-            [{
-                courseName:'编译原理',
-                questionNum:'120',//不属于数据库字段，为了页面调试
-                studentsNum:'35',//不属于数据库字段，为了页面调试
-            },{
-                courseName:'微机原理与接口技术',
-                questionNum:'201',//不属于数据库字段，为了页面调试
-                studentsNum:'70',//不属于数据库字段，为了页面调试
-            }],
-            aswatcher://作为关注者
-            [{
-                courseName:'编译原理',
-                hostName:'瞿玉庆',
-                questionNum:'120',//不属于数据库字段，为了页面调试
-                studentsNum:'35',//不属于数据库字段，为了页面调试
-            },{
-                courseName:'微机原理与接口技术',
-                hostName:'杨全胜',
-                questionNum:'201',//不属于数据库字段，为了页面调试
-                studentsNum:'70',//不属于数据库字段，为了页面调试
-            }]
-        },
-        discussionRoomForteacher:{//老师
-            ashost:[//作为答疑室创建者
-            {
-                courseName:'编译原理',
-                questionNum:'120',//不属于数据库字段，为了页面调试
-                studentsNum:'35',//不属于数据库字段，为了页面调试
-            },{
-                courseName:'微机原理与接口技术',
-                questionNum:'201',//不属于数据库字段，为了页面调试
-                studentsNum:'70',//不属于数据库字段，为了页面调试
-            } 
-            ],
-            asadviser:[//作为答疑室顾问
-            {
-                courseName:'编译原理',
-                questionNum:'120',//不属于数据库字段，为了页面调试
-                studentsNum:'35',//不属于数据库字段，为了页面调试
-            },{
-                courseName:'微机原理与接口技术',
-                questionNum:'201',//不属于数据库字段，为了页面调试
-                studentsNum:'70',//不属于数据库字段，为了页面调试
-            }
-            ]
-        }
-    };
-    
-    methods = {
-        
-    };
-    events = {
+  config = {
+    enablePullDownRefresh: true
+  };
+  data = {
+    cardnum: '...',
+    name: '...',
+    identity: '...',
+    avatar: '',
+    loading: true,
+    hasAsHost: false,
+    asHost:[],
+    asAdviser:[],
+    asClassPrefect:[],
+    asWatcher:[]
+  };
 
-    };
-    async onLoad(){//获取用户身份和答疑室
-        let userInfo = await getUserInfo(wepy)
-        this.identity =  userInfo.identity
-        let userID = userInfo._id
-        this.$apply();
-
-        const db = wx.cloud.database()
-        let _this = this
-        db.collection('WatchDiscussionRoom').where({}).get({
-            success:res=>{
-                this.loading = false
-                console.log('直接从数据库获取答疑室列表成功',res)
-                this.$apply();
-            }
-        })
-        
- 
-        let res = await callFunction('discussionRoom/getAll')
-            if(res.success){
-                this.loading = false
-                console.log(res.data,'从云函数获取答疑室列表成功',this.loading)
-                //let {courseName,}
-                this.$apply();
-
-            }else{
-                console.log(res.data.code,'获取答疑室列表失败1')
-
-            }
-        
-
-        
+  methods = {
+    gotoDiscussionRoom(discussionRoomId){
+      wx.redirectTo({
+        url:'/pages/discussionRoom/detail?discussionRoomId='+discussionRoomId
+      })
     }
-    onPullDownRefresh() {
-            console.log('下拉加载')
-            setTimeout(()=>{
-                this.discussionRoomForstudent. asclassPrefect.push(this.discussionRoomForstudent. asclassPrefect[0])
-                this.$apply();
-            },1000
-            )
+  };
+  events = {};
+
+
+  async loadDiscussionRoom() {
+    let userInfo = await getUserInfo(wepy);
+    this.identity = userInfo.identity;
+    let userID = userInfo._id;
+
+    const db = wx.cloud.database();
+    let res = await callFunction('discussionRoom/getAll');
+    if (res.success) {
+      res.data.forEach(k => {
+        if(k.tag === '主持'){
+          this.asHost.push(k)
+        } else if(k.tag === '管理') {
+          if(this.identity === '教职员工'){
+            this.asAdviser.push(k)
+          } else {
+            this.asClassPrefect.push(k)
+          }
+        } else {
+          this.asWatcher.push(k)
         }
+      });
+      this.$apply()
+    } else {
+      console.log(res.data.code, '获取答疑室列表失败');
+    }
+  }
+
+  async onLoad() {
+    //获取用户身份和答疑室
+    await this.loadDiscussionRoom();
+  }
 }
- 
 </script>
 
 
