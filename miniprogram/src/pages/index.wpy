@@ -74,7 +74,6 @@
         view.name {{name}}
         view.identity {{identity}}
     view.line
-    new-answers-panel(:items.sync="newAnswers")
     view.navi
       view.navi-button(@tap="toDiscussionRoom")
         image(src="/asset/room-icon.png")
@@ -88,7 +87,6 @@
         image(src="/asset/answer-icon.png")
         text 我的回答
     view.line
-    new-questions-panel(:items.sync="questions")
     button.bottom-loading(wx:if="{{bottomLoading}}" plain="true" loading="true" disabled="true") 正在加载
     button.bottom-loading(wx:else plain="true") 加载更多
     
@@ -99,16 +97,12 @@ import wepy from 'wepy';
 import callFunction from '../utils/callFunction'; // 引入云函数调用的便捷封装
 import getUserInfo from '../utils/getUserInfo';
 
-import newAnswersPanel from '../components/newAnswersPanel'
-import newQuestionsPanel from '../components/newQuestionsPanel'
 export default class Index extends wepy.page {
   config = {
     navigationBarTitleText: '小猴答疑室',
     onReachBottomDistance:10,
   };
   components = {
-    'new-answers-panel':newAnswersPanel,
-    'new-questions-panel':newQuestionsPanel
   };
 
   mixins = [];
