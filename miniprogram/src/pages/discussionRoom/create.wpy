@@ -118,6 +118,11 @@ export default class CreateDiscussionRoom extends wepy.page {
   events = {};
 
   async onLoad() {
+    this.success = false
+    this.loading = false
+    this.code = 'SKK520'
+    this.discussionRoomId = ''
+    this.$apply()
   }
 }
 </script>

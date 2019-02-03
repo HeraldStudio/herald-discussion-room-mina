@@ -443,7 +443,29 @@ export default class DiscussionRoomDetail extends wepy.page {
     this.scroll = obj.scrollTop
     this.$apply()
   }
+  init(){
+    this.ready=false;
+    this.discussionRoomId= '';
+    this.code= '';
+    this.courseName= '';
+    this.hostName= '';
+    this.lastModifiedTime= '';
+    this.howManyWatch= '1人关注';
+    this.buttonText= '取消关注';
+    this.buttonClass= 'negative';
+    this.isWatched= false;
+    this.isAdmin= false;
+    this.sort= '最新动态'; // 最多关注
+    this.selectedOnly= false;
+    this.page= 0; // 分页计数器
+    this.questionList= [];
+    this.loading= false;
+    this.emptyHint='还没有问题，不如提个问？'; // 加锁
+    this.scroll=0;
+    this.$apply()
+  }
   async onLoad(options) {
+    this.$apply()
     let { discussionRoomId } = options;
     let userInfo = await getUserInfo();
     if (!discussionRoomId) {

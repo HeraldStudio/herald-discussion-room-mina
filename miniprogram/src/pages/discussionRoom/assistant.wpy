@@ -159,7 +159,15 @@ export default class Index extends wepy.page {
     console.log(this.assistantList)
     this.$apply()
   }
+  init(){
+    this.assistantList = []
+    this.discussionRoomId = ''
+    this.reason = ''
+    this.loading = false
+    this.$apply()
+  }
   onLoad(option){
+    this.init()
     this.discussionRoomId = option.discussionRoomId
     if(!this.discussionRoomId){
       wx.reLaunch({
