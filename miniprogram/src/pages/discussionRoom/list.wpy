@@ -96,7 +96,16 @@ export default class List extends wepy.page {
     async onLoad(){//获取用户身份和答疑室
         let userInfo = await getUserInfo(wepy)
         this.identity =  userInfo.identity
+        let userID = userInfo._id
         this.$apply();
+        const db = wx.cloud.database();
+        db.collection('WatchDiscussionRoom').where({watchID:userID }).get({
+            success:res=>{
+                console.log('从数据库获取答疑室',res)
+            }
+        })
+
+
         let res = await callFunction('discussionRoom/getAll')
             if(res.success){
                 this.loading = false
