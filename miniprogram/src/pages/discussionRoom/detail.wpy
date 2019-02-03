@@ -197,7 +197,8 @@
       view.header \#{{code}}
       view.title
         view.name {{courseName}}
-        view.watch(wx:if="{{isWatched}}" @tap="cancelWatch") {{buttonText}}
+        view.watch(wx:if="{{isWatched}}" @tap="cancelWatch") 取消关注
+        view.watch(style="background:#219653" wx:else @tap="cancelWatch") 关注
       view.last-modified-time 最近活跃时间 {{lastModifiedTime}}
       view.host-name
         view.tag 主持人
@@ -307,12 +308,18 @@ export default class DiscussionRoomDetail extends wepy.page {
       })
     },
     async cancelWatch(){
+      const db = wx.cloud.database()
+      const userInfo = await getUserInfo()
+      if(this.loading){
+        return
+      }
+      this.loading = true
       wx.showLoading({title:'请稍候'})
       try{
-        let res = await callFunction('discussionRoom/watch',{discussionRoomId:this.discussionRoomId, setOrCancel:false})
+        let res = await callFunction('discussionRoom/watch',{discussionRoomId:this.discussionRoomId, setOrCancel:!this.isWatched})
         if(res.success){
           wx.hideLoading()
-          this.isWatched = false
+          this.isWatched = (await db.collection('WatchDiscussionRoom').where({discussionRoomId:this.discussionRoomId, watcherId:userInfo._id}).count()).total === 1
           this.$apply()
         } else {
           wx.hideLoading()
@@ -328,6 +335,7 @@ export default class DiscussionRoomDetail extends wepy.page {
             title:'取消关注失败'
         })
       }
+      this.loading = false
     },
     async deleteRoom(){
       // 张可看这里
