@@ -99,7 +99,7 @@ text {
         view.content(wx:if="{{isWQSpread}}")
           repeat(for="{{watchQuestion}}" index="index")
             view.dot-line(style="margin-left:30rpx;" wx:if="{{index!==0}}")
-            view.myquestion( @tap = 'moment(item._id)')
+            view.myquestion( @tap = 'toDetail({{item._id}})')
                 view.title {{item.title}}
                 view.description {{item.description}}
                 icon(type="success" size="15" wx:if="{{item.isSelected}}")
@@ -174,12 +174,15 @@ export default class QuestionList extends wepy.page{
               res.data.map(question=>{
                 db.collection('Question').where({_id:question.questionId}).get({
                     success:res=>{
-                        _this.watchQuestion = res.data
-                        console.log('我所关注的问题',_this.watchQuestion)
-                        _this.$apply()
+                        //console.log('0000',res.data)
+                        res.data.map(item=>{
+                           _this.watchQuestion.push(item)
+                        })
                     }
                 })
               })
+              console.log('我所关注的问题',_this.watchQuestion)
+              _this.$apply()//在这里减少脏检查次数
           })
       })
     };
