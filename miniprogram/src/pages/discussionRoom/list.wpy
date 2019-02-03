@@ -171,6 +171,11 @@ export default class List extends wepy.page {
 
   async onLoad() {
     //获取用户身份和答疑室
+    this.asHost = []
+    this.asAdviser = []
+    this.asClassPrefect = []
+    this.asWatcher = []
+    this.$apply()
     await this.loadDiscussionRoom();
   }
 }
