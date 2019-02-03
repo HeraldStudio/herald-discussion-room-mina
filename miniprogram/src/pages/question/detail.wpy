@@ -154,7 +154,7 @@
     border-top-color: #f0f0f0;
     background: #fff;
     button {
-      background: #13acd9;
+      background: #219653;
       color: #fff;
       font-size: 32rpx;
       font-weight: bold;

@@ -184,6 +184,7 @@ export default class CreateDiscussionRoom extends wepy.page {
             }
           )
           if(dbRes.errMsg === 'collection.add:ok'){
+            console.log(await callFunction('notification/answer',{questionId:this.questionId, answerId:dbRes._id}))
             wx.showToast({
               title:'回答成功'
             })

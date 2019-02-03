@@ -189,10 +189,10 @@ export default class CreateDiscussionRoom extends wepy.page {
             }
           )
           if(dbRes.errMsg === 'collection.add:ok'){
+            console.log(await callFunction('notification/question',{questionId:dbRes._id, discussionRoomId:this.discussionRoomId}))
             wx.showToast({
               title:'问题创建成功'
             })
-            wx.navigateBack()
             wx.redirectTo({
               url:'/pages/discussionRoom/detail?discussionRoomId='+this.discussionRoomId
             })
