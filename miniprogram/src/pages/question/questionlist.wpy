@@ -89,16 +89,24 @@ text {
         view.content(wx:if="{{isMQSpread}}")
           repeat(for="{{myQuestions}}" index="index"  )
             view.dot-line(style="margin-left:30rpx;" wx:if="{{index!==0}}")
-            view.myquestion( @tap='toDetail(item._id)')
+            view.myquestion( @tap='toDetail({{item._id}})')
                 view.title {{item.title}}
                 view.description {{item.description}}
                 icon(type="success" size="15" wx:if="{{item.isSelected}}")
                 text.isSelected(wx:if="{{item.isSelected}}") 精选
                 text.watch {{item.watch}}人关注
                 text.createdTime 于{{item.createdTime}}创建
-          repeat(for="{{}}" index="index")
+        view.content(wx:if="{{isWQSpread}}")
+          repeat(for="{{watchQuestion}}" index="index")
             view.dot-line(style="margin-left:30rpx;" wx:if="{{index!==0}}")
             view.myquestion( @tap = 'moment(item._id)')
+                view.title {{item.title}}
+                view.description {{item.description}}
+                icon(type="success" size="15" wx:if="{{item.isSelected}}")
+                text.isSelected(wx:if="{{item.isSelected}}") 精选
+                text.watch {{item.watch}}人关注
+                text.createdTime 于{{item.createdTime}}创建
+
 
 </template>
 <script>
@@ -116,26 +124,34 @@ export default class QuestionList extends wepy.page{
     data = {
         loading:true,
         myQuestions:[],
+        watchQuestion:[],
         isMQSpread:true,
         isWQSpread:false
     };
     methods = {
         toDetail(id){
             console.log(id)
-            wepy.navigateTo({url: 'detail?questionId=XFPA3cDR1TiN6m5t'})
+             
+            wepy.navigateTo({url: `detail?questionId=${id}`})
         },
         spread(tabOpen,tabClose){
             this[`is${tabOpen}Spread`] =  true
             this[`is${tabClose}Spread`] =  false
             this.$apply()
         },
+         
     };
     computed = {
-        autoFormatTimes(){
-            this.myQuestions.map(item=>{
+         formatdata(){
+             this.watchQuestion.map(item=>{
             item.createdTime = moment(item.createdTime).format('YYYY-MM-DD')
+            item.description = item.description.length>80 ? item.description.slice(0,80)+'……' :  item.description
             })  
-        }
+             this.myQuestions.map(item=>{
+            item.createdTime = moment(item.createdTime).format('YYYY-MM-DD')
+            item.description = item.description.length>80 ? item.description.slice(0,80)+'……' :  item.description
+            })  
+         }
     };
     async onLoad(){
         let userInfo = await getUserInfo(wepy)
@@ -147,14 +163,25 @@ export default class QuestionList extends wepy.page{
         where({
             questionerName: '高睿昊'       //  username，调试需要高睿昊
         }).get({success:(res)=>{
-            console.log(res)
             _this.loading = false
             _this.myQuestions = res.data
             console.log(_this.myQuestions)
             _this.$apply()
-
         }})
-      
+      db.collection('WatchQuestion').where({watcherName:username}).get({
+          success:(res=>{
+              console.log(res)
+              res.data.map(question=>{
+                db.collection('Question').where({_id:question.questionId}).get({
+                    success:res=>{
+                        _this.watchQuestion = res.data
+                        console.log('我所关注的问题',_this.watchQuestion)
+                        _this.$apply()
+                    }
+                })
+              })
+          })
+      })
     };
     
 }

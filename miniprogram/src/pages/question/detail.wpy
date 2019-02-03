@@ -531,6 +531,7 @@ export default class DiscussionRoomDetail extends wepy.page {
   }
   async onLoad(options) {
     let { questionId } = options;
+    console.log(questionId)
     let userInfo = await getUserInfo();
     this.userInfo = userInfo
     if (!questionId) {
