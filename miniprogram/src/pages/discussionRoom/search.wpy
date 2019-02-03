@@ -47,14 +47,12 @@
       display: flex;
       align-items: center;
       .separate {
-        border-left-style: solid;
-        border-left-width: 1rpx;
-        border-left-color: #eee;
-        align-self: stretch;
+        margin: 0 10rpx;
+        color: #888;
       }
-      .hose-name,
+      .host-name,
       .question-num,
-      .student-num {
+      .students-num {
         font-size: 27rpx;
         color: #888;
         margin-right: 10rpx;
@@ -79,16 +77,16 @@
     view.tips( wx:if="{{tipText}}")
       text {{tipsText}}
     repeat(for="{{roomList}}" index="index" item="item")
-      view.dot-line
       view.room-item( @tap='toDetails(index)')
         view
           text.course-name {{item.courseName}}
         view.info
           text.host-name {{item.hostName}}老师
-          text.separate 
+          text.separate -
           text.question-num {{roomAbstract[index].questionNum}}个问题
-          text.separate 
+          text.separate -
           text.students-num {{roomAbstract[index].studentsNum}}名学生关注
+      view.dot-line
     //- view
     //-   button.bottom-loading(wx:if="{{loading}}" plain="true" loading="true" disabled="true") 正在加载
 
