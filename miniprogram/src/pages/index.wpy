@@ -85,6 +85,37 @@
       padding: 15rpx 30rpx;
     }
   }
+
+  .item-cell {
+  padding: 20rpx 30rpx;
+  width: 690rpx;
+  .top {
+    font-size: 24rpx;
+    color: #888;
+    margin-bottom: 10rpx !important;
+  }
+  .title {
+    font-size: 32rpx;
+    color: #333;
+    font-weight: bold;
+    margin-bottom: 10rpx;
+  }
+  .content {
+    font-size: 24rpx;
+    color: #333;
+    margin-bottom: 10rpx;
+  }
+  .bottom {
+    display: flex;
+    align-items: center;
+      font-size: 24rpx;
+      color: #888;
+      margin-right: 10rpx;
+  }
+}
+.item-cell:active {
+  background: #eee;
+}
  }
 </style>
 <template lang="pug">
@@ -111,6 +142,15 @@
       view.hint 暂时没有新动态，不如去答疑室看看？
       view.button(@tap="toDiscussionRoom") 前往我的答疑室
     view.tag(wx:else) 最新动态：
+    repeat(for="{{unRead}}" index="index")
+      view.dot-line(style="margin-left:30rpx;")
+      view.item-cell(@tap="clearNotification({{item._id}},{{item.url}})")
+        view.top {{item.top}}
+        view.title {{item.title}}
+        view.content {{item.content}}
+        view.bottom {{item.timestamp}}
+    view.line
+    
 
     
 </template>
@@ -119,7 +159,9 @@
 import wepy from 'wepy';
 import callFunction from '../utils/callFunction'; // 引入云函数调用的便捷封装
 import getUserInfo from '../utils/getUserInfo';
-
+const moment = require('moment')
+const db = wx.cloud.database()
+moment.locale('zh-cn')
 export default class Index extends wepy.page {
   config = {
     navigationBarTitleText: '小猴答疑室',
@@ -151,11 +193,25 @@ export default class Index extends wepy.page {
     },
     toQuestionList(){
       wx.navigateTo({url:'/pages/question/questionlist'})
+    },
+    async clearNotification(notificationId, url){ 
+      console.log(await callFunction('notification/clear', {notificationId}))
+      wx.navigateTo({url})
     }
   };
 
   events = {};
 
+  async loadUnread(){
+    let userInfo = await getUserInfo()
+    this.unRead = (await db.collection('Notification').where({toUser:userInfo._id}).get()).data
+    this.unRead = this.unRead.map( k=> {
+      k.timestamp = moment(k.timestamp).fromNow()
+      return k
+    })
+    this.$apply()
+    console.log(this.unRead)
+  }
   async onLoad() {
     // 更新身份信息
     let userInfo = await getUserInfo(wepy)
@@ -164,7 +220,9 @@ export default class Index extends wepy.page {
     this.avatar = userInfo.avatarUrl
     this.$apply()
   }
-
+  onShow(){
+    this.loadUnread()
+  }
 
 }
 </script>

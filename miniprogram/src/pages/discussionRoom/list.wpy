@@ -141,6 +141,7 @@ export default class List extends wepy.page {
 
 
   async loadDiscussionRoom() {
+    wx.showLoading({title:'请稍候'})
     let userInfo = await getUserInfo(wepy);
     this.identity = userInfo.identity;
     let userID = userInfo._id;
@@ -165,6 +166,7 @@ export default class List extends wepy.page {
     } else {
       console.log(res.data.code, '获取答疑室列表失败');
     }
+    wx.hideLoading()
   }
 
   async onLoad() {
