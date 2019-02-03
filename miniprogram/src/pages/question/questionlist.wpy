@@ -156,32 +156,36 @@ export default class QuestionList extends wepy.page{
     async onLoad(){
         let userInfo = await getUserInfo(wepy)
         let username = userInfo.name
+        let userID = userInfo._id
         console.log(username)
         const db = wx.cloud.database()
         let _this = this
         db.collection('Question').
         where({
-            questionerName: '高睿昊'       //  username，调试需要高睿昊
+            questionerId:userID,        //调试需要注释，后面会启用，不然只有name就有很多人同名
+            //questionerName: '高睿昊'       //  username，调试需要高睿昊
         }).get({success:(res)=>{
             _this.loading = false
             _this.myQuestions = res.data
-            console.log(_this.myQuestions)
+            console.log('我提的问题',_this.myQuestions)
             _this.$apply()
         }})
-      db.collection('WatchQuestion').where({watcherName:username}).get({
+      db.collection('WatchQuestion').where({
+          //watcherId:userID,        //调试需要注释，后面会启用，不然只有name有很多人同名
+          watcherName:username}).get({
           success:(res=>{
-              console.log(res)
+              console.log('问题ID',res)
               res.data.map(question=>{
                 db.collection('Question').where({_id:question.questionId}).get({
                     success:res=>{
                         //console.log('0000',res.data)
                         res.data.map(item=>{
                            _this.watchQuestion.push(item)
+                           console.log('我所关注的问题',_this.watchQuestion)
                         })
                     }
                 })
               })
-              console.log('我所关注的问题',_this.watchQuestion)
               _this.$apply()//在这里减少脏检查次数
           })
       })

@@ -137,7 +137,7 @@ export default class ListPanelForStudent extends wepy.component {
       },
       todetail(){
         console.log('至详情')
-        wepy.navigateTo({url: '/pages/discussionRoom/detail'})
+        wepy.navigateTo({url: '/pages/discussionRoom/detail?discussionRoomId=XFOogpT75u22k-q2'})
       }
 
     };
