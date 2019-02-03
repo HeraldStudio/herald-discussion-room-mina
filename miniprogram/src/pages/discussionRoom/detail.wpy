@@ -264,7 +264,7 @@ export default class DiscussionRoomDetail extends wepy.page {
     howManyWatch: '1人关注',
     buttonText: '取消关注',
     buttonClass: 'negative',
-    isWatched: true,
+    isWatched: false,
     isAdmin: false,
     sort: '最新动态', // 最多关注
     selectedOnly: false,
@@ -307,7 +307,27 @@ export default class DiscussionRoomDetail extends wepy.page {
       })
     },
     async cancelWatch(){
-
+      wx.showLoading({title:'请稍候'})
+      try{
+        let res = await callFunction('discussionRoom/watch',{discussionRoomId:this.discussionRoomId, setOrCancel:false})
+        if(res.success){
+          wx.hideLoading()
+          this.isWatched = false
+          this.$apply()
+        } else {
+          wx.hideLoading()
+          wx.showToast({
+            icon:'none',
+            title:res.reason
+          })
+        }
+      } catch(e) {
+        console.log(e)
+        wx.showToast({
+            icon:'none',
+            title:'取消关注失败'
+        })
+      }
     },
     async deleteRoom(){
       // 张可看这里
@@ -315,10 +335,10 @@ export default class DiscussionRoomDetail extends wepy.page {
       wx.showModal({
         title: '确认删除',
         content: '答疑室删除后将无法恢复，所有问题/答案/评论都将丢失',
-        success(res) {
+        async success(res) {
           if (res.confirm) {
             try{
-              let res = callFunction('discussionRoom/delete',{discussionRoomId:that.discussionRoomId})
+              let res = await callFunction('discussionRoom/delete',{discussionRoomId:that.discussionRoomId})
               if(res.success){
                 wx.showToast({
                   title:'删除成功'
@@ -446,6 +466,7 @@ export default class DiscussionRoomDetail extends wepy.page {
     this.hostName = info.hostName;
     this.isAdmin = info.hostId === userInfo._id;
     this.howManyWatch = `${info.watch}人关注`;
+    this.isWatched = (await db.collection('WatchDiscussionRoom').where({discussionRoomId, watcherId:userInfo._id}).count()).total === 1
     await this.loadQuestion()
     wx.hideLoading()
     this.ready = true;

@@ -753,7 +753,7 @@ export default class DiscussionRoomDetail extends wepy.page {
       let assistantRes = (await db.collection('Assistant').where({discussionRoomId, assistantId:userInfo._id}).count()).total
       this.canDelete = assistantRes === 1
     }
-    this.canSelect = this.canDelete
+    this.canSelect = discussionRoomInfo.hostId === userInfo._id
     this.description = info.description
     this.imageCode = info.imageCode
     this.canModify = info.questionerId === userInfo._id
