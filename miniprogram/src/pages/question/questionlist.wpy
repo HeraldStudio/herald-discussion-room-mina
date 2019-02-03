@@ -89,23 +89,26 @@ text {
         view.content(wx:if="{{isMQSpread}}")
           repeat(for="{{myQuestions}}" index="index"  )
             view.dot-line(style="margin-left:30rpx;" wx:if="{{index!==0}}")
-            view.myquestion( @tap = 'toDetail(item._id)')
+            view.myquestion( @tap='toDetail(item._id)')
                 view.title {{item.title}}
                 view.description {{item.description}}
                 icon(type="success" size="15" wx:if="{{item.isSelected}}")
                 text.isSelected(wx:if="{{item.isSelected}}") 精选
                 text.watch {{item.watch}}人关注
-                text.createdTime 于{{TimeFormat(item.createdTime)}}创建
+                text.createdTime 于{{item.createdTime}}创建
           repeat(for="{{}}" index="index")
             view.dot-line(style="margin-left:30rpx;" wx:if="{{index!==0}}")
-            view.myquestion( @tap = 'toDetail(item._id)')
-            
+            view.myquestion( @tap = 'moment(item._id)')
+
 </template>
 <script>
 import wepy from 'wepy';
 import getUserInfo from '../../utils/getUserInfo';
 import callFunction from '../../utils/callFunction'; // 引入云函数调用的便捷封装
- 
+var moment=require('moment');
+import 'moment/locale/zh-cn'
+moment.locale('zh-cn');   
+
 export default class QuestionList extends wepy.page{
     config = {
 
@@ -119,38 +122,20 @@ export default class QuestionList extends wepy.page{
     methods = {
         toDetail(id){
             console.log(id)
-
+            wepy.navigateTo({url: 'detail?questionId=XFPA3cDR1TiN6m5t'})
         },
         spread(tabOpen,tabClose){
             this[`is${tabOpen}Spread`] =  true
             this[`is${tabClose}Spread`] =  false
             this.$apply()
         },
-         
-        TimeFormat(unixtime){
-                if(typeof(unixtime)==='string')return unixtime;
-                let unixTimestamp = new Date(unixtime * 1000);
-                let Y = unixTimestamp.getFullYear();
-                let M = ((unixTimestamp.getMonth() + 1) > 10 ? 
-                         (unixTimestamp.getMonth() + 1) : '0' + (unixTimestamp.getMonth() + 1));
-                let D = (unixTimestamp.getDate() > 10 ? 
-                         unixTimestamp.getDate() : '0' + unixTimestamp.getDate());
-                let toDay = Y + '-' + M + '-' + D;
-                return  toDay;
-        },
-        formatMyQ(){
-            let mQ =  this.myQuestions.map(item=>{
-                item.createdTime = this.TimeFormat(item.createdTime)
-                console.log('0')
-            })
-            this.myQuestions =  mQ
-            console.log(mQ)
-            this.$apply()
-        }
-
     };
     computed = {
-        
+        autoFormatTimes(){
+            this.myQuestions.map(item=>{
+            item.createdTime = moment(item.createdTime).format('YYYY-MM-DD')
+            })  
+        }
     };
     async onLoad(){
         let userInfo = await getUserInfo(wepy)

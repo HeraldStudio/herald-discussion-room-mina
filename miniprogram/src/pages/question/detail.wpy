@@ -290,7 +290,7 @@
     view.description-panel {{description}}
     view.image-panel
       image(wx:if="{{imageCode}}" @tap="showImage({{imageCode}})" src="{{imageCode}}" mode="aspectFill")
-      view.hint (点击图片查看大图)
+      view.hint(wx:if="{{imageCode}}") (点击图片查看大图)
     view.line
     view.filter-panel
       view.sort
