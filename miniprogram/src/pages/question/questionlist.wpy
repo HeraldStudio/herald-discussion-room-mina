@@ -139,18 +139,14 @@ export default class QuestionList extends wepy.page{
             this[`is${tabClose}Spread`] =  false
             this.$apply()
         },
-         
     };
     computed = {
          formatdata(){
-             this.watchQuestion.map(item=>{
-            item.createdTime = moment(item.createdTime).format('YYYY-MM-DD')
-            item.description = item.description.length>80 ? item.description.slice(0,80)+'……' :  item.description
+            [this.myQuestions,this.watchQuestion].forEach(i=>i.map(item=>{
+                item.createdTime = moment(item.createdTime).format('YYYY-MM-DD')
+                item.description = item.description.length>80 ? item.description.slice(0,80)+'……' :  item.description
             })  
-             this.myQuestions.map(item=>{
-            item.createdTime = moment(item.createdTime).format('YYYY-MM-DD')
-            item.description = item.description.length>80 ? item.description.slice(0,80)+'……' :  item.description
-            })  
+            )
          }
     };
     async onLoad(){

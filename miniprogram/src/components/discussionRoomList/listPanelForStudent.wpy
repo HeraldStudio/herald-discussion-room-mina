@@ -93,7 +93,7 @@
         view.dot-line
         repeat(for="{{studentRoom.aswatcher}}" index="index")
           view.dot-line(style="margin-left:30rpx;" wx:if="{{index!==0}}")
-          view.discussionRoom-item( @tap="todetail")
+          view.discussionRoom-item( @tap="todetail({{item._id}})")
             view
               text.courseName {{item.courseName}} 
             view
@@ -138,6 +138,8 @@ export default class ListPanelForStudent extends wepy.component {
       todetail(){
         console.log('至详情')
         wepy.navigateTo({url: '/pages/discussionRoom/detail?discussionRoomId=XFOogpT75u22k-q2'})
+ 
+ 
       }
 
     };
