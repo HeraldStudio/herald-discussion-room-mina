@@ -29,7 +29,7 @@
 			"list": []
 		},
 		"miniprogram": {
-			"current": 6,
+			"current": 15,
 			"list": [
 				{
 					"id": -1,
@@ -134,6 +134,11 @@
 					"pathName": "pages/discussionRoom/list",
 					"query": "",
 					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "答疑室搜索页",
+					"pathName": "pages/discussionRoom/search"
 				}
 			]
 		}
