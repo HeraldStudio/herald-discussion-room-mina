@@ -98,18 +98,22 @@ export default class List extends wepy.page {
         this.identity =  userInfo.identity
         let userID = userInfo._id
         this.$apply();
-        const db = wx.cloud.database();
-        db.collection('WatchDiscussionRoom').where({watchID:userID }).get({
+
+        const db = wx.cloud.database()
+        let _this = this
+        db.collection('WatchDiscussionRoom').where({}).get({
             success:res=>{
-                console.log('从数据库获取答疑室',res)
+                this.loading = false
+                console.log('直接从数据库获取答疑室列表成功',res)
+                this.$apply();
             }
         })
-
-
+        
+ 
         let res = await callFunction('discussionRoom/getAll')
             if(res.success){
                 this.loading = false
-                console.log(res.data,'获取答疑室列表成功',this.loading)
+                console.log(res.data,'从云函数获取答疑室列表成功',this.loading)
                 //let {courseName,}
                 this.$apply();
 
@@ -118,6 +122,7 @@ export default class List extends wepy.page {
 
             }
         
+
         
     }
     onPullDownRefresh() {
