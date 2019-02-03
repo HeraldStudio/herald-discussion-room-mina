@@ -117,8 +117,11 @@ const routes = {
       lastModifiedTime: now,
       watch: 0
     }
-    await db.collection('DiscussionRoom').add({ data })
-    return data
+    let res = await db.collection('DiscussionRoom').add({ data })
+    return {
+      id:res._id,
+      code
+    }
   },
 
   async delete({ discussionRoomId }) {

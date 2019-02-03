@@ -128,13 +128,14 @@
     padding: 15rpx 30rpx;
     border-radius: 100rpx;
     position: fixed;
-    right: 40rpx;
-    bottom: 150rpx;
+    margin: 0 auto;
+    top: 20rpx;
     font-weight: bold;
     color: #333;
     background: #fff;
     box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.25);
     opacity: 0.7;
+    left: 281rpx;
   }
   .question-panel {
     margin-bottom: 120rpx;
@@ -191,7 +192,7 @@
 }
 </style>
 <template lang="pug">
-  view#discussion-detail
+  view#discussion-detail(wx:if="{{ready}}")
     view.top-panel
       view.header \#{{code}}
       view.title
@@ -220,9 +221,8 @@
     view.dot-line
     view.question-panel
       view.empty(wx:if="{{!hasQuestion}}") {{emptyHint}}
-      repeat(for="{{questionList}}" index="index")
-        view.dot-line(style="margin-left:30rpx;")
-        view.item-cell
+      repeat(for="{{questionList}}" index="index" key="item._id")
+        view.item-cell( @tap="showQuestion({{item._id}})")
           view.top {{item.lastModifiedTime}}的问题
           view.title {{item.title}}
           view.content
@@ -233,9 +233,10 @@
             text 由 {{item.questionerName}} 提出 · {{item.watch}} 名同学关注此问题
             icon(type="success" size="15" wx:if="{{item.isSelected}}")
             text(wx:if="{{item.isSelected}}") 精选
+        view.dot-line(style="margin-left:30rpx;")
     view.new-question-panel
       button(@tap="createQuestion") 我要提问
-    view.back-to-top(@tap="backToTop") 回到顶部
+    view.back-to-top(@tap="backToTop" wx:if="{{scroll > 50}}") 回到顶部
 </template>
 
 <script>
@@ -254,6 +255,7 @@ export default class DiscussionRoomDetail extends wepy.page {
   mixins = [];
 
   data = {
+    ready:false,
     discussionRoomId: '',
     code: '',
     courseName: '',
@@ -269,7 +271,8 @@ export default class DiscussionRoomDetail extends wepy.page {
     page: 0, // 分页计数器
     questionList: [],
     loading: false,
-    emptyHint:'还没有问题，不如提个问？' // 加锁
+    emptyHint:'还没有问题，不如提个问？', // 加锁
+    scroll:0
   };
 
   computed = {
@@ -279,6 +282,11 @@ export default class DiscussionRoomDetail extends wepy.page {
   };
 
   methods = {
+    showQuestion(questionId){
+      wx.navigateTo({
+        url:'/pages/question/detail?questionId='+questionId
+      })
+    },
     toggleSort(){
       this.emptyHint = '正在加载...'
       this.sort = this.sort === '最新动态' ? '最多关注' : '最新动态'
@@ -402,15 +410,19 @@ export default class DiscussionRoomDetail extends wepy.page {
   onReachBottom() {
     this.loadQuestion()
   }
+  onPageScroll(obj){
+    this.scroll = obj.scrollTop
+    this.$apply()
+  }
   async onLoad(options) {
     let { discussionRoomId } = options;
     let userInfo = await getUserInfo();
     if (!discussionRoomId) {
       // 没有传入答疑室ID
-      wx.reLaunch({
-        url: '/pages/index'
-      });
+      wx.showToast({icon:'none', title:'答疑室不存在或已删除'})
+      wx.navigateBack({delta:1})
     }
+    wx.showLoading({title:'正在加载'})
     // 获取答疑室基本信息
     const db = wx.cloud.database();
     let info;
@@ -421,9 +433,8 @@ export default class DiscussionRoomDetail extends wepy.page {
         .get()).data;
     } catch (e) {
       // 获取失败
-      wx.reLaunch({
-        url: '/pages/index'
-      });
+      wx.showToast({icon:'none', title:'答疑室不存在或已删除'})
+      wx.navigateBack({delta:1})
     }
     this.discussionRoomId = discussionRoomId
     this.courseName = info.courseName;
@@ -435,8 +446,10 @@ export default class DiscussionRoomDetail extends wepy.page {
     this.hostName = info.hostName;
     this.isAdmin = info.hostId === userInfo._id;
     this.howManyWatch = `${info.watch}人关注`;
+    await this.loadQuestion()
+    wx.hideLoading()
+    this.ready = true;
     this.$apply();
-    this.loadQuestion()
   }
 
 }

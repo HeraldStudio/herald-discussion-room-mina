@@ -48,11 +48,8 @@
   view#comment-create
     form(report-submit="true" bindsubmit="bindsubmit" wx:if="{{!success}}")
       view.hint 请填写评论/追问内容
-      textarea.desc(name="content" value="{{cotent}}" placeholder="不超过200字" maxlength="200")
+      textarea.desc(name="content" value="{{cotent}}" placeholder="不超过200字，新评论内容展示存在延迟，提示成功请勿重复评论" maxlength="200")
       button(loading="{{loading}}" disabled="{{loading}}" form-type="submit") 提交
-
-        
-
 </template>
 
 <script>
@@ -119,7 +116,7 @@ export default class CreateComment extends wepy.page {
             wx.showToast({
               title:'评论成功'
             })
-            // TODO：跳转至问题详情页
+            wx.navigateBack({delta:1})
             // TODO：发送提醒
           } else throw '评论失败'
         } catch(e) {

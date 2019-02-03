@@ -82,11 +82,11 @@
     .assistant {
       color: #13acd9;
       font-size: 24rpx;
+      margin-right: 15rpx;
     }
   }
   .description-panel {
     font-size: 32rpx;
-    text-indent: 2em;
     color: #333;
     margin: 15rpx 40rpx 15rpx 30rpx;
   }
@@ -162,18 +162,18 @@
       border-radius: 100rpx;
     }
   }
-  .back-to-top{
+ .back-to-top{
     font-size: 32rpx;
     padding: 15rpx 30rpx;
     border-radius: 100rpx;
     position: fixed;
-    right: 40rpx;
-    bottom: 150rpx;
+    top: 20rpx;
     font-weight: bold;
     color: #333;
     background: #fff;
     box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.25);
     opacity: 0.7;
+    left: 281rpx;
   }
   .question-panel {
     margin-bottom: 120rpx;
@@ -191,9 +191,12 @@
         color: #888;
         margin-bottom: 10rpx !important;
         display: flex;
-        justify-content: space-between;
         .delete {
           color: #eb5757;
+          margin: 0 15rpx;
+        }
+        .modify {
+          color: #13acd9;
         }
       }
       .title {
@@ -272,7 +275,7 @@
 }
 </style>
 <template lang="pug">
-  view#question-detail
+  view#question-detail(wx:if="{{ready}}")
     view.top-panel
       view.header 答疑室 {{discussionRoomName}} 之中的问题
       view.title
@@ -291,6 +294,7 @@
     view.admin-panel(wx:if="{{canDelete || canSelect}}")
       view.delete(@tap="deleteQuestion" wx:if="{{canDelete}}") 删除问题
       view.assistant(@tap="toggleSelect" wx:if="{{canSelect}}") {{isSelected?'取消':'设置'}}精选问题
+      view.assistant(@tap="modifyQuestion" wx:if="{{canModify}}") 修改问题
     view.dot-line
     view.description-panel {{description}}
     view.image-panel
@@ -309,6 +313,7 @@
           view.top 
             view {{item.respondentName}} {{item.lastModifiedTime}}回答
             view.delete(wx:if="{{item.canDelete}}" @tap="deleteAnswer({{item._id}})") 删除答案
+            view.modify(wx:if="{{item.canModify}}" @tap="modifyAnswer({{item._id}})") 修改答案
           view.content
             view.text
               view.description {{item.description}}
@@ -321,20 +326,20 @@
             view.button(@tap="vote({{item._id}},{{item.isVoted}})" wx:else) 支持答案
           view.dot-line
           view.comment-panel
-            repeat(for="{{item.commentList}}" item="comment")
+            repeat(for="{{item.commentList}}" item="comment" key="comment._id")
               view.comment-cell
                 view.top
                   view.commentator {{comment.commentatorName}} {{comment.createdTime}} 评论/追问
-                  view.delete 删除评论
+                  view.delete(wx:if="{{comment.canDelete}}" @tap="deleteComment({{comment._id}},{{item._id}})") 删除评论/追问
                 view.content {{comment.content}}
               view.dot-line
             view.bottom
-              view.button 添加评论
+              view.button( @tap="createComment({{item._id}})") 添加评论/追问
         view.line
 
     view.new-question-panel
       button(@tap="createAnswer") 我要回答
-    view.back-to-top(@tap="backToTop") 回到顶部
+    view.back-to-top(@tap="backToTop" wx:if="{{scroll > 50}}") 回到顶部
 </template>
 
 <script>
@@ -347,13 +352,14 @@ const db = wx.cloud.database();
 const moment = require('moment');
 export default class DiscussionRoomDetail extends wepy.page {
   config = {
-    navigationBarTitleText: '答疑室'
+    navigationBarTitleText: '问题详情页'
   };
   components = {};
 
   mixins = [];
 
   data = {
+    ready:false,
     discussionRoomId: '',
     discussionRoomName: '',
     title: '',
@@ -364,6 +370,7 @@ export default class DiscussionRoomDetail extends wepy.page {
     howManyWatch: 0,
     canDelete:false,
     canSelect:false,
+    canModify:false,
     description:'',
     imageCode:'',
     sort: '最新动态', // 最多支持
@@ -372,7 +379,8 @@ export default class DiscussionRoomDetail extends wepy.page {
     answerList: [],
     loading: false,
     emptyHint:'还没有回答，不如发个言？', // 加锁
-    userInfo:{}
+    userInfo:{},
+    scroll:0
   };
 
   computed = {
@@ -382,6 +390,16 @@ export default class DiscussionRoomDetail extends wepy.page {
   };
 
   methods = {
+    modifyQuestion(){
+      wx.navigateTo({
+        url:'/pages/question/createOrModify?questionId='+this.questionId
+      })
+    },
+    modifyAnswer(answerId){
+      wx.navigateTo({
+        url:'/pages/answer/createOrModify?answerId='+answerId
+      })
+    },
     showImage(code){
       wx.previewImage({urls:[code]})
     },
@@ -474,7 +492,7 @@ export default class DiscussionRoomDetail extends wepy.page {
         content: '问题删除后将无法恢复，内容及相关答案、评论都将丢失',
         success(res) {
           if (res.confirm) {
-            callFunction('question/delete',{questionId:this.questionId}).then((res)=>{
+            callFunction('question/delete',{questionId:that.questionId}).then((res)=>{
               if(res.success){
               wx.showToast({
                 title:'删除成功'
@@ -482,6 +500,7 @@ export default class DiscussionRoomDetail extends wepy.page {
               } else {
                 throw res.reason
               }
+              wx.navigateBack({delta:1})
             }).catch((e)=>{
               console.log(e)
               wx.showToast({
@@ -510,8 +529,6 @@ export default class DiscussionRoomDetail extends wepy.page {
               } else {
                 throw res.reason
               }
-              // 重新加载问题列表
-              that.page = 0 
               let newAnswerList = []
               that.answerList.forEach(answer => {
                 if(answer._id !== answerId) {
@@ -531,6 +548,55 @@ export default class DiscussionRoomDetail extends wepy.page {
             console.log('用户点击取消')
           }
         }
+      })
+    },
+    deleteComment(commentId, answerId){
+      let that = this
+      wx.showModal({
+        title: '确认删除',
+        content: '评论删除后将无法恢复',
+        success(res) {
+          if (res.confirm) {
+            callFunction('comment/delete',{commentId}).then((res)=>{
+              if(res.success){
+              wx.showToast({
+                title:'删除成功'
+              })
+              } else {
+                throw res.reason
+              }
+              // 重新更新答案列表
+              let newAnswerList = []
+              that.answerList.forEach(answer => {
+                if(answer._id === answerId) {
+                  let newCommentList = []
+                  answer.commentList.forEach((comment) => {
+                    if(comment._id !== commentId){
+                      newCommentList.push(comment)
+                    }
+                  })
+                  answer.commentList = newCommentList
+                }
+                newAnswerList.push(answer)
+              })
+              that.answerList = newAnswerList
+              that.$apply()
+            }).catch(e=>{
+              console.log(e)
+              wx.showToast({
+                icon:'none',
+                title:'删除失败，请重试'
+              })
+            })
+          } else if (res.cancel) {
+            console.log('用户点击取消')
+          }
+        }
+      })
+    },
+    createComment(answerId){
+      wx.navigateTo({
+        url:'/pages/comment/create?answerId='+answerId
       })
     },
     setAssistant(){
@@ -589,6 +655,7 @@ export default class DiscussionRoomDetail extends wepy.page {
         k.lastModifiedTime = moment(k.lastModifiedTime).fromNow();
         k.isVoted = (await db.collection('VoteAnswer').where({voterId:this.userInfo._id, answerId:k._id}).count()).total === 1;
         k.canDelete = this.canDelete || k.respondentId === userInfo._id
+        k.canModify = k.respondentId === userInfo._id
         let hasMoreComment = true
         let commentList = []
         let commentPage = 0
@@ -606,6 +673,7 @@ export default class DiscussionRoomDetail extends wepy.page {
         }
         commentList = commentList.map( l => {
           l.createdTime = moment(l.createdTime).fromNow()
+          l.canDelete = this.canDelete || l.commentatorId === userInfo._id
           return l
         })
         k.commentList = commentList
@@ -623,6 +691,10 @@ export default class DiscussionRoomDetail extends wepy.page {
   onReachBottom() {
     this.loadAnswer()
   }
+  onPageScroll(obj){
+    this.scroll = obj.scrollTop
+    this.$apply()
+  }
   async onLoad(options) {
     let { questionId } = options;
     console.log(questionId)
@@ -630,9 +702,11 @@ export default class DiscussionRoomDetail extends wepy.page {
     this.userInfo = userInfo
     if (!questionId) {
       // 没有传入问题ID
-      wx.reLaunch({
-        url: '/pages/index'
-      });
+      wx.showToast({icon:'none', title:'问题不存在或已删除'})
+      setTimeout(() => {
+        wx.navigateBack({delta:1})
+      }, 3000);
+      return
     }
     wx.showLoading({title:'正在加载'})
     // 获取问题基本信息
@@ -644,9 +718,11 @@ export default class DiscussionRoomDetail extends wepy.page {
         .get()).data;
     } catch (e) {
       // 获取失败
-      wx.reLaunch({
-        url: '/pages/index'
-      });
+      wx.showToast({icon:'none', title:'问题不存在或已删除'})
+      setTimeout(() => {
+        wx.navigateBack({delta:1})
+      }, 3000);
+      return
     }
     this.questionId = questionId
     this.title = info.title;
@@ -659,9 +735,11 @@ export default class DiscussionRoomDetail extends wepy.page {
         .get()).data;
     } catch (e) {
       // 获取失败
-      wx.reLaunch({
-        url: '/pages/index'
-      });
+      wx.showToast({icon:'none', title:'问题不存在或已删除'})
+      setTimeout(() => {
+        wx.navigateBack({delta:1})
+      }, 3000);
+      return
     }
     this.discussionRoomName = discussionRoomInfo.courseName;
     this.questionerName = info.questionerName
@@ -669,7 +747,7 @@ export default class DiscussionRoomDetail extends wepy.page {
     this.createdTime = moment(info.createdTime).fromNow()
     this.isSelected = info.isSelected
     this.howManyWatch = (await db.collection('WatchQuestion').where({questionId}).count()).total
-    this.canDelete = discussionRoomInfo.hostId === userInfo._id
+    this.canDelete = discussionRoomInfo.hostId === userInfo._id || info.questionerId === userInfo._id
     if(!this.canDelete){
       // 如果不是答疑室创建者，检查是否是答疑室管理员
       let assistantRes = (await db.collection('Assistant').where({discussionRoomId, assistantId:userInfo._id}).count()).total
@@ -678,12 +756,14 @@ export default class DiscussionRoomDetail extends wepy.page {
     this.canSelect = this.canDelete
     this.description = info.description
     this.imageCode = info.imageCode
+    this.canModify = info.questionerId === userInfo._id
     // 检查是否关注问题
     console.log({questionId, watcherId:userInfo._id})
     this.isWatched = (await db.collection('WatchQuestion').where({questionId, watcherId:userInfo._id}).count()).total === 1
-    this.$apply()
     await this.loadAnswer()
     wx.hideLoading()
+    this.ready=true
+    this.$apply()
   }
 
 }

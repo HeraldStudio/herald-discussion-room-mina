@@ -149,11 +149,14 @@ export default class CreateDiscussionRoom extends wepy.page {
               data:{description,lastModifiedTime:+moment(),imageCode:this.imageCode, hasRead:false}
             }
           )
+          let questionId = (await db.collection('Answer').doc(this.answerId).get()).data.questionId
           if(dbRes.errMsg === 'document.update:ok'){
             wx.showToast({
               title:'答案修改成功'
             })
-            // TODO：跳转至问题详情页
+            wx.redirectTo({
+              url:'/pages/question/detail?questionId='+questionId
+            })
           } else {
             throw '答案修改失败'
           }
@@ -184,7 +187,9 @@ export default class CreateDiscussionRoom extends wepy.page {
             wx.showToast({
               title:'回答成功'
             })
-            // TODO：跳转至问题详情页
+            wx.redirectTo({
+              url:'/pages/question/detail?questionId='+this.questionId
+            })
             // TODO：发送提醒
           } else throw '回答失败'
         } catch(e) {

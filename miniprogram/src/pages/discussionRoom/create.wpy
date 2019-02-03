@@ -58,7 +58,7 @@
       view.hint 答疑室代码
       view.code {{code}}
       view.text 学生可以通过上方代码快速找到答疑室
-      button 返回答疑室列表
+      button(@tap="gotoDiscussionRoom") 进入答疑室
 
         
 
@@ -78,7 +78,8 @@ export default class CreateDiscussionRoom extends wepy.page {
   data = {
     success:false,
     loading:false,
-    code:'SKK520'
+    code:'SKK520',
+    discussionRoomId:''
   };
 
   computed = {};
@@ -96,6 +97,7 @@ export default class CreateDiscussionRoom extends wepy.page {
         wx.showToast({
           title:'创建成功'
         })
+        this.discussionRoomId = res.data.id
         this.$apply()
       } else {
         this.loading = false
@@ -105,6 +107,11 @@ export default class CreateDiscussionRoom extends wepy.page {
         })
         this.$apply()
       }
+    },
+    gotoDiscussionRoom(){
+      wx.redirectTo({
+        url:'/pages/discussionRoom/detail?discussionRoomId='+this.discussionRoomId
+      })
     }
   };
 

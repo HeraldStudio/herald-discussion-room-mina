@@ -157,7 +157,9 @@ export default class CreateDiscussionRoom extends wepy.page {
             wx.showToast({
               title:'问题修改成功'
             })
-            // TODO：跳转至问题详情页
+            wx.redirectTo({
+              url:'/pages/question/detail?questionId='+this.questionId
+            })
           } else {
             throw '问题修改失败'
           }
@@ -191,7 +193,9 @@ export default class CreateDiscussionRoom extends wepy.page {
               title:'问题创建成功'
             })
             wx.navigateBack()
-            // TODO：跳转至问题详情页
+            wx.redirectTo({
+              url:'/pages/discussionRoom/detail?discussionRoomId='+this.discussionRoomId
+            })
             // TODO：发送提醒
           } else throw '问题创建失败'
         } catch(e) {
