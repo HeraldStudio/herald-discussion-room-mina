@@ -280,8 +280,8 @@
           view.secondary.text 精选问题
           icon(type="success" size="18")
           view.secondary.text 有 {{howManyWatch}} 人关注这个问题
-      view.button(wx:if="{{isWatched}}") 取消关注
-      view.button.watch(wx:else) 关注问题 
+      view.button( @tap="toggleWatch" wx:if="{{isWatched}}") 取消关注
+      view.button.watch( @tap="toggleWatch" wx:else) 关注问题 
     view.dot-line 
     view.admin-panel(wx:if="{{canDelete || canSelect}}")
       view.delete(@tap="deleteQuestion" wx:if="{{canDelete}}") 删除问题
@@ -336,6 +336,7 @@ import callFunction from '../../utils/callFunction'; // 引入云函数调用的
 import getUserInfo from '../../utils/getUserInfo';
 //import moment from 'moment'
 //import momentCN from 'moment/locale/zh-cn'
+const db = wx.cloud.database();
 const moment = require('moment');
 export default class DiscussionRoomDetail extends wepy.page {
   config = {
@@ -389,8 +390,26 @@ export default class DiscussionRoomDetail extends wepy.page {
         scrollTop:0
       })
     },
-    async cancelWatch(){
-
+    async toggleWatch(){
+      if(this.loading){
+        return
+      }
+      // 加锁
+      this.loading = true
+      let userInfo = await getUserInfo()
+      wx.showLoading({
+        title:'请稍候'
+      })
+      let res = await callFunction('question/watch', {questionId:this.questionId, setOrCancel: !this.isWatched})
+      if(res.success){
+        this.isWatched = (await db.collection('WatchQuestion').where({questionId:this.questionId, watcherId:userInfo._id}).count()).total === 1
+        this.$apply()
+        wx.hideLoading()
+      } else {
+        wx.hideLoading()
+        wx.showToast({icon:'none', title:res.reason})
+      }
+      this.loading = false;
     },
     async deleteRoom(){
       // 张可看这里
@@ -520,8 +539,8 @@ export default class DiscussionRoomDetail extends wepy.page {
         url: '/pages/index'
       });
     }
+    wx.showLoading({title:'正在加载'})
     // 获取问题基本信息
-    const db = wx.cloud.database();
     let info;
     try {
       info = (await db
@@ -564,8 +583,12 @@ export default class DiscussionRoomDetail extends wepy.page {
     this.canSelect = this.canDelete
     this.description = info.description
     this.imageCode = info.imageCode
+    // 检查是否关注问题
+    console.log({questionId, watcherId:userInfo._id})
+    this.isWatched = (await db.collection('WatchQuestion').where({questionId, watcherId:userInfo._id}).count()).total === 1
     this.$apply()
-    this.loadAnswer()
+    await this.loadAnswer()
+    wx.hideLoading()
   }
 
 }
