@@ -3,24 +3,34 @@
     .top {
       font-size: 24rpx;
       color: #888;
-      padding-top:10rpx;
-      padding-bottom:0rpx;
+      padding-top:15rpx;
+      padding-bottom:15rpx;
       position: fixed;
       background-color: white;
       width:100%;
       height:50rpx;
+      top:0;
+      display: flex;
+      justify-content: center;
+      border-bottom: solid 1rpx #eee;
     }
     .tab{
+        padding: 10rpx 15rpx;
+        border-radius: 15rpx;
+        font-size: 28rpx;
+        line-height: 28rpx;
+        color: #888;
+    }
+    .tab:nth-child(2){
         margin-left:23rpx;
-        padding: 10rpx;
-        border-radius: 20rpx 20rpx 0 0;
     }
     .isClicked{
        background-color: #eee;
-       color: black;
+       color: #219653;
+       font-weight: bold;
     }
     .content{
-        padding-top:50rpx;
+        padding-top:60rpx;
     }
     .loading{
     background-color: white;
@@ -73,9 +83,9 @@ text {
       view.loading(wx:if="{{loading}}") 正在加载中
       view(wx:if="{{!loading}}")
         view.top
-          text.tab( @tap="spread('MQ','WQ')" :class="{isClicked:isMQSpread}") 我提的问题
-          text.tab( @tap="spread('WQ','MQ')" :class="{isClicked:isWQSpread}") 我关注的问题
-          view.line
+          view.tab( @tap="spread('MQ','WQ')" :class="{isClicked:isMQSpread}") 我提的问题
+          view.tab( @tap="spread('WQ','MQ')" :class="{isClicked:isWQSpread}") 我关注的问题
+        view.line
         view.content(wx:if="{{isMQSpread}}")
           repeat(for="{{myQuestions}}" index="index"  )
             view.dot-line(style="margin-left:30rpx;" wx:if="{{index!==0}}")
