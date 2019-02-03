@@ -76,8 +76,8 @@
     view.line
     view.tips( wx:if="{{tipText}}")
       text {{tipsText}}
-    repeat(for="{{roomList}}" index="index" item="item")
-      view.room-item( @tap='toDetails(index)')
+    view( wx:for="{{roomList}}" wx:for-index="i" )
+      view.room-item( @tap='toDetails({{i}})')
         view
           text.course-name {{item.courseName}}
         view.info
@@ -87,9 +87,9 @@
           text.separate -
           text.students-num {{roomAbstract[index].studentsNum}}名学生关注
       view.dot-line
-    //- view
-    //-   button.bottom-loading(wx:if="{{loading}}" plain="true" loading="true" disabled="true") 正在加载
 
+    view
+      button.loading-btn(wx:if="{{loading}}" plain="true" loading="true" disabled="true") 正在加载
 </template>
 
 <script>
@@ -104,8 +104,38 @@ export default class Index extends wepy.page {
     tipsText: '',
     searchIndex: 0, // 用于区分上拉搜索次数
     loading: false,
-    roomList: [],
-    roomAbstract: [] // 答疑室的问题数目和关注人数
+    roomList: [
+      {
+        _id: 'XFOogpT75u22k-q2',
+        hostId: 'XE3OasDR1TiN0eZ_',
+        hostName: '高睿昊',
+        createdTime: { $numberLong: '1548986498091' },
+        lastModifiedTime: { $numberLong: '1548986498091' },
+        watch: { $numberLong: '0' },
+        courseName: '念诗之王（不要删除）',
+        code: 'D5865'
+      },
+      {
+        _id: 'XFQRYY2KPQMv4kb4',
+        watch: { $numberLong: '0' },
+        courseName: '好丽友好基友',
+        code: 'CD448',
+        hostId: 'XE3iCnffS3SW_FYD',
+        hostName: '张可',
+        createdTime: { $numberLong: '1549013345254' },
+        lastModifiedTime: { $numberLong: '1549013345254' }
+      }
+    ],
+    roomAbstract: [
+      {
+        questionNum: 10,
+        studentsNum: 60
+      },
+      {
+        questionNum: 20,
+        studentsNum: 60
+      }
+    ] // 答疑室的问题数目和关注人数
   };
 
   onload() {
@@ -222,11 +252,13 @@ export default class Index extends wepy.page {
     watchRoom(index) {},
     cancelWatch(index) {},
     toDetails(index) {
+      console.log(index)
+      console.log(this.roomList[index])
       // 跳转到答疑室详情
-      wepy.navigateTo({
-        url: `/pages/discussionRoom/detail?discussionRoomI=${
+      wx.redirectTo({
+        url:
+          '/pages/discussionRoom/detail?discussionRoomId=' +
           this.roomList[index]._id
-        }`
       });
     }
   };
