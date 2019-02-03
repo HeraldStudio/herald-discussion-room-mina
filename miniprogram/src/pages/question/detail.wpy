@@ -284,7 +284,7 @@
         view.is-selected
           view.secondary.text(wx:if="{{isSelected}}") 精选问题
           icon(type="success" size="18" wx:if="{{isSelected}}")
-          view.secondary.text 有 {{howManyWatch}} 人关注这个问题
+          view.secondary.text 还有 {{howManyWatch}} 人关注这个问题
       view.button( @tap="toggleWatch" wx:if="{{isWatched}}") 取消关注
       view.button.watch( @tap="toggleWatch" wx:else) 关注问题 
     view.dot-line 
@@ -304,7 +304,7 @@
     view.dot-line
     view.question-panel
       view.empty(wx:if="{{!hasAnswer}}") {{emptyHint}}
-      repeat(for="{{answerList}}" index="index")
+      repeat(for="{{answerList}}" index="index" key="item._id")
         view.item-cell
           view.top 
             view {{item.respondentName}} {{item.lastModifiedTime}}回答
@@ -418,6 +418,34 @@ export default class DiscussionRoomDetail extends wepy.page {
       }
       this.loading = false;
     },
+    async vote(answerId, isVoted){
+      if(this.loading){
+        return
+      }
+      // 加锁
+      this.loading = true
+      let userInfo = await getUserInfo()
+      wx.showLoading({
+        title:'请稍候'
+      })
+      let res = await callFunction('answer/vote', {answerId:answerId, setOrCancel: !isVoted})
+      if(res.success){
+        let newAnswerList = this.answerList.map(async (answer) => {
+          if(answer._id === answerId){
+            answer.isVoted = (await db.collection('VoteAnswer').where({answerId, voterId:userInfo._id}).count()).total === 1
+            answer.vote = (await db.collection('Answer').doc(answerId).get()).data.vote
+          }
+          return answer
+        });
+        this.answerList = await Promise.all(newAnswerList)
+        this.$apply()
+        wx.hideLoading()
+      } else {
+        wx.hideLoading()
+        wx.showToast({icon:'none', title:res.reason})
+      }
+      this.loading = false;
+    },
     async toggleSelect(){
       if(this.loading){
         return
@@ -440,29 +468,27 @@ export default class DiscussionRoomDetail extends wepy.page {
       this.loading = false;
     },
     async deleteQuestion(){
-      // 张可看这里
       let that = this
       wx.showModal({
         title: '确认删除',
-        content: '问题删除后将无法恢复，所有答案/评论都将丢失',
+        content: '问题删除后将无法恢复，内容及相关答案、评论都将丢失',
         success(res) {
           if (res.confirm) {
-            try{
-              let res = callFunction('question/delete',{questionId:that.questionId})
+            callFunction('question/delete',{questionId:this.questionId}).then((res)=>{
               if(res.success){
-                wx.showToast({
-                  title:'删除成功'
-                })
+              wx.showToast({
+                title:'删除成功'
+              })
               } else {
                 throw res.reason
               }
-            } catch(e) {
+            }).catch((e)=>{
               console.log(e)
               wx.showToast({
                 icon:'none',
                 title:'删除失败，请重试'
               })
-            }
+            })
           } else if (res.cancel) {
             console.log('用户点击取消')
           }
@@ -476,22 +502,31 @@ export default class DiscussionRoomDetail extends wepy.page {
         content: '答案删除后将无法恢复，内容及相关评论都将丢失',
         success(res) {
           if (res.confirm) {
-            try{
-              let res = callFunction('answer/delete',{answerId})
+            callFunction('answer/delete',{answerId}).then((res)=>{
               if(res.success){
-                wx.showToast({
-                  title:'删除成功'
-                })
+              wx.showToast({
+                title:'删除成功'
+              })
               } else {
                 throw res.reason
               }
-            } catch(e) {
+              // 重新加载问题列表
+              that.page = 0 
+              let newAnswerList = []
+              that.answerList.forEach(answer => {
+                if(answer._id !== answerId) {
+                  newAnswerList.push(answer)
+                }
+              })
+              that.answerList = newAnswerList
+              that.$apply()
+            }).catch(e=>{
               console.log(e)
               wx.showToast({
                 icon:'none',
                 title:'删除失败，请重试'
               })
-            }
+            })
           } else if (res.cancel) {
             console.log('用户点击取消')
           }
