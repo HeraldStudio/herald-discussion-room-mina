@@ -190,6 +190,11 @@
         font-size: 24rpx;
         color: #888;
         margin-bottom: 10rpx !important;
+        display: flex;
+        justify-content: space-between;
+        .delete {
+          color: #eb5757;
+        }
       }
       .title {
         font-size: 32rpx;
@@ -276,16 +281,16 @@
     view.detail-panel
       view.first-line
         view.secondary {{questionerName}} {{createdTime}} 提问
-        view.is-selected(wx:if="{{isSelected}}")
-          view.secondary.text 精选问题
-          icon(type="success" size="18")
+        view.is-selected
+          view.secondary.text(wx:if="{{isSelected}}") 精选问题
+          icon(type="success" size="18" wx:if="{{isSelected}}")
           view.secondary.text 有 {{howManyWatch}} 人关注这个问题
       view.button( @tap="toggleWatch" wx:if="{{isWatched}}") 取消关注
       view.button.watch( @tap="toggleWatch" wx:else) 关注问题 
     view.dot-line 
     view.admin-panel(wx:if="{{canDelete || canSelect}}")
       view.delete(@tap="deleteQuestion" wx:if="{{canDelete}}") 删除问题
-      view.assistant(@tap="setSelect" wx:if="{{canSelect}}") 设为精选
+      view.assistant(@tap="toggleSelect" wx:if="{{canSelect}}") {{isSelected?'取消':'设置'}}精选问题
     view.dot-line
     view.description-panel {{description}}
     view.image-panel
@@ -301,7 +306,9 @@
       view.empty(wx:if="{{!hasAnswer}}") {{emptyHint}}
       repeat(for="{{answerList}}" index="index")
         view.item-cell
-          view.top {{item.respondentName}} {{item.lastModifiedTime}}回答
+          view.top 
+            view {{item.respondentName}} {{item.lastModifiedTime}}回答
+            view.delete(wx:if="{{item.canDelete}}" @tap="deleteAnswer({{item._id}})") 删除答案
           view.content
             view.text
               view.description {{item.description}}
@@ -411,16 +418,66 @@ export default class DiscussionRoomDetail extends wepy.page {
       }
       this.loading = false;
     },
-    async deleteRoom(){
+    async toggleSelect(){
+      if(this.loading){
+        return
+      }
+      // 加锁
+      this.loading = true
+      let userInfo = await getUserInfo()
+      wx.showLoading({
+        title:'请稍候'
+      })
+      let res = await callFunction('question/selected', {questionId:this.questionId, setOrCancel: !this.isSelected})
+      if(res.success){
+        this.isSelected = (await db.collection('Question').doc(this.questionId).get()).data.isSelected
+        this.$apply()
+        wx.hideLoading()
+      } else {
+        wx.hideLoading()
+        wx.showToast({icon:'none', title:res.reason})
+      }
+      this.loading = false;
+    },
+    async deleteQuestion(){
       // 张可看这里
       let that = this
       wx.showModal({
         title: '确认删除',
-        content: '答疑室删除后将无法恢复，所有问题/答案/评论都将丢失',
+        content: '问题删除后将无法恢复，所有答案/评论都将丢失',
         success(res) {
           if (res.confirm) {
             try{
-              let res = callFunction('discussionRoom/delete',{discussionRoomId:that.discussionRoomId})
+              let res = callFunction('question/delete',{questionId:that.questionId})
+              if(res.success){
+                wx.showToast({
+                  title:'删除成功'
+                })
+              } else {
+                throw res.reason
+              }
+            } catch(e) {
+              console.log(e)
+              wx.showToast({
+                icon:'none',
+                title:'删除失败，请重试'
+              })
+            }
+          } else if (res.cancel) {
+            console.log('用户点击取消')
+          }
+        }
+      })
+    },
+    async deleteAnswer(answerId){
+      let that = this
+      wx.showModal({
+        title: '确认删除',
+        content: '答案删除后将无法恢复，内容及相关评论都将丢失',
+        success(res) {
+          if (res.confirm) {
+            try{
+              let res = callFunction('answer/delete',{answerId})
               if(res.success){
                 wx.showToast({
                   title:'删除成功'
@@ -493,8 +550,10 @@ export default class DiscussionRoomDetail extends wepy.page {
       this.page = this.page + 1; // 记录分页
       let answerSlice = res.data.map(async (k)=> {
         moment.locale('zh-cn');
+        let userInfo = await getUserInfo()
         k.lastModifiedTime = moment(k.lastModifiedTime).fromNow();
         k.isVoted = (await db.collection('VoteAnswer').where({voterId:this.userInfo._id, answerId:k._id}).count()).total === 1;
+        k.canDelete = this.canDelete || k.respondentId === userInfo._id
         let hasMoreComment = true
         let commentList = []
         let commentPage = 0
