@@ -43,6 +43,10 @@
   }
   .room-item {
     padding: 24rpx 34rpx 24rpx;
+    .host-name {
+      font-size: 27rpx;
+      color: #888;
+    }
     .info {
       display: flex;
       align-items: center;
@@ -50,7 +54,6 @@
         margin: 0 10rpx;
         color: #888;
       }
-      .host-name,
       .question-num,
       .students-num {
         font-size: 27rpx;
@@ -76,16 +79,15 @@
     view.line
     view.tips( wx:if="{{tipText}}")
       text {{tipsText}}
-    view( wx:for="{{roomList}}" wx:for-index="i" )
+    view( wx:for="{{roomList}}" wx:for-index="i" wx:key="_id")
       view.room-item( @tap='toDetails({{i}})')
-        view
-          text.course-name {{item.courseName}}
+        view.host-name {{item.hostName}} 老师主持的答疑室
+        view.course-name  {{item.courseName}}
         view.info
-          text.host-name {{item.hostName}}老师
+          text.question-num {{roomInfo[i].questionNum}}个问题
           text.separate -
-          text.question-num {{roomAbstract[index].questionNum}}个问题
-          text.separate -
-          text.students-num {{roomAbstract[index].studentsNum}}名学生关注
+          text.students-num {{roomInfo[i].studentNum}}名学生关注
+
       view.dot-line
 
     view
@@ -104,44 +106,15 @@ export default class Index extends wepy.page {
     tipsText: '',
     searchIndex: 0, // 用于区分上拉搜索次数
     loading: false,
-    roomList: [
-      {
-        _id: 'XFOogpT75u22k-q2',
-        hostId: 'XE3OasDR1TiN0eZ_',
-        hostName: '高睿昊',
-        createdTime: { $numberLong: '1548986498091' },
-        lastModifiedTime: { $numberLong: '1548986498091' },
-        watch: { $numberLong: '0' },
-        courseName: '念诗之王（不要删除）',
-        code: 'D5865'
-      },
-      {
-        _id: 'XFQRYY2KPQMv4kb4',
-        watch: { $numberLong: '0' },
-        courseName: '好丽友好基友',
-        code: 'CD448',
-        hostId: 'XE3iCnffS3SW_FYD',
-        hostName: '张可',
-        createdTime: { $numberLong: '1549013345254' },
-        lastModifiedTime: { $numberLong: '1549013345254' }
-      }
-    ],
-    roomAbstract: [
-      {
-        questionNum: 10,
-        studentsNum: 60
-      },
-      {
-        questionNum: 20,
-        studentsNum: 60
-      }
-    ] // 答疑室的问题数目和关注人数
+    roomList: [],
+    roomInfo: [] // 答疑室的问题数目和关注人数
   };
 
   onload() {
     this.searchIndex = 0;
     this.keywords = '';
     this.roomList = [];
+    this.roomInfo = [];
   }
 
   onReachBottom() {
@@ -153,32 +126,47 @@ export default class Index extends wepy.page {
       this.$apply();
     }, 3000);
   }
-
+  async getAbstract(start, end) {
+    console.log(`start:${start}end${end}`);
+    for (let i = start; i < end; i++) {
+      const roomItem = this.roomList[i];
+      if (roomItem) {
+        this.roomInfo[i] = {
+          questionNum: (await db
+            .collection('Question')
+            .where({ discussionRoomId: roomItem._id })
+            .count()).total,
+          studentNum: (await db
+              .collection('DiscussionRoom')
+              .doc(roomItem._id)
+              .get()).data.watch
+        };
+        this.$apply();
+      } else {
+        break;
+      }
+    }
+    console.log(this.roomInfo);
+    this.$apply();
+  }
   methods = {
     setKeywords(event) {
       this.keywords = event.detail.value;
     },
     // 获取部分答疑室信息摘要(问题数目，关注人数，是否关注过)
-    async getAbstract(start, end) {
-      for (let i = start; i < end; i++) {
-        const roomItem = this.roomList[i];
-        this.roomAbstract[i] = {
-          questionNum: await db
-            .collection('Question')
-            .where({ discussionRoomId: roomItem._id })
-            .get()
-            .count(),
-          studentNum: (await db
-            .collection('DiscussionRoom')
-            .doc(roomItem._id)
-            .get()).data.watch
-        };
-      }
-      this.$apply();
-    },
+
     async search() {
       this.roomList = [];
-      if (this.keywords != '') {
+      this.roomInfo = [];
+      if (this.keywords == '') {
+        // 没有输入查询参数
+        setTimeout(() => {
+          this.tipsText = '';
+          this.$apply();
+        }, 1500);
+        this.tipsText = '请输入参数';
+        this.$apply();
+      } else {
         console.log(this.keywords);
         console.log(`查找关键字: ${this.keywords}`);
 
@@ -201,8 +189,7 @@ export default class Index extends wepy.page {
               .limit(10)
               .get()).data
           ];
-          // this.getAbstract(0,10)
-          console.log(this.getAbstract);
+          this.getAbstract(0, 10);
         } else {
           this.roomList = [
             ...this.roomList,
@@ -225,7 +212,7 @@ export default class Index extends wepy.page {
               .limit(10)
               .get()).data
           ];
-          // this.getAbstract(this.searchIndex*10,(this.searchIndex+1)*10)
+          this.getAbstract(this.searchIndex * 10, (this.searchIndex + 1) * 10);
         }
         console.log(this.roomList);
         // 没有查找结果
@@ -237,14 +224,6 @@ export default class Index extends wepy.page {
           this.tipsText = '没有符合条件的答疑室';
           this.$apply();
         }
-      } else {
-        // 没有输入查询参数
-        setTimeout(() => {
-          this.tipsText = '';
-          this.$apply();
-        }, 1500);
-        this.tipsText = '请输入参数';
-        this.$apply();
       }
 
       this.$apply();
@@ -252,8 +231,8 @@ export default class Index extends wepy.page {
     watchRoom(index) {},
     cancelWatch(index) {},
     toDetails(index) {
-      console.log(index)
-      console.log(this.roomList[index])
+      console.log(index);
+      console.log(this.roomList[index]);
       // 跳转到答疑室详情
       wx.redirectTo({
         url:
