@@ -118,78 +118,7 @@ export default class Index extends wepy.page {
     name:'...',
     identity:'...',
     avatar:'',
-    newAnswers:[{
-      _id:'1',
-      questionId:'1',
-      questionTitle:'人是衣，马是鞍，一看长相二看穿',
-      respondentName:'狼剩子',
-      isAnonymous:false,
-      description:'改革春风吹满地，春风吹满地，中国人民真争气，人民真争气，这个世界太疯狂，耗子都给猫当伴娘，齐德隆，齐东强，齐德隆德隆东强。记得那是2003年的第一场雪，来得比2002的稍晚了一些。抓牌看牌，洗牌码牌～知道你为啥失败吗？真让我替你感到悲哀',
-      support:1,
-      isSelected:false
-    },{
-      _id:'2',
-      questionId:'1',
-      questionTitle:'白天想，夜里哭，做梦都想去首都',
-      respondentName:'狼剩子',
-      isAnonymous:false,
-      description:'改革春风吹满地，春风吹满地，中国人民真争气，人民真争气，这个世界太疯狂，耗子都给猫当伴娘，齐德隆，齐东强，齐德隆德隆东强。记得那是2003年的第一场雪，来得比2002的稍晚了一些。抓牌看牌，洗牌码牌～知道你为啥失败吗？真让我替你感到悲哀',
-      support:2,
-      isSelected: true
-    },{
-      _id:'3',
-      questionId:'1',
-      questionTitle:'俩脚离地了，病毒就关闭了',
-      respondentName:'狼剩子',
-      isAnonymous:false,
-      description:'改革春风吹满地，春风吹满地，中国人民真争气，人民真争气，这个世界太疯狂，耗子都给猫当伴娘，齐德隆，齐东强，齐德隆德隆东强。记得那是2003年的第一场雪，来得比2002的稍晚了一些。抓牌看牌，洗牌码牌～知道你为啥失败吗？真让我替你感到悲哀',
-      support:0,
-      isSelected:true
-    },
-    {
-      _id:'4',
-      questionId:'1',
-      questionTitle:'啥都上不去了',
-      respondentName:'狼剩子',
-      isAnonymous:true,
-      description:'改革春风吹满地，春风吹满地，中国人民真争气，人民真争气，这个世界太疯狂，耗子都给猫当伴娘，齐德隆，齐东强，齐德隆德隆东强。记得那是2003年的第一场雪，来得比2002的稍晚了一些。抓牌看牌，洗牌码牌～知道你为啥失败吗？真让我替你感到悲哀',
-      support:0,
-      isSelected:false
-    }],
-    questions:[{
-      _id:'1',
-      courseName:'编译原理',
-      questionerName:'赵拯基',
-      questionId:'1',
-      title:'人是衣，马是鞍，一看长相二看穿',
-      isAnonymous:false,
-      description:'改革春风吹满地，春风吹满地，中国人民真争气，人民真争气，这个世界太疯狂，耗子都给猫当伴娘，齐德隆，齐东强，齐德隆德隆东强。记得那是2003年的第一场雪，来得比2002的稍晚了一些。抓牌看牌，洗牌码牌～知道你为啥失败吗？真让我替你感到悲哀',
-      support:1,
-      isSelected:false
-    },
-    {
-      _id:'2',
-      courseName:'编译原理',
-      questionerName:'赵拯基',
-      questionId:'1',
-      title:'白天想，夜里哭，做梦都想去首都',
-      isAnonymous:true,
-      description:'改革春风吹满地，春风吹满地，中国人民真争气，人民真争气，这个世界太疯狂，耗子都给猫当伴娘，齐德隆，齐东强，齐德隆德隆东强。记得那是2003年的第一场雪，来得比2002的稍晚了一些。抓牌看牌，洗牌码牌～知道你为啥失败吗？真让我替你感到悲哀',
-      support:0,
-      isSelected:true
-    },
-    {
-      _id:'2',
-      courseName:'编译原理',
-      questionerName:'赵拯基',
-      questionId:'1',
-      title:'白天想，夜里哭，做梦都想去首都',
-      isAnonymous:true,
-      description:'改革春风吹满地，春风吹满地，中国人民真争气，人民真争气，这个世界太疯狂，耗子都给猫当伴娘，齐德隆，齐东强，齐德隆德隆东强。记得那是2003年的第一场雪，来得比2002的稍晚了一些。抓牌看牌，洗牌码牌～知道你为啥失败吗？真让我替你感到悲哀',
-      support:0,
-      isSelected:true
-    }
-    ],
+    unRead:[],
     bottomLoading:false
   };
 
@@ -216,17 +145,6 @@ export default class Index extends wepy.page {
     this.$apply()
   }
 
-  onReachBottom() {
-    console.log('上拉加载')
-    this.bottomLoading = true
-    wx.showNavigationBarLoading()
-    setTimeout(() => {
-      this.bottomLoading = false
-      this.questions.push(this.questions[0])
-      wx.hideNavigationBarLoading()
-      this.$apply()
-      console.log(this.questions)
-    }, 3000);
-  }
+
 }
 </script>

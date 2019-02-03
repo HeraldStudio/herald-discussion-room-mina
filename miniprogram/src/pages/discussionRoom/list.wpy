@@ -24,6 +24,24 @@
       color: #888;
     }
   }
+  .search-panel {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-top-style: solid;
+    border-top-width: 1px;
+    border-top-color: #f0f0f0;
+    background: #fff;
+    button {
+      background: #13acd9;
+      color: #fff;
+      font-size: 32rpx;
+      font-weight: bold;
+      margin: 20rpx 100rpx;
+      border-radius: 100rpx;
+    }
+  }
 }
 </style>
 
@@ -67,6 +85,9 @@
           view.title {{item.courseName}}
           view.bottom {{item.watch}} 人关注
       view.line
+    
+    view.search-panel
+      button( @tap="searchDiscussionRoom") 搜索答疑室
 
  </template>
 
@@ -96,6 +117,11 @@ export default class List extends wepy.page {
     gotoDiscussionRoom(discussionRoomId){
       wx.redirectTo({
         url:'/pages/discussionRoom/detail?discussionRoomId='+discussionRoomId
+      })
+    },
+    searchDiscussionRoom(){
+      wx.redirectTo({
+        url:'/pages/discussionRoom/search'
       })
     }
   };
