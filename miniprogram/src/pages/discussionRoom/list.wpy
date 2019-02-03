@@ -1,5 +1,6 @@
 <style lang="less" scoped>
 #list-page{
+  margin-bottom: 120rpx;
   .tag{
     font-size: 24rpx;
     color:#888;
@@ -24,7 +25,17 @@
       color: #888;
     }
   }
-  .search-panel {
+  .empty{
+    .hint{
+      width: 100%;
+      text-align: center;
+      font-size:32rpx;
+      color:#333;
+    }
+  }
+ 
+}
+ .search-panel {
     position: fixed;
     left: 0;
     right: 0;
@@ -42,11 +53,12 @@
       border-radius: 100rpx;
     }
   }
-}
 </style>
 
 <template lang="pug">
   view#list-page
+    view.empty(wx:if="{{asHost.length===0 && asAdviser.length === 0 && asClassPrefect.length === 0 && asWatcher === 0}}")
+      view.hint 空空如也？快去{{identity==='教职员工'?'创建':'查找一个'}}答疑室吧！
     view.section(wx:if="{{asHost.length>0}}")
       view.tag 我创建的答疑室
       repeat(for="{{asHost}}" index="index")
@@ -86,8 +98,8 @@
           view.bottom {{item.watch}} 人关注
       view.line
     
-    view.search-panel
-      button( @tap="searchDiscussionRoom") 搜索答疑室
+  view.search-panel
+    button( @tap="searchDiscussionRoom") 搜索答疑室
 
  </template>
 

@@ -60,10 +60,31 @@
     }
   }
 
-  .bottom-loading{
-      border: none;
-      border-radius: 0;
+  .tag{
+    margin: 15rpx 30rpx;
+    color: #888;
+    font-size: 28rpx;
+  }
+
+  .empty{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    .hint{
+      margin-top:30rpx;
+      font-size:32rpx;
+      color:#888;
     }
+    .button {
+      background: #13acd9;
+      color: #fff;
+      font-size: 32rpx;
+      font-weight: bold;
+      margin: 30rpx 100rpx;
+      border-radius: 100rpx;
+      padding: 15rpx 30rpx;
+    }
+  }
  }
 </style>
 <template lang="pug">
@@ -79,16 +100,18 @@
         image(src="/asset/room-icon.png")
         text 进入答疑室
       view.sperator
-      view.navi-button(@tap='toQuestionList')
+      view.navi-button(@tap='toQuestionList' wx:if="{{identity!=='东南大学教职员工'}}")
         image(src="/asset/question-icon.png")
-        text 关注的问题
-      view.sperator
-      view.navi-button
+        text 我的问题
+      view.navi-button(@tap='toCreateDiscussionRoom' wx:else)
         image(src="/asset/answer-icon.png")
-        text 我的回答
+        text 创建答疑室
     view.line
-    button.bottom-loading(wx:if="{{bottomLoading}}" plain="true" loading="true" disabled="true") 正在加载
-    button.bottom-loading(wx:else plain="true") 加载更多
+    view.empty(wx:if="{{unRead.length === 0}}")
+      view.hint 暂时没有新动态，不如去答疑室看看？
+      view.button(@tap="toDiscussionRoom") 前往我的答疑室
+    view.tag(wx:else) 最新动态：
+
     
 </template>
 
@@ -122,6 +145,9 @@ export default class Index extends wepy.page {
   methods = {
     toDiscussionRoom(){
       wx.navigateTo({url:'/pages/discussionRoom/list'})
+    },
+    toCreateDiscussionRoom(){
+      wx.navigateTo({url:'/pages/discussionRoom/create'})
     },
     toQuestionList(){
       wx.navigateTo({url:'/pages/question/questionlist'})
