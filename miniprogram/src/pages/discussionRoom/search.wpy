@@ -1,35 +1,102 @@
 <style lang="less" scoped>
 #search-page {
-  width: 100%;
+  position: relative;
+  overflow: hidden;
+  .search-form {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    width: 100%;
+    padding: 20rpx 0;
+    .keyword {
+      width: 480rpx;
+      height: 60rpx;
+      padding: 0 20rpx;
+      border-radius: 30rpx 30rpx;
+      font-size: 32rpx;
+      line-height: 40rpx;
+      background-color: #eee;
+    }
+    .search-btn {
+      width: 120rpx;
+      height: 60rpx;
+      text-align: center;
+      font-size: 32rpx;
+      line-height: 60rpx;
+      border-radius: 30rpx 30rpx;
+      background-color: rgb(77, 170, 212);
+      color: #fff;
+    }
+  }
+
+  .tips {
+    position: absolute;
+    top: 300rpx;
+    left: 50%;
+    transform: translateX(-50%);
+    box-sizing: border-box;
+    font-size: 32rpx;
+    padding: 4rpx 10rpx;
+    border-radius: 3rpx 3rpx;
+    background-color: rgb(77, 170, 212);
+    color: #fff;
+  }
+  .room-item {
+    padding: 24rpx 34rpx 24rpx;
+    .info {
+      display: flex;
+      align-items: center;
+      .separate {
+        border-left-style: solid;
+        border-left-width: 1rpx;
+        border-left-color: #eee;
+        align-self: stretch;
+      }
+      .hose-name,
+      .question-num,
+      .student-num {
+        font-size: 27rpx;
+        color: #888;
+        margin-right: 10rpx;
+      }
+    }
+    .course-name {
+      font-size: 37rpx;
+    }
+  }
+  .room-item:active {
+    background-color: #eee;
+  }
 }
 </style>
 
 <template lang="pug">
   view#search-page
     view.search-form
-      input(placeholder="请输入答疑室名称/编码/教师姓名" adjust-position=false @blur='setKeywords')
-      
-    view.tips( wx:if="tipText")
-      image(src="")
+      input.keyword(placeholder="请输入答疑室名称/编码/教师姓名" adjust-position=false @blur='setKeywords')
+      view.search-btn( @tap='search') 查找
+    view.line
+    view.tips( wx:if="{{tipText}}")
       text {{tipsText}}
-
-    text.course-name {{roomList[0].courseName}}
     repeat(for="{{roomList}}" index="index" item="item")
-      view.room-item( @tap='toDetails')
+      view.dot-line
+      view.room-item( @tap='toDetails(index)')
         view
           text.course-name {{item.courseName}}
-        view
+        view.info
           text.host-name {{item.hostName}}老师
-          text.room-id {item._id}
-    view
-      button.bottom-loading(wx:if="{{loading}}" plain="true" loading="true" disabled="true") 正在加载
-      button.bottom-loading(wx:else plain="true") 加载更多
-    button( @tap='search') 查找
+          text.separate 
+          text.question-num {{roomAbstract[index].questionNum}}个问题
+          text.separate 
+          text.students-num {{roomAbstract[index].studentsNum}}名学生关注
+    //- view
+    //-   button.bottom-loading(wx:if="{{loading}}" plain="true" loading="true" disabled="true") 正在加载
 
 </template>
 
 <script>
 import wepy from 'wepy';
+import callFunction from '../../utils/callFunction'; // 引入云函数调用的便捷封装
 
 const db = wx.cloud.database();
 
@@ -37,73 +104,132 @@ export default class Index extends wepy.page {
   data = {
     keywords: '',
     tipsText: '',
-    searchIndex: 0, // 用于区分下拉搜索次数
+    searchIndex: 0, // 用于区分上拉搜索次数
     loading: false,
-    roomList: []
+    roomList: [],
+    roomAbstract: [] // 答疑室的问题数目和关注人数
   };
 
-  onload(){
-    this.searchIndex = 0
-    this.keywords = ''
-    this.roomList = []
+  onload() {
+    this.searchIndex = 0;
+    this.keywords = '';
+    this.roomList = [];
   }
 
-  onReachBottom(){
-    this.searchIndex++
-    this.loading = true
-    wx.showNavigationBarLoading()
+  onReachBottom() {
+    this.searchIndex++;
+    this.loading = true;
     setTimeout(() => {
-      this.loading = false
-      this.search()
-      this.$apply()
+      this.loading = false;
+      this.search();
+      this.$apply();
     }, 3000);
   }
 
   methods = {
     setKeywords(event) {
-      this.keywords = event.detail.value
+      this.keywords = event.detail.value;
+    },
+    // 获取部分答疑室信息摘要(问题数目，关注人数，是否关注过)
+    async getAbstract(start, end) {
+      for (let i = start; i < end; i++) {
+        const roomItem = this.roomList[i];
+        this.roomAbstract[i] = {
+          questionNum: await db
+            .collection('Question')
+            .where({ discussionRoomId: roomItem._id })
+            .get()
+            .count(),
+          studentNum: (await db
+            .collection('DiscussionRoom')
+            .doc(roomItem._id)
+            .get()).data.watch
+        };
+      }
+      this.$apply();
     },
     async search() {
-      this.roomList = []
+      this.roomList = [];
       if (this.keywords != '') {
-        console.log(this.keywords)
-        console.log(`查找关键字: ${this.keywords}`)
+        console.log(this.keywords);
+        console.log(`查找关键字: ${this.keywords}`);
 
         // 为兼容基础库 2.3 以下版本，避免skip(0)
         if (this.searchIndex == 0) {
           this.roomList = [
-            ...((await db.collection('DiscussionRoom').where({hostName: this.keywords}).limit(10).get()).data),
-            ...((await db.collection('DiscussionRoom').where({courseName: this.keywords}).limit(10).get()).data),
-            ...((await db.collection('DiscussionRoom').where({_id: this.keywords}).limit(10).get()).data)
-          ]
-        }else{
+            ...(await db
+              .collection('DiscussionRoom')
+              .where({ hostName: this.keywords })
+              .limit(10)
+              .get()).data,
+            ...(await db
+              .collection('DiscussionRoom')
+              .where({ courseName: this.keywords })
+              .limit(10)
+              .get()).data,
+            ...(await db
+              .collection('DiscussionRoom')
+              .where({ code: this.keywords })
+              .limit(10)
+              .get()).data
+          ];
+          // this.getAbstract(0,10)
+          console.log(this.getAbstract);
+        } else {
           this.roomList = [
             ...this.roomList,
-            ...((await db.collection('DiscussionRoom').where({hostName: this.keywords}).skip(this.searchIndex * 10).limit(10).get()).data),
-            ...((await db.collection('DiscussionRoom').where({courseName: this.keywords}).skip(this.searchIndex * 10).limit(10).get()).data),
-            ...((await db.collection('DiscussionRoom').where({_id: this.keywords}).skip(this.searchIndex * 10).limit(10).get()).data)
-          ]
+            ...(await db
+              .collection('DiscussionRoom')
+              .where({ hostName: this.keywords })
+              .skip(this.searchIndex * 10)
+              .limit(10)
+              .get()).data,
+            ...(await db
+              .collection('DiscussionRoom')
+              .where({ courseName: this.keywords })
+              .skip(this.searchIndex * 10)
+              .limit(10)
+              .get()).data,
+            ...(await db
+              .collection('DiscussionRoom')
+              .where({ code: this.keywords })
+              .skip(this.searchIndex * 10)
+              .limit(10)
+              .get()).data
+          ];
+          // this.getAbstract(this.searchIndex*10,(this.searchIndex+1)*10)
         }
+        console.log(this.roomList);
         // 没有查找结果
         if (this.roomList.length === 0) {
           setTimeout(() => {
-            this.tipsText = ''
-          }, 1000)
-          this.tipsText = '没有符合条件的答疑室'
-        } 
-      }else {
+            this.tipsText = '';
+            this.$apply();
+          }, 1500);
+          this.tipsText = '没有符合条件的答疑室';
+          this.$apply();
+        }
+      } else {
         // 没有输入查询参数
         setTimeout(() => {
-          this.tipsText = ''
-        }, 1000)
-        this.tipsText = '请输入参数'
+          this.tipsText = '';
+          this.$apply();
+        }, 1500);
+        this.tipsText = '请输入参数';
+        this.$apply();
       }
 
-      this.$apply()
+      this.$apply();
     },
-    toDetails() {
+    watchRoom(index) {},
+    cancelWatch(index) {},
+    toDetails(index) {
       // 跳转到答疑室详情
-      wepy.navigateTo({ url: '/pages/discussionRoom/detail' });
+      wepy.navigateTo({
+        url: `/pages/discussionRoom/detail?discussionRoomI=${
+          this.roomList[index]._id
+        }`
+      });
     }
   };
 }
