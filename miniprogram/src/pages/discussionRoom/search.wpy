@@ -8,12 +8,12 @@
     justify-content: space-around;
     width: 100%;
     padding: 20rpx 0;
+    font-size: 24rpx;
     .keyword {
       width: 480rpx;
       height: 60rpx;
       padding: 0 20rpx;
       border-radius: 30rpx 30rpx;
-      font-size: 32rpx;
       line-height: 40rpx;
       background-color: #eee;
     }
@@ -21,7 +21,6 @@
       width: 120rpx;
       height: 60rpx;
       text-align: center;
-      font-size: 32rpx;
       line-height: 60rpx;
       border-radius: 30rpx 30rpx;
       background-color: rgb(77, 170, 212);
@@ -87,7 +86,6 @@
           text.question-num {{roomInfo[i].questionNum}}个问题
           text.separate -
           text.students-num {{roomInfo[i].studentNum}}名学生关注
-
       view.dot-line
 
     view
