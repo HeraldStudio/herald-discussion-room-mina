@@ -5,13 +5,14 @@
   .search-form {
     display: flex;
     align-items: center;
-    justify-content: space-around;
+    justify-content: center;
     width: 100%;
     padding: 20rpx 0;
     font-size: 24rpx;
     .keyword {
       width: 480rpx;
       height: 60rpx;
+      margin-right: 20rpx;
       padding: 0 20rpx;
       border-radius: 30rpx 30rpx;
       line-height: 40rpx;
@@ -26,19 +27,6 @@
       background-color: rgb(77, 170, 212);
       color: #fff;
     }
-  }
-
-  .tips {
-    position: absolute;
-    top: 300rpx;
-    left: 50%;
-    transform: translateX(-50%);
-    box-sizing: border-box;
-    font-size: 32rpx;
-    padding: 4rpx 10rpx;
-    border-radius: 3rpx 3rpx;
-    background-color: rgb(77, 170, 212);
-    color: #fff;
   }
   .room-item {
     padding: 24rpx 34rpx 24rpx;
@@ -68,6 +56,20 @@
     background-color: #eee;
   }
 }
+
+.tips {
+  position: fixed;
+  top: 200rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 200rpx;
+  box-sizing: border-box;
+  font-size: 32rpx;
+  padding: 4rpx 20rpx;
+  border-radius: 5rpx 5rpx;
+  background-color: rgb(77, 170, 212);
+  color: #fff;
+}
 </style>
 
 <template lang="pug">
@@ -76,7 +78,7 @@
       input.keyword(placeholder="请输入答疑室名称/编码/教师姓名" adjust-position=false @blur='setKeywords')
       view.search-btn( @tap='search') 查找
     view.line
-    view.tips( wx:if="{{tipText}}")
+    view.tips(wx:if="{{tipsText}}")
       text {{tipsText}}
     view( wx:for="{{roomList}}" wx:for-index="i" wx:key="_id")
       view.room-item( @tap='toDetails({{i}})')
@@ -109,10 +111,12 @@ export default class Index extends wepy.page {
   };
 
   onLoad() {
-    this.searchIndex = 0;
-    this.keywords = '';
-    this.roomList = [];
-    this.roomInfo = [];
+    this.searchIndex = 0
+    this.tipsText = ''
+    this.loading = false
+    this.keywords = ''
+    this.roomList = []
+    this.roomInfo = []
     this.$apply()
   }
 
@@ -158,6 +162,9 @@ export default class Index extends wepy.page {
       this.roomList = [];
       this.roomInfo = [];
       if (this.keywords == '') {
+        console.log("没有查询参数");
+        console.log(this.tipsText);
+        
         // 没有输入查询参数
         setTimeout(() => {
           this.tipsText = '';
