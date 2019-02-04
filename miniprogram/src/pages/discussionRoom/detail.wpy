@@ -221,7 +221,7 @@
         view.circle(wx:else @tap="toggleSelected")
     view.dot-line
     view.question-panel
-      view.empty(wx:if="{{!hasQuestion}}") {{emptyHint}}
+      view.empty(wx:if="{{!hasQuestion}}" @tap="refresh") {{emptyHint}}
       repeat(for="{{questionList}}" index="index" key="item._id")
         view.item-cell( @tap="showQuestion({{item._id}})")
           view.top {{item.lastModifiedTime}}的问题
@@ -272,7 +272,7 @@ export default class DiscussionRoomDetail extends wepy.page {
     page: 0, // 分页计数器
     questionList: [],
     loading: false,
-    emptyHint:'还没有问题，不如提个问？', // 加锁
+    emptyHint:'点击刷新', // 加锁
     scroll:0
   };
 
@@ -282,14 +282,28 @@ export default class DiscussionRoomDetail extends wepy.page {
     }
   };
 
+  onShareAppMessage(obj){
+    let title = `${this.hostName}老师创建了「${this.courseName}」的课程在线答疑室，快来提问吧!`
+    return {
+      title,
+      url:`/pages/discussionRoom/detail?discussionRoom=${this.discussionRoomId}`
+    }
+  }
   methods = {
     showQuestion(questionId){
       wx.navigateTo({
         url:'/pages/question/detail?questionId='+questionId
       })
     },
+    async refresh(){
+      this.questionList = []
+      this.page = 0
+      wx.showLoading({title:'正在刷新'})
+      await this.loadQuestion()
+      wx.hideLoading()
+    },
     toggleSort(){
-      this.emptyHint = '正在加载...'
+      this.emptyHint = '点击刷新'
       this.sort = this.sort === '最新动态' ? '最多关注' : '最新动态'
       this.questionList = []
       this.page = 0
@@ -346,6 +360,7 @@ export default class DiscussionRoomDetail extends wepy.page {
         async success(res) {
           if (res.confirm) {
             try{
+              wx.showLoading({title:'正在删除'})
               let res = await callFunction('discussionRoom/delete',{discussionRoomId:that.discussionRoomId})
               if(res.success){
                 wx.showToast({
@@ -355,6 +370,7 @@ export default class DiscussionRoomDetail extends wepy.page {
               } else {
                 throw res.reason
               }
+              wx.hideLoading()
             } catch(e) {
               console.log(e)
               wx.showToast({
@@ -460,12 +476,12 @@ export default class DiscussionRoomDetail extends wepy.page {
     this.page= 0; // 分页计数器
     this.questionList= [];
     this.loading= false;
-    this.emptyHint='还没有问题，不如提个问？'; // 加锁
+    this.emptyHint='点击刷新'; // 加锁
     this.scroll=0;
     this.$apply()
   }
   async onLoad(options) {
-    this.$apply()
+    this.init()
     let { discussionRoomId } = options;
     let userInfo = await getUserInfo();
     if (!discussionRoomId) {

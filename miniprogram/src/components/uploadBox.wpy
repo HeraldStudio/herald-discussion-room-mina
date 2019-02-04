@@ -55,6 +55,9 @@ export default class uploadBox extends wepy.component {
     }
   }
   onLoad() {
+    this.success = false
+    this.filePath = ''
+    this.$apply()
   }
 }
 </script>

@@ -48,7 +48,7 @@
   view#comment-create
     form(report-submit="true" bindsubmit="bindsubmit" wx:if="{{!success}}")
       view.hint 请填写评论/追问内容
-      textarea.desc(name="content" value="{{cotent}}" placeholder="不超过200字，新评论内容展示存在延迟，提示成功请勿重复评论" maxlength="200")
+      textarea.desc(name="content" value="{{cotent}}" placeholder="不超过200字，新评论内容展示存在延迟，提示成功请勿重复评论" maxlength="200" bindinput="bindContent")
       button(loading="{{loading}}" disabled="{{loading}}" form-type="submit") 提交
 </template>
 
@@ -74,13 +74,20 @@ export default class CreateComment extends wepy.page {
     content: '',
   };
 
+  init(){
+    this.userInfo= {};
+    this.answerId='';
+    this.content='';
+    this.$apply();
+  }
+
   computed = {};
 
   methods = {
     async bindsubmit(e) {
       // 读取用户输入
       console.log(e)
-      let content = e.detail.value.content
+      let content = e.detail.value.content ? e.detail.value.content : this.content
       let now = +moment()
       if(!content){
         wx.showToast({
@@ -126,14 +133,18 @@ export default class CreateComment extends wepy.page {
             title:'评论失败'
           })
         }
-      }
-    
+      },
+    bindContent(e) {
+      this.content = e.detail.value
+      this.$apply()
+    },
   };
 
   events = {
   };
 
   async onLoad(option) {
+    this.init()
     // 获取用户信息
     this.userInfo = await getUserInfo();
     if (option.answerId) {

@@ -1,6 +1,8 @@
 <style lang="less">
 #discussion-room-create {
     display: block;
+    width: 750rpx;
+    overflow-x: hidden;
     .course-name-hint{
       font-size: 32rpx;
       color:#888;
@@ -52,7 +54,7 @@
   view#discussion-room-create
     view.course-name-hint(wx:if="{{!success}}") 课程名称
     form(report-submit="true" bindsubmit="bindsubmit" wx:if="{{!success}}")
-      input(name="courseName" placeholder="将作为答疑室名称" maxlength="20")
+      input(name="courseName" placeholder="将作为答疑室名称" maxlength="20" bindinput="bindCourseName")
       button(loading="{{loading}}" disabled="{{loading}}" form-type="submit") 创建答疑室
     view.code-panel(wx:else)
       view.hint 答疑室代码
@@ -79,7 +81,8 @@ export default class CreateDiscussionRoom extends wepy.page {
     success:false,
     loading:false,
     code:'SKK520',
-    discussionRoomId:''
+    discussionRoomId:'',
+    courseName:''
   };
 
   computed = {};
@@ -88,7 +91,7 @@ export default class CreateDiscussionRoom extends wepy.page {
     async bindsubmit(e){
       this.loading = true
       this.$apply()
-      let res = await callFunction('discussionRoom/create',e.detail.value)
+      let res = await callFunction('discussionRoom/create',e.detail.value?e.detail.value:this.courseName)
       if(res.success){
         // 创建成功
         this.loading = false
@@ -112,6 +115,10 @@ export default class CreateDiscussionRoom extends wepy.page {
       wx.redirectTo({
         url:'/pages/discussionRoom/detail?discussionRoomId='+this.discussionRoomId
       })
+    },
+    bindCourseName(e){
+      this.courseName = e.detail.value;
+      this.$apply()
     }
   };
 

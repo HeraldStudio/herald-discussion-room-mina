@@ -307,7 +307,7 @@
         view.strategy(@tap="toggleSort") {{sort}}
     view.dot-line
     view.question-panel
-      view.empty(wx:if="{{!hasAnswer}}") {{emptyHint}}
+      view.empty(wx:if="{{!hasAnswer}}" @tap="refresh") {{emptyHint}}
       repeat(for="{{answerList}}" index="index" key="item._id")
         view.item-cell
           view.top 
@@ -378,10 +378,36 @@ export default class DiscussionRoomDetail extends wepy.page {
     page: 0, // 分页计数器
     answerList: [],
     loading: false,
-    emptyHint:'还没有回答，不如发个言？', // 加锁
+    emptyHint:'点击刷新', // 加锁
     userInfo:{},
     scroll:0
   };
+
+  init(){
+    this.ready=false;
+    this.discussionRoomId= '';
+    this.discussionRoomName= '';
+    this.title= '';
+    this.createdTime= '';
+    this.questionerName= '';
+    this.isSelected= false;
+    this.isWatched= false;
+    this.howManyWatch= 0;
+    this.canDelete=false;
+    this.canSelect=false;
+    this.canModify=false;
+    this.description='';
+    this.imageCode='';
+    this.sort= '最新动态'; // 最多支持
+    this.selectedOnly= false;
+    this.page= 0; // 分页计数器
+    this.answerList= [];
+    this.loading= false;
+    this.emptyHint='点击刷新'; // 加锁
+    this.userInfo={};
+    this.scroll=0
+    this.$apply()
+  }
 
   computed = {
     hasAnswer(){
@@ -403,8 +429,16 @@ export default class DiscussionRoomDetail extends wepy.page {
     showImage(code){
       wx.previewImage({urls:[code]})
     },
+    async refresh(){
+      this.answerList = []
+      this.page = 0
+      console.log('点击加载')
+      wx.showLoading({title:'正在加载'})
+      await this.loadAnswer()
+      wx.hideLoading()
+    },
     toggleSort(){
-      this.emptyHint = '正在加载...'
+      this.emptyHint = '点击刷新'
       this.sort = this.sort === '最新动态' ? '最多支持' : '最新动态'
       this.answerList = []
       this.page = 0
@@ -492,6 +526,7 @@ export default class DiscussionRoomDetail extends wepy.page {
         content: '问题删除后将无法恢复，内容及相关答案、评论都将丢失',
         success(res) {
           if (res.confirm) {
+            wx.showLoading({title:'正在删除'})
             callFunction('question/delete',{questionId:that.questionId}).then((res)=>{
               if(res.success){
               wx.showToast({
@@ -508,6 +543,7 @@ export default class DiscussionRoomDetail extends wepy.page {
                 title:'删除失败，请重试'
               })
             })
+            wx.hideLoading()
           } else if (res.cancel) {
             console.log('用户点击取消')
           }
@@ -687,7 +723,19 @@ export default class DiscussionRoomDetail extends wepy.page {
     }
 
   events = {};
-  
+  onShareAppMessage(obj){
+    let title = ''
+    if(this.title.indexOf('?')!==-1){
+      title = `请问：${this.title}`
+    } else {
+      title = `发现一个问题：${this.title}，有人能解答吗？`
+    }
+
+    return {
+      title,
+      url:`/pages/question/detail?questionId=${this.questionId}`
+    }
+  }
   onReachBottom() {
     this.loadAnswer()
   }
@@ -696,6 +744,7 @@ export default class DiscussionRoomDetail extends wepy.page {
     this.$apply()
   }
   async onLoad(options) {
+    this.init()
     let { questionId } = options;
     console.log(questionId)
     let userInfo = await getUserInfo();

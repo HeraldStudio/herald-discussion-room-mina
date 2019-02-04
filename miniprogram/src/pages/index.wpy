@@ -120,7 +120,7 @@
 </style>
 <template lang="pug">
   view#home-page
-    view.user-info
+    view.user-info(wx:if="{{name}}")
       image.avatar(src="{{avatar}}" :class="{loading:!avatar}")
       view.textInfo
         view.name {{name}}
@@ -174,7 +174,7 @@ export default class Index extends wepy.page {
 
   data = {
     cardnum:'...',
-    name:'...',
+    name:'',
     identity:'...',
     avatar:'',
     unRead:[],
@@ -218,6 +218,7 @@ export default class Index extends wepy.page {
     this.name = userInfo.name + '(' +userInfo.cardnum+')'
     this.identity = '东南大学' + userInfo.identity
     this.avatar = userInfo.avatarUrl
+    this.unRead = []
     this.$apply()
   }
   onShow(){

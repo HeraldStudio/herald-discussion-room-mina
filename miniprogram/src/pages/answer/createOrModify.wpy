@@ -48,7 +48,7 @@
   view#answer-create
     form(report-submit="true" bindsubmit="bindsubmit" wx:if="{{!success}}")
       view.hint 我的解答
-      textarea.desc(name="description" value="{{description}}" placeholder="不超过1000字" maxlength="1000")
+      textarea.desc(name="description" value="{{description}}" placeholder="不超过1000字" maxlength="1000" bindinput="bindDescription")
       view.hint 插入图片
       view.upload
         upload-box
@@ -84,13 +84,24 @@ export default class CreateDiscussionRoom extends wepy.page {
     imageCode: ''
   };
 
+  init(){
+    this.isModify=false;
+    this.userInfo={};
+    this.answerId='';
+    this.questionId='';
+    this.description='';
+    this.localImage='';
+    this.imageCode='';
+    this.$apply()
+  }
+
   computed = {};
 
   methods = {
     async bindsubmit(e) {
       // 读取用户输入
       console.log(e)
-      let description = e.detail.value.description
+      let description = e.detail.value.description ? e.detail.value.description : this.description
       let now = +moment()
       if(!description){
         wx.showToast({
@@ -188,9 +199,11 @@ export default class CreateDiscussionRoom extends wepy.page {
             wx.showToast({
               title:'回答成功'
             })
-            wx.redirectTo({
+            setTimeout(() => {
+              wx.redirectTo({
               url:'/pages/question/detail?questionId='+this.questionId
             })
+            }, 500);
             // TODO：发送提醒
           } else throw '回答失败'
         } catch(e) {
@@ -201,6 +214,14 @@ export default class CreateDiscussionRoom extends wepy.page {
           })
         }
       }
+    },
+    bindTitle(e) {
+      this.title = e.detail.value
+      this.$apply()
+    },
+    bindDescription(e) {
+      this.description = e.detail.value
+      this.$apply()
     }
   };
 
@@ -212,6 +233,7 @@ export default class CreateDiscussionRoom extends wepy.page {
   };
 
   async onLoad(option) {
+    this.init()
     // 判断是创建答案还是修改答案
     this.isModify = !!option.answerId;
     // 获取用户信息

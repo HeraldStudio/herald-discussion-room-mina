@@ -128,6 +128,13 @@ export default class QuestionList extends wepy.page{
         isMQSpread:true,
         isWQSpread:false
     };
+    init(){
+        this.loading=true;
+        this.myQuestions=[];
+        this.watchQuestion=[];
+        this.isMQSpread=true;
+        this.isWQSpread=false
+    }
     methods = {
         toDetail(id){
             console.log(id)

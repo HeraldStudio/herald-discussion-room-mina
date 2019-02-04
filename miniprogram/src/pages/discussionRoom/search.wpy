@@ -110,11 +110,12 @@ export default class Index extends wepy.page {
     roomInfo: [] // 答疑室的问题数目和关注人数
   };
 
-  onload() {
+  onLoad() {
     this.searchIndex = 0;
     this.keywords = '';
     this.roomList = [];
     this.roomInfo = [];
+    this.$apply()
   }
 
   onReachBottom() {

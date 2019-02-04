@@ -48,9 +48,9 @@
   view#question-create
     form(report-submit="true" bindsubmit="bindsubmit" wx:if="{{!success}}")
       view.hint 问题标题
-      input(name="title" value="{{title}}" placeholder="不超过20字" maxlength="20")
+      input(name="title" value="{{title}}" placeholder="不超过20字" maxlength="20" bindinput="bindTitle")
       view.hint 问题描述
-      textarea.desc(name="description" value="{{description}}" placeholder="不超过500字" maxlength="500")
+      textarea.desc(name="description" value="{{description}}" placeholder="不超过500字" maxlength="500" bindinput="bindDescription")
       view.hint 插入图片
       view.upload
         upload-box
@@ -87,14 +87,25 @@ export default class CreateDiscussionRoom extends wepy.page {
     imageCode: ''
   };
 
+  init(){
+    this.isModify = false;
+    this.userInfo = {};
+    this.questionId = '';
+    this.discussionRoomId = '';
+    this.title = '';
+    this.description = '';
+    this.localImage = '';
+    this.imageCode = '';
+    this.$apply()
+  }
   computed = {};
 
   methods = {
     async bindsubmit(e) {
       // 读取用户输入
       console.log(e)
-      let title = e.detail.value.title
-      let description = e.detail.value.description
+      let title = e.detail.value.title ? e.detail.value.title : this.title
+      let description = e.detail.value.description ? e.detail.value.description : this.description
       let now = +moment()
       if(!title || !description){
         wx.showToast({
@@ -193,9 +204,11 @@ export default class CreateDiscussionRoom extends wepy.page {
             wx.showToast({
               title:'问题创建成功'
             })
-            wx.redirectTo({
-              url:'/pages/discussionRoom/detail?discussionRoomId='+this.discussionRoomId
-            })
+            setTimeout(() => {
+              wx.redirectTo({
+                url:'/pages/discussionRoom/detail?discussionRoomId='+this.discussionRoomId
+              })
+            }, 500);
             // TODO：发送提醒
           } else throw '问题创建失败'
         } catch(e) {
@@ -206,6 +219,14 @@ export default class CreateDiscussionRoom extends wepy.page {
           })
         }
       }
+    },
+    bindTitle(e) {
+      this.title = e.detail.value
+      this.$apply()
+    },
+    bindDescription(e) {
+      this.description = e.detail.value
+      this.$apply()
     }
   };
 
@@ -217,6 +238,7 @@ export default class CreateDiscussionRoom extends wepy.page {
   };
 
   async onLoad(option) {
+    this.init()
     // 判断是创建问题还是修改问题
     this.isModify = !!option.questionId;
     // 获取用户信息
