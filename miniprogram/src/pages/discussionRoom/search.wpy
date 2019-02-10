@@ -24,7 +24,7 @@
       text-align: center;
       line-height: 60rpx;
       border-radius: 30rpx 30rpx;
-      background-color: rgb(77, 170, 212);
+      background-color: #13acd9;
       color: #fff;
     }
   }
@@ -62,12 +62,11 @@
   top: 200rpx;
   left: 50%;
   transform: translateX(-50%);
-  min-width: 200rpx;
   box-sizing: border-box;
-  font-size: 32rpx;
+  font-size: 28rpx;
   padding: 4rpx 20rpx;
   border-radius: 5rpx 5rpx;
-  background-color: rgb(77, 170, 212);
+  background-color: #13acd9;
   color: #fff;
 }
 </style>
@@ -107,7 +106,8 @@ export default class Index extends wepy.page {
     searchIndex: 0, // 用于区分上拉搜索次数
     loading: false,
     roomList: [],
-    roomInfo: [] // 答疑室的问题数目和关注人数
+    roomInfo: [], // 答疑室的问题数目和关注人数
+    resultNum: 0  // 搜索结果个数，用来确定是否需要加载更多
   };
 
   onLoad() {
@@ -159,25 +159,27 @@ export default class Index extends wepy.page {
     // 获取部分答疑室信息摘要(问题数目，关注人数，是否关注过)
 
     async search() {
-      this.roomList = [];
-      this.roomInfo = [];
       if (this.keywords == '') {
-        console.log("没有查询参数");
-        console.log(this.tipsText);
-        
         // 没有输入查询参数
-        setTimeout(() => {
-          this.tipsText = '';
-          this.$apply();
-        }, 1500);
-        this.tipsText = '请输入参数';
+        // setTimeout(() => {
+        //   this.tipsText = '';
+        //   this.$apply();
+        // }, 1500);
+        // this.tipsText = '请输入参数';
+        wx.showToast({icon:'none',title:'请输入参数'})
         this.$apply();
       } else {
-        console.log(this.keywords);
         console.log(`查找关键字: ${this.keywords}`);
+        wx.showLoading({title:'查找中'})
+        // 获取结果的总数，判断是否需要分页
+        this.resultNum = (await db.collection('DiscussionRoom').where({hostName: this.keywords}).count()).count
+          + (await db.collection('DiscussionRoom').where({courseName: this.keywords}).count()).count
+          + (await db.collection('DiscussionRoom').where({code: this.keywords}).count()).count
 
         // 为兼容基础库 2.3 以下版本，避免skip(0)
         if (this.searchIndex == 0) {
+          this.roomList = [];
+          this.roomInfo = [];
           this.roomList = [
             ...(await db
               .collection('DiscussionRoom')
@@ -196,6 +198,7 @@ export default class Index extends wepy.page {
               .get()).data
           ];
           this.getAbstract(0, 10);
+          wx.hideLoading()
         } else {
           this.roomList = [
             ...this.roomList,
@@ -219,23 +222,22 @@ export default class Index extends wepy.page {
               .get()).data
           ];
           this.getAbstract(this.searchIndex * 10, (this.searchIndex + 1) * 10);
+          wx.hideLoading()
         }
-        console.log(this.roomList);
         // 没有查找结果
         if (this.roomList.length === 0) {
-          setTimeout(() => {
-            this.tipsText = '';
-            this.$apply();
-          }, 1500);
-          this.tipsText = '没有符合条件的答疑室';
+          // setTimeout(() => {
+          //   this.tipsText = '';
+          //   this.$apply();
+          // }, 1500);
+          // this.tipsText = '没有符合条件的答疑室';  
           this.$apply();
+          wx.showToast({icon:'none',title:'没有符合条件的答疑室'})
         }
       }
 
-      this.$apply();
+      this.$apply()
     },
-    watchRoom(index) {},
-    cancelWatch(index) {},
     toDetails(index) {
       console.log(index);
       console.log(this.roomList[index]);
