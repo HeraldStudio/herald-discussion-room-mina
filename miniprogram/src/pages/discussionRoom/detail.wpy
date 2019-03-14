@@ -190,6 +190,34 @@
     }
   }
 }
+
+.homepage-and-refresh{
+  position: fixed;
+  right: 30rpx;
+  bottom: 140rpx;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  height: 160rpx;
+  justify-content: space-between;
+  .floating-button{
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 1000rpx;
+    width: 75rpx;
+    height: 75rpx;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.25);
+    image{
+      width: 50rpx;
+      height: 50rpx;
+    }
+  }
+  .floating-button:active{
+    background: rgba(0, 0, 0, 0.8);
+  }
+}
 </style>
 <template lang="pug">
   view#discussion-detail(wx:if="{{ready}}")
@@ -238,6 +266,11 @@
     view.new-question-panel
       button(@tap="createQuestion") 我要提问
     view.back-to-top(@tap="backToTop" wx:if="{{scroll > 50}}") 回到顶部
+    view.homepage-and-refresh
+      view.floating-button(@tap="homepage")
+        image(src="cloud://discussion-room-3fd312.6469-discussion-room-3fd312/assets/shouye-xianxing.png")
+      view.floating-button(@tap="refresh")
+        image(src="cloud://discussion-room-3fd312.6469-discussion-room-3fd312/assets/shuaxin.png")
 </template>
 
 <script>
@@ -293,6 +326,14 @@ export default class DiscussionRoomDetail extends wepy.page {
     showQuestion(questionId){
       wx.navigateTo({
         url:'/pages/question/detail?questionId='+questionId
+      })
+    },
+    homepage(){
+      wx.navigateBack({
+        delta:100
+      })
+      wx.redirectTo({
+        url:'/pages/index'
       })
     },
     async refresh(){
@@ -352,7 +393,6 @@ export default class DiscussionRoomDetail extends wepy.page {
       this.loading = false
     },
     async deleteRoom(){
-      // 张可看这里
       let that = this
       wx.showModal({
         title: '确认删除',
@@ -375,7 +415,7 @@ export default class DiscussionRoomDetail extends wepy.page {
               console.log(e)
               wx.showToast({
                 icon:'none',
-                title:'删除失败，请重试'
+                title:e
               })
             }
           } else if (res.cancel) {
@@ -480,6 +520,26 @@ export default class DiscussionRoomDetail extends wepy.page {
     this.scroll=0;
     this.$apply()
   }
+
+  async loadInfo(discussionRoomId) {
+    const db = wx.cloud.database();
+    let info
+    try {
+      info = (await db
+        .collection('DiscussionRoom')
+        .doc(discussionRoomId)
+        .get()).data;
+      console.log('刷新答疑室状态')
+      return info
+    } catch (e) {
+      // 获取失败
+      console.log(e)
+      wx.showToast({icon:'none', title:'答疑室不存在或已删除'})
+      setTimeout(() => {
+        wx.redirectTo({url:'/pages/index'})
+      }, 1500);
+    }
+  }
   async onLoad(options) {
     this.init()
     let { discussionRoomId } = options;
@@ -492,17 +552,7 @@ export default class DiscussionRoomDetail extends wepy.page {
     wx.showLoading({title:'正在加载'})
     // 获取答疑室基本信息
     const db = wx.cloud.database();
-    let info;
-    try {
-      info = (await db
-        .collection('DiscussionRoom')
-        .doc(discussionRoomId)
-        .get()).data;
-    } catch (e) {
-      // 获取失败
-      wx.showToast({icon:'none', title:'答疑室不存在或已删除'})
-      wx.navigateBack({delta:1})
-    }
+    let info = await this.loadInfo(discussionRoomId)
     this.discussionRoomId = discussionRoomId
     this.courseName = info.courseName;
     this.code = info.code;

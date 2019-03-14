@@ -11,19 +11,21 @@
     font-size: 24rpx;
     .keyword {
       width: 480rpx;
-      height: 60rpx;
+      height: 70rpx;
       margin-right: 20rpx;
       padding: 0 20rpx;
-      border-radius: 30rpx 30rpx;
-      line-height: 40rpx;
+      border-radius: 1000rpx;
+      line-height: 70rpx;
+      font-size: 30rpx;
       background-color: #eee;
     }
     .search-btn {
       width: 120rpx;
-      height: 60rpx;
+      height: 70rpx;
       text-align: center;
-      line-height: 60rpx;
-      border-radius: 30rpx 30rpx;
+      line-height: 70rpx;
+      border-radius: 1000rpx;
+      font-size: 30rpx;
       background-color: #13acd9;
       color: #fff;
     }
@@ -62,17 +64,17 @@
 <template lang="pug">
   view#search-page
     view.search-form
-      input.keyword(placeholder="请输入答疑室名称/编码/教师姓名" adjust-position=false @blur='setKeywords')
-      view.search-btn( @tap='search') 查找
+      input.keyword(placeholder="请输入答疑室名称/编码/教师姓名" adjust-position=false bindinput='setKeywords')
+      view.search-btn( @tap='clickSearch') 查找
     view.line
     view( wx:for="{{roomList}}" wx:for-index="i" wx:key="_id")
       view.room-item( @tap='toDetails({{i}})')
         view.host-name {{item.hostName}} 老师主持的答疑室
         view.course-name  {{item.courseName}}
         view.info
-          text.question-num {{roomInfo[i].questionNum}}个问题
-          text.separate -
-          text.students-num {{roomInfo[i].studentNum}}名学生关注
+          text.question-num(wx:if="{{roomInfo[i].questionNum}}") {{roomInfo[i].questionNum}}个问题
+          text.separate(wx:if="{{roomInfo[i].studentNum && roomInfo[i].questionNum}}") -
+          text.students-num(wx:if="{{roomInfo[i].studentNum}}") {{roomInfo[i].studentNum}}名学生关注
       view.dot-line
 
     view
@@ -88,7 +90,6 @@ const db = wx.cloud.database();
 export default class Index extends wepy.page {
   data = {
     keywords: '',
-    tipsText: '',
     searchIndex: 0, // 用于区分上拉搜索次数
     loading: false,
     roomList: [],
@@ -98,7 +99,6 @@ export default class Index extends wepy.page {
 
   onLoad() {
     this.searchIndex = 0
-    this.tipsText = ''
     this.loading = false
     this.keywords = ''
     this.roomList = []
@@ -108,8 +108,9 @@ export default class Index extends wepy.page {
 
   onReachBottom() {
     this.searchIndex++
-    this.search()
+    (this.search.bind(this))()
   }
+
   async getAbstract(start, end) {
     console.log(`start:${start}end${end}`);
     for (let i = start; i < end; i++) {
@@ -133,18 +134,14 @@ export default class Index extends wepy.page {
     console.log(this.roomInfo);
     this.$apply();
   }
-  methods = {
-    setKeywords(event) {
-      this.keywords = event.detail.value;
-    },
-    // 获取部分答疑室信息摘要(问题数目，关注人数，是否关注过)
 
-    async search() {
+   async search() {
       if (this.keywords == '') {
         wx.showToast({icon:'none',title:'请输入参数'})
         this.$apply();
       } else {
         console.log(`查找关键字: ${this.keywords}`);
+        console.log(this.searchIndex)
         // 首次查找，为兼容基础库 2.3 以下版本，避免skip(0)
         if (this.searchIndex == 0) {
           wx.showLoading({title:'查找中'})
@@ -205,6 +202,21 @@ export default class Index extends wepy.page {
       }
 
       this.$apply()
+    }
+
+  methods = {
+    setKeywords(event) {
+      this.keywords = event.detail.value;
+    },
+    // 获取部分答疑室信息摘要(问题数目，关注人数，是否关注过)
+
+    clickSearch(){
+      this.searchIndex = 0
+      this.loading = false
+      this.roomList = []
+      this.roomInfo = []
+      this.$apply()
+      this.search()
     },
     toDetails(index) {
       console.log(index);

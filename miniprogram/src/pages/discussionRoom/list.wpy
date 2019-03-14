@@ -110,7 +110,6 @@ import callFunction from '../../utils/callFunction'; // 引入云函数调用的
 
 export default class List extends wepy.page {
   config = {
-    enablePullDownRefresh: true
   };
   data = {
     cardnum: '...',

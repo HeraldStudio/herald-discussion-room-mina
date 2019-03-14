@@ -72,12 +72,16 @@ export default class CreateComment extends wepy.page {
     userInfo: {},
     answerId: '',
     content: '',
+    questionId: '',
+    loading:false
   };
 
   init(){
     this.userInfo= {};
     this.answerId='';
     this.content='';
+    this.questionId = '';
+    this.loading=false;
     this.$apply();
   }
 
@@ -86,6 +90,8 @@ export default class CreateComment extends wepy.page {
   methods = {
     async bindsubmit(e) {
       // 读取用户输入
+      this.loading = true
+      this.$apply()
       console.log(e)
       let content = e.detail.value.content ? e.detail.value.content : this.content
       let now = +moment()
@@ -94,6 +100,8 @@ export default class CreateComment extends wepy.page {
           icon:'none',
           title:'请填写完整'
         })
+        this.loading = false
+        this.$apply()
         return
       }
       const db = wx.cloud.database();
@@ -123,8 +131,12 @@ export default class CreateComment extends wepy.page {
             wx.showToast({
               title:'评论成功'
             })
-            wx.navigateBack({delta:1})
+            wx.redirectTo({
+              url:'/pages/question/detail?questionId='+this.questionId
+            })
             // TODO：发送提醒
+            this.loading = false
+            this.$apply()
           } else throw '评论失败'
         } catch(e) {
           console.log(e)
@@ -133,6 +145,8 @@ export default class CreateComment extends wepy.page {
             title:'评论失败'
           })
         }
+        this.loading = false
+        this.$apply()
       },
     bindContent(e) {
       this.content = e.detail.value
@@ -149,6 +163,7 @@ export default class CreateComment extends wepy.page {
     this.userInfo = await getUserInfo();
     if (option.answerId) {
       this.answerId = option.answerId;
+      this.questionId = option.questionId;
     } else {
       // 不是合法的修改，跳转回首页
       wx.reLaunch({

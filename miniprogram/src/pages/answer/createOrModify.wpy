@@ -81,7 +81,8 @@ export default class CreateDiscussionRoom extends wepy.page {
     questionId: '',
     description: '',
     localImage: '',
-    imageCode: ''
+    imageCode: '',
+    loading:false
   };
 
   init(){
@@ -92,6 +93,7 @@ export default class CreateDiscussionRoom extends wepy.page {
     this.description='';
     this.localImage='';
     this.imageCode='';
+    this.loading = false;
     this.$apply()
   }
 
@@ -101,6 +103,8 @@ export default class CreateDiscussionRoom extends wepy.page {
     async bindsubmit(e) {
       // 读取用户输入
       console.log(e)
+      this.loading = true
+      this.$apply()
       let description = e.detail.value.description ? e.detail.value.description : this.description
       let now = +moment()
       if(!description){
@@ -108,6 +112,8 @@ export default class CreateDiscussionRoom extends wepy.page {
           icon:'none',
           title:'请填写完整'
         })
+        this.loading = false
+        this.$apply()
         return
       }
       const db = wx.cloud.database();
