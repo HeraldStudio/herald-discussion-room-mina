@@ -98,7 +98,7 @@ export default class extends wepy.app {
   onShow(obj) {
     if(obj.scene === 1038){
       // 对接统一身份认证小程序
-      if( obj.referrerInfo && obj.referrerInfo.extraData ) {
+      if( obj.referrerInfo && obj.referrerInfo.extraData && obj.referrerInfo.appId === 'wxaef6d2413690047f') {
         let {cardnum, name, identity} = obj.referrerInfo.extraData
         callFunction('userInfo/add',{cardnum, name, identity}).then(console.log)
         wx.reLaunch({url:'/pages/index'}) 
