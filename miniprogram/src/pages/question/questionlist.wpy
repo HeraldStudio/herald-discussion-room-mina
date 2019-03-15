@@ -157,6 +157,7 @@ export default class QuestionList extends wepy.page{
          }
     };
     async onLoad(){
+        this.init()
         let userInfo = await getUserInfo(wepy)
         let username = userInfo.name
         let userID = userInfo._id
