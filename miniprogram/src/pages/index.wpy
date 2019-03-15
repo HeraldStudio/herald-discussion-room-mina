@@ -119,8 +119,8 @@
  }
 </style>
 <template lang="pug">
-  view#home-page
-    view.user-info(wx:if="{{name}}")
+  view#home-page(wx:if="{{name}}")
+    view.user-info
       image.avatar(src="{{avatar}}" :class="{loading:!avatar}")
       view.textInfo
         view.name {{name}}
@@ -166,6 +166,7 @@ export default class Index extends wepy.page {
   config = {
     navigationBarTitleText: '小猴答疑室',
     onReachBottomDistance:10,
+    enablePullDownRefresh:true
   };
   components = {
   };
@@ -202,7 +203,13 @@ export default class Index extends wepy.page {
 
   events = {};
 
+  onPullDownRefresh(){
+    wx.stopPullDownRefresh()
+    this.loadUnread()
+  }
+
   async loadUnread(){
+    wx.showLoading({title:'正在加载'})
     let userInfo = await getUserInfo()
     this.unRead = (await db.collection('Notification').where({toUser:userInfo._id}).get()).data
     this.unRead = this.unRead.map( k=> {
@@ -210,8 +217,10 @@ export default class Index extends wepy.page {
       return k
     })
     this.$apply()
-    console.log(this.unRead)
+    wx.hideLoading()
+    
   }
+
   async onLoad() {
     // 更新身份信息
     let userInfo = await getUserInfo(wepy)
@@ -221,6 +230,7 @@ export default class Index extends wepy.page {
     this.unRead = []
     this.$apply()
   }
+
   onShow(){
     this.loadUnread()
   }
