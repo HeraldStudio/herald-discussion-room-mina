@@ -36,9 +36,10 @@ const routes = {
       discussionRoomId: record_question.discussionRoomId,
       assistantId:userinfo._id
     }).count()
+    let count_self=record_question.questionerId===userinfo._id?1:0;
     
-    // 判断权限
-    if(count_assistant.total+count_room.total==0){
+    // 判断权限1
+    if(count_assistant.total+count_room.total+count_self==0){
       throw Error("权限不允许")
     }
 
