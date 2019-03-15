@@ -189,6 +189,11 @@
       background: #eee;
     }
   }
+  .sperator{
+    border-top-color: #EEE;
+    border-top-width: 20rpx;
+    border-top-style: solid;
+  }
 }
 
 .homepage-and-refresh{
@@ -238,7 +243,7 @@
     view.admin-panel(wx:if="{{isAdmin}}")
       view.delete(@tap="deleteRoom") 删除答疑室
       view.assistant(@tap="setAssistant") 设置管理员
-    view.line
+    view.sperator
     view.filter-panel
       view.sort
         view.tag 排序↓
@@ -305,7 +310,7 @@ export default class DiscussionRoomDetail extends wepy.page {
     page: 0, // 分页计数器
     questionList: [],
     loading: false,
-    emptyHint:'点击刷新', // 加锁
+    emptyHint:'空空如也，点击刷新', // 加锁
     scroll:0
   };
 
@@ -344,7 +349,7 @@ export default class DiscussionRoomDetail extends wepy.page {
       wx.hideLoading()
     },
     toggleSort(){
-      this.emptyHint = '点击刷新'
+      this.emptyHint = '空空如也，点击刷新'
       this.sort = this.sort === '最新动态' ? '最多关注' : '最新动态'
       this.questionList = []
       this.page = 0
@@ -516,7 +521,7 @@ export default class DiscussionRoomDetail extends wepy.page {
     this.page= 0; // 分页计数器
     this.questionList= [];
     this.loading= false;
-    this.emptyHint='点击刷新'; // 加锁
+    this.emptyHint='空空如也，点击刷新'; // 加锁
     this.scroll=0;
     this.$apply()
   }

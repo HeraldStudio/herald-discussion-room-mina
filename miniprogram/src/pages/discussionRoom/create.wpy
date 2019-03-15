@@ -94,7 +94,6 @@ export default class CreateDiscussionRoom extends wepy.page {
       let res = await callFunction('discussionRoom/create',e.detail.value?e.detail.value:this.courseName)
       if(res.success){
         // 创建成功
-        this.loading = false
         this.code = res.data.code
         this.success = true
         wx.showToast({

@@ -1,5 +1,7 @@
 <style lang="less" scoped>
 #question-list{
+    width: 750rpx;
+    overflow-x: hidden;
     .top {
       font-size: 24rpx;
       color: #888;
@@ -38,7 +40,7 @@
     color:#888;
     text-align: center;
  }
- .line{
+.line{
         margin-top:10rpx;
         width:100%;
         border-top-style: solid;

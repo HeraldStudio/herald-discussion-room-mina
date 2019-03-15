@@ -96,6 +96,7 @@ export default class Index extends wepy.page {
   };
   methods = {
     async bindsubmit(e){
+      this.reason = ''
       wx.showLoading({
         title:'设置管理员'
       })
@@ -130,6 +131,7 @@ export default class Index extends wepy.page {
       this.$apply()
     },
     async cancel(cardnum){
+      this.reason = ''
       wx.showLoading({
         title:'取消管理员'
       })
