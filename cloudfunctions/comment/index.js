@@ -14,19 +14,16 @@ const getUserInfoByOpenId = async(openid) => {
 
 // ---从这里开始编写路由和逻辑---
 const routes = {
-  async delete({ commentatorId, commentId }) {
+  async delete({commentId }) {
     let userInfo = await getUserInfoByOpenId(openid)
-    if(commentatorId === userInfo._id){
-      // 如果是评论创建者，可以删除
-      await db.collection('Comment').doc(commentId).remove()
-      return null
-    }
     // 如果不是评论创建者，检查是否为答疑室管理员
     let commentRecord = (await db.collection('Comment').doc(commentId).get()).data
     let answerRecord = (await db.collection('Answer').doc(commentRecord.answerId).get()).data
     let questionRecord = (await db.collection('Question').doc(answerRecord.questionId).get()).data
-    let discussionRoomRecord = (await db.collection('DiscussionRoom').doc(questionRecord.discussionRoomId).get()).data
-    if(discussionRoomRecord.hostId === userInfo._id){
+    let discussionRoomRecord = (await db.collection('DiscussionRoom').doc(questionRecord.discussionRoomId).get()).data;
+    if(commentRecord.commentatorId===userInfo._id
+      ||
+      discussionRoomRecord.hostId === userInfo._id){
       // 如果是答疑室创建者，可以删除
       await db.collection('Comment').doc(commentId).remove()
       return null
