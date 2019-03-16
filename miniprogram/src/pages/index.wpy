@@ -179,7 +179,8 @@ export default class Index extends wepy.page {
     identity:'...',
     avatar:'',
     unRead:[],
-    bottomLoading:false
+    bottomLoading:false,
+    wxaTest:''
   };
 
   computed = {

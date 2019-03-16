@@ -148,6 +148,7 @@ export default class List extends wepy.page {
     const db = wx.cloud.database();
     let res = await callFunction('discussionRoom/getAll');
     if (res.success) {
+      console.log(res.data)
       res.data.forEach(k => {
         if(k.tag === '主持'){
           this.asHost.push(k)

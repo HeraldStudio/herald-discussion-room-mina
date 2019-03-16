@@ -165,9 +165,44 @@ const routes = {
           hostId: userInfo._id
         })
           .get()
-        return host.data.map(each => {
+        let hostRooms = host.data.map(each => {
           return { ...each, tag: '主持' }
         })
+
+        let watches = await db.collection('WatchDiscussionRoom').where({
+          watcherId: userInfo._id
+        }).limit(100).get()
+        let watchedRooms = []
+        if (watches.data.length !== 0) {
+          let tempwatchedRooms = await db.collection('DiscussionRoom').where({
+            _id: _.in(watches.data.map(each => each.discussionRoomId))
+          }).limit(100).get()
+          watchedRooms = tempwatchedRooms.data.map(each => {
+            return {
+              ...each,
+              tag: '关注'
+            }
+          })//end map
+        }//end if
+
+        let assistants = await db.collection('Assistant').where({
+          assistantId: userInfo._id
+        }).limit(100).get()
+        let assistRooms = []
+        if (assistants.data.length !== 0) {
+          let tempassistRooms = await db.collection('DiscussionRoom').where({
+            _id: _.in(assistants.data.map(each => each.discussionRoomId))
+          }).limit(100).get()
+          assistRooms = tempassistRooms.data.map(each => {
+            return {
+              ...each,
+              tag: '管理'
+            }
+          })//end map
+        }//end if
+
+        return [...watchedRooms, ...hostRooms, ...assistRooms]
+
       }
       case '本科生':
       case '研究生': {

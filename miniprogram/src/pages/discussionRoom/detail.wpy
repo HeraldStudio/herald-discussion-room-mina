@@ -16,10 +16,20 @@
       justify-content: space-between;
       align-items: center;
       margin-top: 10rpx;
+      .name-and-qrcode{
+        display: flex;
+        align-items: center;
+      }
       .name {
         font-size: 45rpx;
         color: #333;
         font-weight: bold;
+      }
+      .qrcode{
+        width:45rpx;
+        height: 45rpx;
+        margin-right: 10rpx;
+        flex-shrink: 0;
       }
       .watch {
         height: 50rpx;
@@ -229,7 +239,9 @@
     view.top-panel
       view.header \#{{code}}
       view.title
-        view.name {{courseName}}
+        view.name-and-qrcode(@tap="showQrCode")
+          image.qrcode(src="cloud://discussion-room-3fd312.6469-discussion-room-3fd312/assets/erweima-2.png")
+          view.name {{courseName}} 
         view.watch(wx:if="{{isWatched}}" @tap="cancelWatch") 取消关注
         view.watch(style="background:#13ACD9" wx:else @tap="cancelWatch") 关注
       view.last-modified-time 创建时间 {{lastModifiedTime}}
@@ -328,6 +340,14 @@ export default class DiscussionRoomDetail extends wepy.page {
     }
   }
   methods = {
+    async showQrCode(){
+      wx.showLoading({title:'生成小程序码'})
+      let res = await callFunction('wxaCode/getWXAcode',{scene:this.discussionRoomId, path:'pages/discussionRoom/detail'})
+      wx.hideLoading()
+      wx.previewImage({
+        urls: ["data:image/jpeg;base64,"+res.data] // 需要预览的图片http链接列表
+      })
+    },
     showQuestion(questionId){
       wx.navigateTo({
         url:'/pages/question/detail?questionId='+questionId
@@ -547,7 +567,8 @@ export default class DiscussionRoomDetail extends wepy.page {
   }
   async onLoad(options) {
     this.init()
-    let { discussionRoomId } = options;
+    let discussionRoomId = options.discussionRoomId ? options.discussionRoomId :  options.scene
+    console.log(options)
     let userInfo = await getUserInfo();
     if (!discussionRoomId) {
       // 没有传入答疑室ID

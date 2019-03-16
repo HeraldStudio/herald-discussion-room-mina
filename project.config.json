@@ -29,7 +29,7 @@
 			"list": []
 		},
 		"miniprogram": {
-			"current": 15,
+			"current": 11,
 			"list": [
 				{
 					"id": -1,
@@ -76,7 +76,7 @@
 					"id": 6,
 					"name": "答疑室详情页",
 					"pathName": "pages/discussionRoom/detail",
-					"query": "discussionRoomId=XFQRYY2KPQMv4kb4",
+					"query": "scene=XIxP1pT75u22ltMU",
 					"scene": null
 				},
 				{
@@ -111,7 +111,7 @@
 					"id": 11,
 					"name": "问题详情页",
 					"pathName": "pages/question/detail",
-					"query": "questionId=XFVSt3ffS3SWGxUQ",
+					"query": "scene=XIuvK5T75u22lTr4",
 					"scene": null
 				},
 				{
@@ -138,7 +138,8 @@
 				{
 					"id": -1,
 					"name": "答疑室搜索页",
-					"pathName": "pages/discussionRoom/search"
+					"pathName": "pages/discussionRoom/search",
+					"query": ""
 				}
 			]
 		}

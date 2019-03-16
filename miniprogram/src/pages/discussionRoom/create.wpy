@@ -54,7 +54,7 @@
   view#discussion-room-create
     view.course-name-hint(wx:if="{{!success}}") 课程名称
     form(report-submit="true" bindsubmit="bindsubmit" wx:if="{{!success}}")
-      input(name="courseName" placeholder="将作为答疑室名称" maxlength="20" bindinput="bindCourseName")
+      input(name="courseName" placeholder="将作为答疑室名称" maxlength="10" bindinput="bindCourseName")
       button(loading="{{loading}}" disabled="{{loading}}" form-type="submit") 创建答疑室
     view.code-panel(wx:else)
       view.hint 答疑室代码
