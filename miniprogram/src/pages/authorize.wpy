@@ -104,9 +104,10 @@ export default class Authorize extends wepy.page {
           }
         })
       } else {
-        wx.reLaunch({
-          url:'/pages/index'
-        })
+        let reLaunchUrl = wx.getStorageSync('pageUrl')
+        reLaunchUrl = reLaunchUrl ? '/' + reLaunchUrl : '/pages/index'
+        wx.removeStorageSync('pageUrl')
+        wx.reLaunch({url:reLaunchUrl}) 
       }
     }
   };

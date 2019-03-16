@@ -53,6 +53,7 @@ import wepy from 'wepy'
 import 'wepy-async-function'
 import callFunction from './utils/callFunction'
 import getUserInfo from './utils/getUserInfo'
+import qs from 'querystring'
 
 export default class extends wepy.app {
   config = {
@@ -96,17 +97,25 @@ export default class extends wepy.app {
   }
 
   onShow(obj) {
+
     if(obj.scene === 1038){
       // 对接统一身份认证小程序
       if( obj.referrerInfo && obj.referrerInfo.extraData && obj.referrerInfo.appId === 'wxaef6d2413690047f') {
         let {cardnum, name, identity} = obj.referrerInfo.extraData
         callFunction('userInfo/add',{cardnum, name, identity}).then(console.log)
-        wx.reLaunch({url:'/pages/index'}) 
+        let reLaunchUrl = wx.getStorageSync('pageUrl')
+        reLaunchUrl = reLaunchUrl ? '/' + reLaunchUrl : '/pages/index'
+        wx.removeStorageSync('pageUrl')
+        wx.reLaunch({url:reLaunchUrl}) 
       } else {
         // 没有完成认证，baby one more time
         wx.reLaunch({url:'/pages/authorize'}) 
       }
     } else {
+      console.log(obj)
+      let pageUrl = `${obj.path}?${qs.stringify(obj.query)}`
+      console.log(pageUrl)
+      wx.setStorageSync('pageUrl', pageUrl)
       getUserInfo()
     }
   }

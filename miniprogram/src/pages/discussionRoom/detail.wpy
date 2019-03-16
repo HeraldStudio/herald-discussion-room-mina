@@ -232,7 +232,7 @@
         view.name {{courseName}}
         view.watch(wx:if="{{isWatched}}" @tap="cancelWatch") 取消关注
         view.watch(style="background:#13ACD9" wx:else @tap="cancelWatch") 关注
-      view.last-modified-time 最近活跃时间 {{lastModifiedTime}}
+      view.last-modified-time 创建时间 {{lastModifiedTime}}
       view.host-name
         view.tag 主持人
         view.name {{hostName}}
