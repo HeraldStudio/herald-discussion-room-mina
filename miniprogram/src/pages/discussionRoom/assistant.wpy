@@ -101,9 +101,9 @@ export default class Index extends wepy.page {
         title:'设置管理员'
       })
       console.log(e)
-      if(this.assistantList.length >= 5){
+      if(this.assistantList.length >= 100){
         wx.showToast({
-          title:'最多五名管理员'
+          title:'最多100名管理员'
         })
         return
       }
@@ -151,7 +151,8 @@ export default class Index extends wepy.page {
     }
   };
   async refresh(){
-    let record = await db.collection('Assistant').where({discussionRoomId:this.discussionRoomId}).get()
+    //let record = await db.collection('Assistant').where({discussionRoomId:this.discussionRoomId}).get()
+    let record = await callFunction('assistant/getAllAssistants', {discussionRoomId:this.data.discussionRoomId})
     let assistantList = record.data.map(async(k) => {
       let userData = (await db.collection('User').doc(k.assistantId).get()).data
       k.cardnum = userData.cardnum
@@ -171,6 +172,7 @@ export default class Index extends wepy.page {
   onLoad(option){
     this.init()
     this.discussionRoomId = option.discussionRoomId
+    this.$apply()
     if(!this.discussionRoomId){
       wx.reLaunch({
         url:'/pages/index'

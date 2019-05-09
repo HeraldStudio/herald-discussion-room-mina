@@ -43,7 +43,7 @@ const routes = {
     let access_token = await getAccessToken();
     let res = await axios.post("https://api.weixin.qq.com/wxa/getwxacodeunlimit?access_token=" + access_token,
     {
-      'page': data.page,
+      'page': data.path,
       'scene': data.scene,
       'width':750
     },{
