@@ -72,6 +72,7 @@ export default class extends wepy.app {
     pages: [
       'pages/index',
       'pages/authorize',
+      'pages/bind-wechat',
       'pages/debug',
       'pages/discussionRoom/create',
       'pages/discussionRoom/list',
@@ -127,6 +128,7 @@ export default class extends wepy.app {
       console.log(obj)
       let pageUrl = `${obj.path}?${qs.stringify(obj.query)}`
       console.log(pageUrl)
+      wx.setStorageSync('launchQuery',obj.query)
       wx.setStorageSync('pageUrl', pageUrl)
       getUserInfo()
     }

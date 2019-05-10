@@ -29,7 +29,7 @@
 			"list": []
 		},
 		"miniprogram": {
-			"current": 11,
+			"current": 16,
 			"list": [
 				{
 					"id": -1,
@@ -140,6 +140,13 @@
 					"name": "答疑室搜索页",
 					"pathName": "pages/discussionRoom/search",
 					"query": ""
+				},
+				{
+					"id": 16,
+					"name": "绑定微信公众号提醒",
+					"pathName": "pages/bind-wechat",
+					"query": "userId=test&pub=test&appId=wx71612afa5a5e61a8",
+					"scene": 1082
 				}
 			]
 		}

@@ -1,0 +1,117 @@
+<style lang="less">
+#authorize-page {
+  .top {
+  position: fixed;
+  top:0;
+  left: 0;
+  right: 0;
+  width: 750rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  }
+  .logo{
+    margin-top:30rpx;
+    width: 250rpx;
+    height: 250rpx;
+  }
+  .title {
+    font-size: 60rpx;
+    font-weight: bolder;
+    color: #333;
+  }
+  .line{
+    height: 1rpx;
+    width: 300rpx;
+    background: #888;
+    margin: 30rpx 0;
+  }
+  .desc{
+    margin: 0 60rpx;
+  }
+  .hint {
+    margin: 30rpx 60rpx;
+    display: flex;
+    align-items: center;
+    text{
+      margin-left: 16rpx;
+      font-size: 32rpx;
+    }
+  }
+  .bottom{
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 60rpx;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .button {
+    width: 630rpx;
+    background: #13ACD9;
+    color: #fff;
+    border-radius: 100rpx;
+  }
+}
+</style>
+<template lang="pug">
+  view#authorize-page
+    view.top
+      image.logo(src="https://static.myseu.cn/discussion-logo-big.png")
+      text.title 小猴答疑室
+      view.line
+      text.secondary.center.desc {{hint}}
+    view.bottom
+      view.hint
+        icon(type="info" size="23" color="#ECBC10")
+        text.regular.bold 绑定成功后您将收到微信公众号提醒
+      button.button(@tap="confirm") 确认绑定
+
+</template>
+
+<script>
+import wepy from 'wepy';
+import callFunction from '../utils/callFunction'; // 引入云函数调用的便捷封装
+const db = wx.cloud.database()
+export default class BindWechat extends wepy.page {
+  config = {
+    navigationBarTitleText: '绑定微信公众号'
+  };
+  components = {};
+
+  mixins = [];
+
+  data = {
+      hint:"正在处理..."
+  };
+
+  computed = {};
+
+  methods = {
+    async confirm(){
+        
+    }
+  };
+
+  events = {};
+
+  async onLoad() {
+    this.hint = "正在处理..."
+    this.$apply()
+    let bindInfo = wx.getStorageSync("launchQuery")
+    console.log(bindInfo)
+    let res = await db.collection("BindWechat").where({ appId:bindInfo.appId }).get()
+    if(res.data.length != 1){
+        this.hint = "该公众号未正确授权，请注意信息安全！"
+        this.$apply()
+        return
+    }
+    let dbInfo = res.data[0]
+    this.hint = `您正在绑定公众号“${dbInfo.name}”，此后小猴答疑室中全部的消息提醒将通过该公众号发送。（如果您已绑定其他微信公众号，本操作将解绑先前的绑定关系。）`
+    this.$apply()
+
+
+  }
+}
+</script>
