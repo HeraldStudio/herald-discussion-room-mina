@@ -52,6 +52,7 @@
     .host-name {
       display: flex;
       margin-top: 10rpx;
+      flex-wrap: wrap;
       .tag {
         font-size: 24rpx;
         color: #888;
@@ -236,14 +237,14 @@
 </style>
 <template lang="pug">
   view#discussion-detail(wx:if="{{ready}}")
-    view.top-panel
+    form.top-panel(report-submit="true" bindsubmit="collectFormId")
       view.header \#{{code}}
       view.title
-        view.name-and-qrcode(@tap="showQrCode")
+        button.button-less.name-and-qrcode(@tap="showQrCode" plain="true" form-type="submit")
           image.qrcode(src="cloud://discussion-room-3fd312.6469-discussion-room-3fd312/assets/erweima-2.png")
           view.name {{courseName}} 
-        view.watch(wx:if="{{isWatched}}" @tap="cancelWatch") 取消关注
-        view.watch(style="background:#13ACD9" wx:else @tap="cancelWatch") 关注
+        button.button-less.watch(wx:if="{{isWatched}}" @tap="cancelWatch" plain="true" form-type="submit") 取消关注
+        button.button-less.watch(style="background:#13ACD9" wx:else @tap="cancelWatch" plain="true" form-type="submit") 关注
       view.last-modified-time 创建时间 {{lastModifiedTime}}
       view.host-name
         view.tag 主持人
@@ -256,19 +257,19 @@
       view.delete(@tap="deleteRoom") 删除答疑室
       view.assistant(@tap="setAssistant") 设置管理员
     view.sperator
-    view.filter-panel
+    view.filter-panel(report-submit="true" bindsubmit="collectFormId")
       view.sort
         view.tag 排序↓
-        view.strategy(@tap="toggleSort") {{sort}}
+        view.strategy(@tap="toggleSort" plain="true" form-type="submit") {{sort}}
       view.selected
         view.tag 只看精选
         icon(@tap="toggleSelected" type="success" size="16" wx:if="{{selectedOnly}}")
         view.circle(wx:else @tap="toggleSelected")
     view.dot-line
-    view.question-panel
+    form.question-panel(report-submit="true" bindsubmit="collectFormId")
       view.empty(wx:if="{{!hasQuestion}}" @tap="refresh") {{emptyHint}}
       repeat(for="{{questionList}}" index="index" key="item._id")
-        view.item-cell( @tap="showQuestion({{item._id}})")
+        button.item-cell.button-less(plain="true" form-type="submit" @tap="showQuestion({{item._id}})")
           view.top {{item.lastModifiedTime}}的问题
           view.title {{item.title}}
           view.content
@@ -297,6 +298,7 @@ import getUserInfo from '../../utils/getUserInfo';
 //import moment from 'moment'
 //import momentCN from 'moment/locale/zh-cn'
 const moment = require('moment');
+const db = wx.cloud.database();
 export default class DiscussionRoomDetail extends wepy.page {
   config = {
     navigationBarTitleText: '答疑室'
@@ -340,6 +342,17 @@ export default class DiscussionRoomDetail extends wepy.page {
     }
   }
   methods = {
+    async collectFormId(e) {
+      let userInfo = await getUserInfo();
+      // 插入formId
+      db.collection('FormId').add({
+        data:{
+          userId:userInfo._id,
+          formId:e.detail.formId,
+          expireTime:+moment()+7*24*60*60*1000
+        }
+      })
+    },
     async showQrCode(){
       wx.showLoading({title:'生成小程序码'})
       let res = await callFunction('wxaCode/getWXAcode',{scene:this.discussionRoomId, path:'pages/discussionRoom/detail'})
@@ -565,6 +578,22 @@ export default class DiscussionRoomDetail extends wepy.page {
       }, 1500);
     }
   }
+
+  async loadAssistant(){
+    console.log(this.discussionRoomId)
+    let record = await callFunction('assistant/getAllAssistants', {discussionRoomId:this.discussionRoomId})
+    let assistantList = record.data.map(async(k) => {
+      let userData = (await db.collection('User').doc(k.assistantId).get()).data
+      return userData.name
+    })
+    assistantList = await Promise.all(assistantList)
+    console.log(assistantList)
+    if(assistantList.length > 0){
+      this.hostName = this.hostName + '，' + assistantList.join('，')
+    }
+    this.$apply()
+  }
+
   async onLoad(options) {
     this.init()
     let discussionRoomId = options.discussionRoomId ? options.discussionRoomId :  options.scene
@@ -590,6 +619,8 @@ export default class DiscussionRoomDetail extends wepy.page {
     this.isAdmin = info.hostId === userInfo._id;
     this.howManyWatch = `${info.watch}人关注`;
     this.isWatched = (await db.collection('WatchDiscussionRoom').where({discussionRoomId, watcherId:userInfo._id}).count()).total === 1
+    // 获取其他管理员列表
+    await this.loadAssistant()
     await this.loadQuestion()
     wx.hideLoading()
     this.ready = true;

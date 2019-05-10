@@ -46,6 +46,18 @@
   font-size: 32rpx;
   font-weight: bold;
 }
+
+.button-less{
+  box-sizing:content-box;
+  line-height: inherit;
+  text-align: left;
+  margin:0;
+}
+
+.button-less[plain]{
+  border: 0;
+  padding: 0;
+}
 </style>
 
 <script>
