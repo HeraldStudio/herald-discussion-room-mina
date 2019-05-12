@@ -145,7 +145,7 @@
 					"id": 16,
 					"name": "绑定微信公众号提醒",
 					"pathName": "pages/bind-wechat",
-					"query": "userId=test&pub=test&appId=wx71612afa5a5e61a8",
+					"query": "userId=test&token=test&appId=wx71612afa5a5e61a8",
 					"scene": 1082
 				}
 			]

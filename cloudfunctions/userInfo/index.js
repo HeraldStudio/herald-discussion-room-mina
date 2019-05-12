@@ -4,6 +4,16 @@ let openid = '' // 获取调用用户的openid
 // ---上面的内容请复制---
 const moment = require('moment')
 const db = cloud.database() // 需要云数据库
+
+const getUserInfoByOpenId = async (openid) => {
+  let userRecord = await db.collection('User').where({ openid }).get()
+  if (userRecord.data.length === 1) {
+    return userRecord.data[0]
+  } else {
+    throw Error('授权无效')
+  }
+}
+
 // ---从这里开始编写路由和逻辑---
 const routes = {
   async get () {
@@ -34,6 +44,20 @@ const routes = {
       data:{cardnum, name, identity, registrationTime, openid, isBanned:false}
     })
     return '授权成功'
+  },
+  async bindWechat({ token, appId }){
+    let userInfo = await getUserInfoByOpenId(openid)
+    let userId = userInfo._id
+    let res = await db.collection('User').doc(userId).update({
+      data:{
+        bindWechatAppId:appId, bindWechatToken:token
+      }
+    })
+    // TODO:推送绑定成功提醒
+    if (res.stats.updated === 1) {
+      return '绑定成功'
+    }
+    throw Error('绑定失败')
   }
 }
 

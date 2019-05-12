@@ -73,6 +73,7 @@
 <script>
 import wepy from 'wepy';
 import callFunction from '../utils/callFunction'; // 引入云函数调用的便捷封装
+import getUserInfo from '../utils/getUserInfo';
 const db = wx.cloud.database()
 export default class BindWechat extends wepy.page {
   config = {
@@ -83,14 +84,30 @@ export default class BindWechat extends wepy.page {
   mixins = [];
 
   data = {
-      hint:"正在处理..."
+      hint:"正在处理...",
+      bindInfo:{},
+      dbInfo:{}
   };
 
   computed = {};
 
   methods = {
     async confirm(){
-        
+        wx.showLoading({title:"绑定中"})
+        let userInfo = await getUserInfo()
+        let userId = userInfo._id
+        console.log(userId)
+        console.log({bindWechat:{
+                appId:this.bindInfo.appId,
+                token:this.bindInfo.token
+            }})
+        let res = await callFunction('userInfo/bindWechat', {token:this.bindInfo.token, appId:this.bindInfo.appId})
+        console.log(res)
+        wx.hideLoading()
+        wx.showToast({title:"绑定成功"})
+        // wx.redirectTo({
+        //     url:'/pages/index'
+        // })
     }
   };
 
@@ -100,7 +117,7 @@ export default class BindWechat extends wepy.page {
     this.hint = "正在处理..."
     this.$apply()
     let bindInfo = wx.getStorageSync("launchQuery")
-    console.log(bindInfo)
+    this.bindInfo = bindInfo
     let res = await db.collection("BindWechat").where({ appId:bindInfo.appId }).get()
     if(res.data.length != 1){
         this.hint = "该公众号未正确授权，请注意信息安全！"
@@ -108,10 +125,9 @@ export default class BindWechat extends wepy.page {
         return
     }
     let dbInfo = res.data[0]
+    this.dbInfo = dbInfo
     this.hint = `您正在绑定公众号“${dbInfo.name}”，此后小猴答疑室中全部的消息提醒将通过该公众号发送。（如果您已绑定其他微信公众号，本操作将解绑先前的绑定关系。）`
     this.$apply()
-
-
   }
 }
 </script>
