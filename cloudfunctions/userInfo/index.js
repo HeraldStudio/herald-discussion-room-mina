@@ -45,19 +45,21 @@ const routes = {
     })
     return '授权成功'
   },
-  async bindWechat({ token, appId }){
+  async bindWechat({ token, appId, wechatUserId }){
     let userInfo = await getUserInfoByOpenId(openid)
     let userId = userInfo._id
     let res = await db.collection('User').doc(userId).update({
       data:{
-        bindWechatAppId:appId, bindWechatToken:token
+        bindWechatAppId:appId, bindWechatToken:token, bindWechatUserId:wechatUserId
       }
     })
     // TODO:推送绑定成功提醒
     if (res.stats.updated === 1) {
       return '绑定成功'
+    } else {
+      throw '请勿重复绑定'
     }
-    throw Error('绑定失败')
+    
   }
 }
 

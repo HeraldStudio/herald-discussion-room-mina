@@ -97,17 +97,17 @@ export default class BindWechat extends wepy.page {
         let userInfo = await getUserInfo()
         let userId = userInfo._id
         console.log(userId)
-        console.log({bindWechat:{
-                appId:this.bindInfo.appId,
-                token:this.bindInfo.token
-            }})
-        let res = await callFunction('userInfo/bindWechat', {token:this.bindInfo.token, appId:this.bindInfo.appId})
-        console.log(res)
+        let res = await callFunction('userInfo/bindWechat', {token:this.bindInfo.token, appId:this.bindInfo.appId, wechatUserId:this.bindInfo.userId})
         wx.hideLoading()
-        wx.showToast({title:"绑定成功"})
-        // wx.redirectTo({
-        //     url:'/pages/index'
-        // })
+        console.log(res)
+        if(res.success){
+            wx.showToast({title:"绑定成功"})
+            wx.redirectTo({
+                url:'/pages/index'
+            })
+        } else {
+            wx.showToast({title:res.reason, icon:"none"})
+        }
     }
   };
 
