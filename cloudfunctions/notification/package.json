@@ -12,6 +12,7 @@
     "axios": "^0.18.0",
     "base64-url": "^2.2.1",
     "moment": "^2.24.0",
+    "uuid": "^3.3.2",
     "wx-js-utils": "^0.0.6",
     "wx-server-sdk": "latest"
   }

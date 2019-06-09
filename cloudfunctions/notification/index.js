@@ -1,4 +1,7 @@
 const cloud = require('wx-server-sdk')
+const sms = require('./qiniu')
+const uuid = require('uuid/v4')
+
 cloud.init()
 const db = cloud.database() // 需要云数据库
 let openid = '' // 获取调用用户的openid
@@ -51,29 +54,54 @@ const sendMessage = async (userId, templateId, data, url) => {
 }
 // ---从这里开始编写路由和逻辑---
 const routes = {
+
   async question(data) {
     // 获取问题id和答疑室id
     let { questionId, discussionRoomId } = data
     let discussionRoomInfo = (await db.collection('DiscussionRoom').doc(discussionRoomId).get()).data
     let notificateUserId = discussionRoomInfo.hostId
-    let notificateUserInfo = (await db.collection('User').doc(notificateUserId).get()).data
+    
+    let assistantsUserId = (await db.collection('Assistant').where({discussionRoomId}).get()).data.map( assistant => assistant.assistantId )
+    assistantsUserId.push(notificateUserId)
+    // 生成问题 code 并更新数据库
     let questionInfo = (await db.collection('Question').doc(questionId).get()).data
-    // 插入到Notification集合
-    data = {
-      toUser: notificateUserId,
-      top: `${questionInfo.questionerName} 在答疑室 ${discussionRoomInfo.courseName} 中提问：`,
-      title: questionInfo.title,
-      content: questionInfo.description.slice(0, 100) + '...',
-      url: `/pages/question/detail?questionId=${questionId}`,
-      timestamp: +moment()
+    let questionCode = uuid().split('-')[0]
+    await (db.collection('Question').doc(questionId).update({data:{questionCode}}));
+    let mobile = ''
+    for (let userId of assistantsUserId){
+      let notificateUserInfo = (await db.collection('User').doc(userId).get()).data
+      // 插入到Notification集合 - 小程序内通知
+      let notificationData = {
+        toUser: userId,
+        top: `${questionInfo.questionerName} 在答疑室 ${discussionRoomInfo.courseName} 中提问：`,
+        title: questionInfo.title,
+        content: questionInfo.description.slice(0, 100) + '...',
+        url: `/pages/question/detail?questionId=${questionId}`,
+        timestamp: +moment()
+      }
+      await db.collection('Notification').add({ data:notificationData })
+      // 尝试推送微信通知
+      await sendMessage(userId, 'YTu_6AnPAdbK7zJWOLEXScoguaG-0cKGNg6ABn_9ow0', 
+          { keyword1: { value: questionInfo.title },
+          keyword2:{value:`提问人 - ${questionInfo.questionerName}`},
+          keyword3:{value:`来自${discussionRoomInfo.courseName}`}
+        }, notificationData.url);
+      if (notificateUserInfo.mobile){
+        mobile = notificateUserInfo.mobile
+        await sms.sendMsg({
+          "template_id":"1133945243201179648",
+          "mobiles":[notificateUserInfo.mobile],
+          "parameters":{
+            name:notificateUserInfo.name,
+            discussionRoomName:discussionRoomInfo.courseName,
+            questionCode
+          }
+        })
+      }
     }
-    await db.collection('Notification').add({ data })
-    return await sendMessage(notificateUserId, 'YTu_6AnPAdbK7zJWOLEXScoguaG-0cKGNg6ABn_9ow0', 
-    { keyword1: { value: questionInfo.title },
-    keyword2:{value:`提问人 - ${questionInfo.questionerName}`},
-    keyword3:{value:`来自${discussionRoomInfo.courseName}`}
-   }, data.url);
+    return mobile
   },
+
   async answer(data) {
     // 获取问题id和答案id
     let { questionId, answerId } = data

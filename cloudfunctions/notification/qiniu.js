@@ -1,29 +1,28 @@
 const axios = require('axios');
 const crypto = require('crypto');
 const secret = require('./secret.json')
-const base64url = require('base64-url')
 
-exports.base64ToUrlSafe = function(v) {
+const base64ToUrlSafe = function(v) {
     return v.replace(/\//g, '_').replace(/\+/g, '-');
 };
 
-exports.urlSafeToBase64 = function(v) {
+const urlSafeToBase64 = function(v) {
     return v.replace(/_/g, '/').replace(/-/g, '+');
 };
 
 // UrlSafe Base64 Decode
-exports.urlsafeBase64Encode = function(jsonFlags) {
+const urlsafeBase64Encode = function(jsonFlags) {
     var encoded = new Buffer(jsonFlags).toString('base64');
-    return exports.base64ToUrlSafe(encoded);
+    return base64ToUrlSafe(encoded);
 };
 
 // UrlSafe Base64 Decode
-exports.urlSafeBase64Decode = function(fromStr) {
-    return new Buffer(exports.urlSafeToBase64(fromStr), 'base64').toString();
+const urlSafeBase64Decode = function(fromStr) {
+    return new Buffer(urlSafeToBase64(fromStr), 'base64').toString();
 };
 
 // Hmac-sha1 Crypt
-exports.hmacSha1 = function(encodedFlags, secretKey) {
+const hmacSha1 = function(encodedFlags, secretKey) {
     /*
    *return value already encoded with base64
    * */
@@ -47,7 +46,7 @@ async function qiniuRequest(path, method="GET", query="",body="", contentType="a
     }
     console.log(signatureData)
     console.log("__________")
-    let signature = exports.base64ToUrlSafe(exports.hmacSha1(signatureData, secret.qiniuSK))
+    let signature = base64ToUrlSafe(hmacSha1(signatureData, secret.qiniuSK))
     let qiniuToken = `Qiniu ${secret.qiniuAK}:${signature}`
     console.log(qiniuToken)
     console.log("__________")
@@ -71,4 +70,7 @@ async function qiniuRequest(path, method="GET", query="",body="", contentType="a
 // 查询签名状态
 // qiniuRequest("/v1/signature", "GET")
 
-// 创建模板
+exports.sendMsg = async (preload) => {
+    await qiniuRequest("/v1/message", "POST", "", JSON.stringify(preload))
+}
+
