@@ -83,7 +83,7 @@
     margin-left: 30rpx;
     margin-top: 15rpx;
     margin-right: 40rpx;
-    margin-bottom: 15rpx;
+    margin-bottom: 0rpx;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -113,6 +113,43 @@
         height: 16px;
         border: solid #eee 1px;
         border-radius: 100px;
+      }
+    }
+  }
+  .search-panel {
+    margin-left: 30rpx;
+    margin-top: 15rpx;
+    margin-right: 40rpx;
+    margin-bottom: 15rpx;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    .search-form {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      padding: 10rpx 0;
+      font-size: 24rpx;
+      .keyword {
+        width: 480rpx;
+        height: 35rpx;
+        margin-right: 20rpx;
+        padding: 0 10rpx;
+        border-radius: 1000rpx;
+        line-height: 35rpx;
+        font-size: 30rpx;
+        background-color: #eee;
+      }
+      .search-btn {
+        width: 100rpx;
+        height: 40rpx;
+        text-align: center;
+        line-height: 40rpx;
+        border-radius: 1000rpx;
+        font-size: 30rpx;
+        background-color: #13acd9;
+        color: #fff;
       }
     }
   }
@@ -265,6 +302,10 @@
         view.tag 只看精选
         icon(@tap="toggleSelected" type="success" size="16" wx:if="{{selectedOnly}}")
         view.circle(wx:else @tap="toggleSelected")
+    view.search-panel(report-submit="true" bindsubmit="collectFormId")
+      view.search-form
+        input.keyword(placeholder="请输入你想查询的问题" adjust-position=false bindinput='setKeywords')
+        view.search-btn( @tap='clickSearch') 查找
     view.dot-line
     form.question-panel(report-submit="true" bindsubmit="collectFormId")
       view.empty(wx:if="{{!hasQuestion}}" @tap="refresh") {{emptyHint}}
@@ -325,7 +366,8 @@ export default class DiscussionRoomDetail extends wepy.page {
     questionList: [],
     loading: false,
     emptyHint:'空空如也，点击刷新', // 加锁
-    scroll:0
+    scroll:0,
+    keywords: ''
   };
 
   computed = {
@@ -342,6 +384,9 @@ export default class DiscussionRoomDetail extends wepy.page {
     }
   }
   methods = {
+    setKeywords(event) {
+      this.keywords = event.detail.value;
+    },
     async collectFormId(e) {
       let userInfo = await getUserInfo();
       // 插入formId
@@ -392,6 +437,12 @@ export default class DiscussionRoomDetail extends wepy.page {
       this.selectedOnly = !this.selectedOnly
       this.questionList = []
       this.emptyHint = this.selectedOnly ? '还没有精选问题' : '还没有问题，不如提个问？'
+      this.page = 0
+      this.loadQuestion()
+    },
+    clickSearch(){
+      this.emptyHint = '正在搜索中，请稍后~~'
+      this.questionList = []
       this.page = 0
       this.loadQuestion()
     },
@@ -473,15 +524,43 @@ export default class DiscussionRoomDetail extends wepy.page {
       })
     }
   };
-
   async loadQuestion() {
     const db = wx.cloud.database()
-      if (this.loading) {
-        return;
-      }
-      this.loading = true; // 加锁
-      this.$apply();
-      let query = { discussionRoomId: this.discussionRoomId };
+    if (this.loading) {
+      return;
+    }
+    this.loading = true; // 加锁
+    this.$apply();
+    let query = { 
+        discussionRoomId : {							
+          $regex:'.*' + this.discussionRoomId + '.*',		
+          $options: 'i'							
+        },
+        title : {
+          $regex:'.*' + this.keywords + '.*',
+          $options: 'i'
+        },
+    };
+    // let query = { 
+    //     discussionRoomId : {							
+    //       $regex:'.*' + this.discussionRoomId + '.*',		
+    //       $options: 'i'							
+    //     },
+    //     db.command.or(
+    //       {
+    //         title : {
+    //           $regex:'.*' + this.keywords + '.*',
+    //           $options: 'i'
+    //         },
+    //       },
+    //       {
+    //         description : {
+    //           $regex:'.*' + this.keywords + '.*',
+    //           $options: 'i'
+    //         },
+    //       }
+    //     )
+    // }
       if (this.selectedOnly) {
         // 如果设置了只看精选
         query.isSelected = true;
@@ -532,6 +611,7 @@ export default class DiscussionRoomDetail extends wepy.page {
   
   onReachBottom() {
     this.loadQuestion()
+    this.loadSearch()
   }
   onPageScroll(obj){
     this.scroll = obj.scrollTop
