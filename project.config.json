@@ -31,6 +31,10 @@
 		"game": {
 			"list": []
 		},
+		"gamePlugin": {
+			"current": -1,
+			"list": []
+		},
 		"miniprogram": {
 			"current": 17,
 			"list": [
@@ -79,7 +83,7 @@
 					"id": 6,
 					"name": "答疑室详情页",
 					"pathName": "pages/discussionRoom/detail",
-					"query": "scene=XIxP1pT75u22ltMU",
+					"query": "scene=XIxPt3ffS3SWGQMK",
 					"scene": null
 				},
 				{
