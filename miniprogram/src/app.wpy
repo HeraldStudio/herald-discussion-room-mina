@@ -8,14 +8,14 @@
   box-sizing: border-box;
 }
 
-.regular{
-  color:#333;
+.regular {
+  color: #333;
   font-size: 40rpx;
 }
 
 .secondary {
   font-size: 32rpx;
-  color:#888;
+  color: #888;
 }
 
 .bold {
@@ -26,19 +26,19 @@
   text-align: center;
 }
 .loading {
-  background:#eee;
+  background: #eee;
   border-radius: 10rpx;
 }
 
 .dot-line {
   border-top-style: dashed;
   border-top-width: 2rpx;
-  border-top-color: #E0E0E0;
+  border-top-color: #e0e0e0;
 }
 .line {
   border-top-style: solid;
   border-top-width: 1rpx;
-  border-top-color: #E0E0E0;
+  border-top-color: #e0e0e0;
 }
 
 .button {
@@ -47,25 +47,25 @@
   font-weight: bold;
 }
 
-.button-less{
-  box-sizing:content-box;
+.button-less {
+  box-sizing: content-box;
   line-height: inherit;
   text-align: left;
-  margin:0;
+  margin: 0;
 }
 
-.button-less[plain]{
+.button-less[plain] {
   border: 0;
   padding: 0;
 }
 </style>
 
 <script>
-import wepy from 'wepy'
-import 'wepy-async-function'
-import callFunction from './utils/callFunction'
-import getUserInfo from './utils/getUserInfo'
-import qs from 'querystring'
+import wepy from 'wepy';
+import 'wepy-async-function';
+import callFunction from './utils/callFunction';
+import getUserInfo from './utils/getUserInfo';
+import qs from 'querystring';
 
 export default class extends wepy.app {
   config = {
@@ -89,76 +89,86 @@ export default class extends wepy.app {
       backgroundTextStyle: 'light',
       navigationBarBackgroundColor: '#fff',
       navigationBarTitleText: '小猴答疑室',
-      navigationBarTextStyle: 'black',
+      navigationBarTextStyle: 'black'
     },
-    navigateToMiniProgramAppIdList: ["wxaef6d2413690047f"]
-  }
+    navigateToMiniProgramAppIdList: ['wxaef6d2413690047f']
+  };
 
   globalData = {
     userInfo: null
-  }
+  };
 
-  constructor () {
-    super()
-    this.use('requestfix')
+  constructor() {
+    super();
+    this.use('requestfix');
   }
 
   onLaunch() {
     // 初始化云环境
-    wx.cloud.init('discussion-room-3fd312')
+    wx.cloud.init('discussion-room-3fd312');
     // 调用云函数获取用户信息
-    const updateManager = wx.getUpdateManager()
+    const updateManager = wx.getUpdateManager();
 
-    updateManager.onCheckForUpdate(function (res) {
+    updateManager.onCheckForUpdate(function(res) {
       // 请求完新版本信息的回调
-      console.log(res.hasUpdate)
-    })
+      console.log(res.hasUpdate);
+    });
 
-    updateManager.onUpdateReady(function () {
+    updateManager.onUpdateReady(function() {
       wx.showModal({
         title: '更新提示',
         content: '新版本已经准备好，是否重启应用？',
         success(res) {
           if (res.confirm) {
             // 新的版本已经下载好，调用 applyUpdate 应用新版本并重启
-            updateManager.applyUpdate()
+            updateManager.applyUpdate();
           }
         }
-      })
-    })
+      });
+    });
 
-    updateManager.onUpdateFailed(function () {
+    updateManager.onUpdateFailed(function() {
       // 新版本下载失败
-    })
+    });
   }
 
   onShow(obj) {
-
-    if(obj.scene === 1038){
+    if (obj.scene === 1038) {
       // 对接统一身份认证小程序
-      if( obj.referrerInfo && obj.referrerInfo.extraData && obj.referrerInfo.appId === 'wxaef6d2413690047f') {
-        let {cardnum, name, identity} = obj.referrerInfo.extraData
-        callFunction('userInfo/add',{cardnum, name, identity}).then(console.log)
-        let reLaunchUrl = wx.getStorageSync('pageUrl')
-        reLaunchUrl = reLaunchUrl ? '/' + reLaunchUrl : '/pages/index'
-        wx.removeStorageSync('pageUrl')
-        wx.reLaunch({url:reLaunchUrl}) 
+      if (
+        obj.referrerInfo &&
+        obj.referrerInfo.extraData &&
+        obj.referrerInfo.appId === 'wxaef6d2413690047f'
+      ) {
+        let { cardnum, name, identity } = obj.referrerInfo.extraData;
+        callFunction('userInfo/add', { cardnum, name, identity }).then(
+          console.log
+        );
+        let reLaunchUrl = wx.getStorageSync('pageUrl');
+        reLaunchUrl = reLaunchUrl ? '/' + reLaunchUrl : '/pages/index';
+        wx.removeStorageSync('pageUrl');
+        wx.reLaunch({ url: reLaunchUrl });
       } else {
         // 没有完成认证，baby one more time
-        wx.reLaunch({url:'/pages/authorize'}) 
+        wx.reLaunch({ url: '/pages/authorize' });
       }
     } else {
-      console.log(obj)
-      let pageUrl = `${obj.path}?${qs.stringify(obj.query)}`
-      console.log(pageUrl)
-      wx.setStorageSync('launchQuery',obj.query)
-      wx.setStorageSync('pageUrl', pageUrl)
-      getUserInfo()
+      let pageUrl = `${obj.path}?${qs.stringify(obj.query)}`;
+      wx.setStorageSync('launchQuery', obj.query);
+      wx.setStorageSync('pageUrl', pageUrl);
+      getUserInfo();
+      wx.getClipboardData({
+        success(res) {
+          let sms = res.data
+          if(sms.startsWith('【小猴答疑室】')){
+            let id = sms.split('<')[1].split('>')[0];
+            wx.setClipboardData({data:'',success:()=>{
+              wx.redirectTo({url:`/pages/question/detail?questionId=${id}`})
+            }})
+          }
+        }
+      });
     }
   }
-
- 
-
-  
 }
 </script>

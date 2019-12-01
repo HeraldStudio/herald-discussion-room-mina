@@ -897,7 +897,6 @@ export default class DiscussionRoomDetail extends wepy.page {
     this.imageCode = info.imageCode
     this.canModify = info.questionerId === userInfo._id
     // 检查是否关注问题
-    console.log({questionId, watcherId:userInfo._id})
     this.isWatched = (await db.collection('WatchQuestion').where({questionId, watcherId:userInfo._id}).count()).total === 1
     await this.loadAnswer()
     wx.hideLoading()

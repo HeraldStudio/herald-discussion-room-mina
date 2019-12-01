@@ -94,7 +94,7 @@ const routes = {
           "parameters":{
             name:notificateUserInfo.name,
             discussionRoomName:discussionRoomInfo.courseName,
-            questionCode
+            questionCode:questionId
           }
         })
       }

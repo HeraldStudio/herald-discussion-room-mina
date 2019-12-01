@@ -102,7 +102,6 @@ export default class CreateDiscussionRoom extends wepy.page {
   methods = {
     async bindsubmit(e) {
       // 读取用户输入
-      console.log(e)
       this.loading = true
       this.$apply()
       let description = e.detail.value.description ? e.detail.value.description : this.description
@@ -149,7 +148,6 @@ export default class CreateDiscussionRoom extends wepy.page {
           this.imageCode = uploadRes.fileID;
           wx.hideLoading();
         } catch (e) {
-          console.log(e);
           wx.hideLoading();
           wx.showToast({
             icon: 'none',
@@ -178,7 +176,6 @@ export default class CreateDiscussionRoom extends wepy.page {
             throw '答案修改失败'
           }
         } catch(e) {
-          console.log(e)
           wx.showToast({
             icon:'none',
             title:'修改失败'
@@ -201,7 +198,7 @@ export default class CreateDiscussionRoom extends wepy.page {
             }
           )
           if(dbRes.errMsg === 'collection.add:ok'){
-            console.log(await callFunction('notification/answer',{questionId:this.questionId, answerId:dbRes._id}))
+            await callFunction('notification/answer',{questionId:this.questionId, answerId:dbRes._id})
             wx.showToast({
               title:'回答成功'
             })
@@ -213,7 +210,6 @@ export default class CreateDiscussionRoom extends wepy.page {
             // TODO：发送提醒
           } else throw '回答失败'
         } catch(e) {
-          console.log(e)
           wx.showToast({
             icon:'none',
             title:'回答失败'

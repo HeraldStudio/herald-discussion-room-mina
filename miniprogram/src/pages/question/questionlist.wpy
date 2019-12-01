@@ -163,7 +163,6 @@ export default class QuestionList extends wepy.page{
         let userInfo = await getUserInfo(wepy)
         let username = userInfo.name
         let userID = userInfo._id
-        console.log(username)
         const db = wx.cloud.database()
         let _this = this
         db.collection('Question').
