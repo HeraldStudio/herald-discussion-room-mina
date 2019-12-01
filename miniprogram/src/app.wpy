@@ -32,7 +32,7 @@
 
 .dot-line {
   border-top-style: dashed;
-  border-top-width: 1rpx;
+  border-top-width: 2rpx;
   border-top-color: #E0E0E0;
 }
 .line {

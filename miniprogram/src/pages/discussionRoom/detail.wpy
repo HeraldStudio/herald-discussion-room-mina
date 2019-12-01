@@ -83,7 +83,7 @@
     margin-left: 30rpx;
     margin-top: 15rpx;
     margin-right: 40rpx;
-    margin-bottom: 0rpx;
+    margin-bottom: 15rpx;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -294,6 +294,11 @@
       view.delete(@tap="deleteRoom") 删除答疑室
       view.assistant(@tap="setAssistant") 设置管理员
     view.sperator
+    view.search-panel(report-submit="true" bindsubmit="collectFormId")
+      view.search-form
+        input.keyword(placeholder="请输入你想查询的问题" adjust-position=false bindinput='setKeywords')
+        view.search-btn( @tap='clickSearch') 查找
+    view.dot-line
     view.filter-panel(report-submit="true" bindsubmit="collectFormId")
       view.sort
         view.tag 排序↓
@@ -302,10 +307,6 @@
         view.tag 只看精选
         icon(@tap="toggleSelected" type="success" size="16" wx:if="{{selectedOnly}}")
         view.circle(wx:else @tap="toggleSelected")
-    view.search-panel(report-submit="true" bindsubmit="collectFormId")
-      view.search-form
-        input.keyword(placeholder="请输入你想查询的问题" adjust-position=false bindinput='setKeywords')
-        view.search-btn( @tap='clickSearch') 查找
     view.dot-line
     form.question-panel(report-submit="true" bindsubmit="collectFormId")
       view.empty(wx:if="{{!hasQuestion}}" @tap="refresh") {{emptyHint}}
