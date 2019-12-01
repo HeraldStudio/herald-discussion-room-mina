@@ -387,7 +387,13 @@ export default class DiscussionRoomDetail extends wepy.page {
   }
   methods = {
     setKeywords(event) {
+      console.log(event.detail.value);
       this.keywords = event.detail.value;
+      if(this.keywords === ''){
+        this.questionList = []
+        this.page = 0
+        this.loadQuestion();
+      }
     },
     async collectFormId(e) {
       let userInfo = await getUserInfo();
@@ -605,6 +611,7 @@ export default class DiscussionRoomDetail extends wepy.page {
           return k;
         })
       );
+      this.questionList.length === 0 ? this.emptyHint = '没有搜索结果': this.emptyHint
       this.loading = false
       this.$apply()
     }
@@ -613,7 +620,6 @@ export default class DiscussionRoomDetail extends wepy.page {
   
   onReachBottom() {
     this.loadQuestion()
-    this.loadSearch()
   }
   onPageScroll(obj){
     this.scroll = obj.scrollTop
