@@ -7,6 +7,12 @@
     margin-left: 30rpx;
     padding-top: 30rpx;
   }
+  .little-hint {
+    font-size: 24rpx;
+    color: #888;
+    margin-left: 30rpx;
+    padding-top: 10rpx;
+  }
   input {
     width: 690rpx;
     border-style: solid none;
@@ -48,6 +54,7 @@
   view#question-create
     form(report-submit="true" bindsubmit="bindsubmit" wx:if="{{!success}}")
       view.hint 问题标题
+      view.little-hint 标题要尽可能涵盖问题涉及的知识点，方便老师及时解答您提出的问题，同时便于检索。
       input(name="title" value="{{title}}" placeholder="不超过20字" maxlength="20" bindinput="bindTitle")
       view.hint 问题描述
       textarea.desc(name="description" value="{{description}}" placeholder="不超过500字" maxlength="500" bindinput="bindDescription")
