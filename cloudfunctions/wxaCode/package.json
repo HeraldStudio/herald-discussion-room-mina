@@ -9,7 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "axios": "^0.18.0",
+    "axios": "^0.21.1",
     "base64-arraybuffer": "^0.1.5",
     "moment": "^2.24.0",
     "wx-js-utils": "^1.0.0",
