@@ -17,7 +17,7 @@
   "author": "Wolf-Tungsten <canis.tungsten@foxmail.com>",
   "license": "MIT",
   "dependencies": {
-    "moment": "^2.24.0",
+    "moment": "^2.29.4",
     "querystring": "^0.2.0",
     "wepy": "^1.7.2",
     "wepy-async-function": "^1.4.4",
