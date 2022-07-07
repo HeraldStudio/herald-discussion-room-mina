@@ -11,7 +11,7 @@
   "dependencies": {
     "axios": "^0.18.0",
     "base64-arraybuffer": "^0.1.5",
-    "moment": "^2.24.0",
+    "moment": "^2.29.4",
     "wx-js-utils": "^1.0.0",
     "wx-server-sdk": "latest"
   }
